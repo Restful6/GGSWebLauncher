@@ -1,0 +1,238 @@
+[
+  {
+    "id": "tnr_forest",
+    "title": "Try Not To Rage: Forest",
+    "status": "Available",
+    "desc": "A frustrating 2D platformer with 25 levels where mistimed jumps and hidden traps send you back to checkpoints repeatedly.",
+    "fullDesc": "Try Not To Rage: Forest is a difficult 2D platformer built around trial and error. The 25 levels are short but unforgiving spike traps, tight jumps and collapsing platforms mean you'll likely die dozens of times before reaching the end. Progress is slow and relies heavily on memorizing layouts rather than reflexes alone.",
+    "image": "https://greekgamesstudios.com/images/try-not-to-rage-forest.png",
+    "url": "https://play.google.com/store/apps/details?id=com.greekgamesstudios.trynottorageforest",
+    "category": "Platformer",
+    "platforms": [
+      "Android"
+    ],
+    "homePage": true,
+    "featured": false,
+    "footer": true,
+    "images": {
+      "card": "https://greekgamesstudios.com/images/TNTRFCard.png",
+      "slide": "https://greekgamesstudios.com/images/try-not-to-rage-forest.png",
+      "banner": "https://greekgamesstudios.com/images/GameTNTRFBanner.png"
+    },
+    "applicationCategory": "Game",
+    "operatingSystem": "Android",
+    "inLanguage": "en",
+    "softwareVersion": "1.0.0",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    },
+    "datePublished": "2025-09-08",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.greekgamesstudios.com/images/ggs-logo.png"
+      }
+    },
+    "trailers": [
+      {
+        "youtubeId": "Vt1Vt5kzc0g",
+        "title": "Trailer 1"
+      },
+      {
+        "youtubeId": "624-kzP-xAw",
+        "title": "Trailer 2"
+      },
+      {
+        "youtubeId": "2rNbxu_7ATE&t=2s",
+        "title": "Trailer 3: The Story"
+      }
+    ]
+  },
+  {
+    "id": "tnr_sky",
+    "title": "Try Not To Rage: Sky",
+    "status": "Available",
+    "desc": "A punishing sky-themed platformer with clouds, hot air balloons and eagles that serve as moving platforms or hazards.",
+    "fullDesc": "Try Not To Rage: Sky continues the series brutal difficulty above the clouds. You navigate between balloons and hot air balloons while eagles patrol set routes hit them wrong and you fall. Each level ends with multiple portals, only one takes you forward, the rest send you back.",
+    "image": "https://greekgamesstudios.com/images/try-not-to-rage-sky.png",
+    "url": "https://play.google.com/store/apps/details?id=com.greekgamesstudios.trynottoragesky",
+    "category": "Platformer",
+    "platforms": [
+      "Android"
+    ],
+    "homePage": true,
+    "featured": false,
+    "footer": true,
+    "images": {
+      "card": "https://greekgamesstudios.com/images/TNTRSCard.png",
+      "slide": "https://greekgamesstudios.com/images/TNTRSSlide.png",
+      "banner": "https://greekgamesstudios.com/images/GameTNTRSBanner.png"
+    },
+    "applicationCategory": "Game",
+    "operatingSystem": "Android",
+    "inLanguage": "en",
+    "softwareVersion": "1.0.0",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    },
+    "datePublished": "2025-10-12",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.greekgamesstudios.com/images/ggs-logo.png"
+      }
+    }
+  },
+  {
+    "id": "shapes_into_crime",
+    "title": "Shapes Into Crime",
+    "status": "Coming Soon",
+    "desc": "A top-down action game where geometric shapes pull off heists, fight police and guards and unlock pieces of a larger criminal story.",
+    "fullDesc": "Shapes Into Crime puts you in control of a geometric shape in a world where every character is also a shape. Gameplay revolves around heists: infiltrate locations, fight guards with weapons, grab the loot, and escape. Between jobs, you unlock story fragments that connect into a larger narrative about the criminal underworld.",
+    "image": "https://greekgamesstudios.com/images/SICLogoF.png",
+    "url": null,
+    "category": "Action",
+    "platforms": [
+      "Android"
+    ],
+    "homePage": false,
+    "featured": true,
+    "footer": false,
+    "images": {
+      "card": "https://greekgamesstudios.com/images/SICCard.png",
+      "slide": "https://greekgamesstudios.com/images/SICLogoF.png",
+      "banner": "https://greekgamesstudios.com/images/FeaturedSICBanner.png"
+    },
+    "bannerLabel": "Coming Soon",
+    "bannerDesc": "Play as a geometric shape pulling off heists, fighting guards and uncovering a criminal underworld story.",
+    "applicationCategory": "Game",
+    "operatingSystem": "Android",
+    "inLanguage": "en",
+    "softwareVersion": "1.0.0",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/PreOrder"
+    },
+    "datePublished": "2026-06-01",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.greekgamesstudios.com/images/ggs-logo.png"
+      }
+    }
+  },
+  {
+    "id": "tech_company_tycoon",
+    "title": "Tech Company Tycoon",
+    "status": "In Development",
+    "desc": "A business sim where you run a small tech office, manage projects, and try to keep cash flow positive while expanding into new product lines.",
+    "fullDesc": "Tech Company Tycoon is a business simulation where you start with a small office and limited funds. You assign staff to projects, balance budgets and decide which products to pursue games, devices, consoles, cars, or robots. Growth is slow, bad decisions lead to layoffs or bankruptcy. Success requires managing timelines, employee skills and market demand.",
+    "image": "https://greekgamesstudios.com/images/TechCompanyTycoon.png",
+    "url": null,
+    "category": "Simulation",
+    "platforms": [
+      "Android"
+    ],
+    "homePage": false,
+    "featured": false,
+    "footer": false,
+    "images": {
+      "card": "https://greekgamesstudios.com/images/TCTCard.png",
+      "slide": "https://greekgamesstudios.com/images/TechCompanyTycoon.png",
+      "banner": "https://greekgamesstudios.com/images/TechCompanyTycoon.png"
+    },
+    "applicationCategory": "Game",
+    "operatingSystem": "Android",
+    "inLanguage": "en",
+    "softwareVersion": "1.0.0",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/PreOrder"
+    },
+    "datePublished": "2026-06-01",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.greekgamesstudios.com/images/ggs-logo.png"
+      }
+    }
+  },
+  {
+    "id": "ggshub",
+    "title": "GGS Hub",
+    "status": "Coming Soon",
+    "desc": "The official Greek Games Studios app with news, a games library, mini games with leaderboards and a virtual coin system.",
+    "fullDesc": "GGS Hub is the official app for Greek Games Studios. It collects studio news, patch notes and announcements in one feed, plus a browsable library of released and upcoming games. The app also includes mini games with global leaderboards and a virtual currency called GGSCoins, earned through daily logins and mini game scores.",
+    "image": "https://greekgamesstudios.com/images/ggs-logo.png",
+    "url": "https://play.google.com/store/apps/details?id=com.greekgamesstudios.ggshub",
+    "category": "App",
+    "platforms": [
+      "Android"
+    ],
+    "homePage": true,
+    "featured": false,
+    "footer": true,
+    "images": {
+      "card": "https://greekgamesstudios.com/images/GGSHubCard.png",
+      "slide": "https://greekgamesstudios.com/images/ggshub.png",
+      "banner": "https://greekgamesstudios.com/images/GameHubBanner.png"
+    },
+    "applicationCategory": "Game",
+    "operatingSystem": "Android",
+    "inLanguage": "en",
+    "softwareVersion": "1.0.0",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/PreOrder"
+    },
+    "datePublished": "2026-06-01",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.greekgamesstudios.com/images/ggs-logo.png"
+      }
+    }
+  }
+]

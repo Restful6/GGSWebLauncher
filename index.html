@@ -692,8 +692,8 @@
   async function init() {
     try {
       const [demosRes, gamesRes] = await Promise.all([
-        fetch('/api/demos'),
-        fetch('/api/games')
+        fetch('/demos.json'),
+        fetch('/games.json')
       ]);
       const demosData = await demosRes.json();
       const gamesData = await gamesRes.json();
