@@ -1,0 +1,38 @@
+# Greek Games Studios Web Launcher - robots.txt
+# Updated: 2026-06-29
+# https://weblauncher.greekgamesstudios.com
+
+# ============================================
+# ALL CRAWLERS
+# ============================================
+User-agent: *
+Allow: /
+
+# Utility / non-indexable pages
+Disallow: /404.html
+
+# ============================================
+# AI CRAWLERS (Explicit Allow)
+# ============================================
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# ============================================
+# SITEMAP DECLARATION
+# ============================================
+Sitemap: https://weblauncher.greekgamesstudios.com/sitemap.xml
