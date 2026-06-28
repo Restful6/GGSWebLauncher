@@ -13,104 +13,104 @@
       "title": "Cyber Putt",
       "tag": "MINI GAME",
       "desc": "A cyberpunk mini golf game with drag-to-shoot controls, nine procedurally generated holes and reactive obstacles including bouncers, sand traps, boost pads and portals. Features a par-based scoring system with stroke ratings from hole-in-one to double bogey.",
-      "image": "https://greekgamesstudios.com/images/WebCyberPuttLogo.png",
-      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Cyber-Putt/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebCyberPuttLogo.png",
+      "url": "https://weblauncher.greekgamesstudios.com/Cyber-Putt/Main.html"
     },
     {
       "id": "mg_3",
       "title": "Breakout",
       "tag": "MINI GAME",
       "desc": "A retro brick-breaker with six progressive levels, power-up drops and multi-ball mechanics. Features paddle-angle aiming, particle bursts on brick destruction and a local high-score system.",
-      "image": "https://greekgamesstudios.com/images/WebBreakoutLogo.png",
-      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Breakout/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebBreakoutLogo.png",
+      "url": "https://weblauncher.greekgamesstudios.com/Breakout/Main.html"
     },
     {
       "id": "mg_4",
       "title": "Maze of Echoes",
       "tag": "MINI GAME",
       "desc": "A top-down maze explorer with 30 hand-designed levels, fog-of-war visibility and split-screen two-player racing. Features step particles, collision sparks, screen shake and a mobile D-pad for touch controls.",
-      "image": "https://greekgamesstudios.com/images/WebMaze-of-EchoesLogo.png",
-      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Maze-of-Echoes/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebMaze-of-EchoesLogo.png",
+      "url": "https://weblauncher.greekgamesstudios.com/Maze-of-Echoes/Main.html"
     },
     {
       "id": "mg_5",
       "title": "Epic Memory Game",
       "tag": "MINI GAME",
       "desc": "A card-matching memory game with ten icon themes, three difficulty levels and a combo streak scoring system. Features a timed peek phase, confetti win celebration and local two-player competitive mode.",
-      "image": "https://greekgamesstudios.com/images/WebEpic-Memory-GameLogo.png",
-      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Epic-Memory-Game/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebEpic-Memory-GameLogo.png",
+      "url": "https://weblauncher.greekgamesstudios.com/Epic-Memory-Game/Main.html"
     },
     {
       "id": "mg_6",
       "title": "Tic Tac Toe",
       "tag": "MINI GAME",
       "desc": "A classic Tic Tac Toe with three AI difficulty levels powered by alpha-beta minimax, SVG win-line animations and a persistent score tracker. Features hover ghost marks, win cell highlighting and a particle background.",
-      "image": "https://greekgamesstudios.com/images/Web-Tac-ToeLogo.png",
-      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Tac-Toe/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/Web-Tac-ToeLogo.png",
+      "url": "https://weblauncher.greekgamesstudios.com/Tac-Toe/Main.html"
     },
     {
       "id": "mg_7",
       "title": "Strike Billiards",
       "tag": "MINI GAME",
       "desc": "A drag-to-shoot pool game with realistic ball physics, elastic collisions and pocket detection. Supports up to four players with combo scoring, scratch penalties and a win screen with ranked results.",
-      "image": "https://greekgamesstudios.com/images/WebStrikeBilliardsLogo.png",
-      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Strike-Billiards/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebStrikeBilliardsLogo.png",
+      "url": "https://weblauncher.greekgamesstudios.com/Strike-Billiards/Main.html"
     },
     {
       "id": "mg_8",
       "title": "Cyber Worm",
       "tag": "MINI GAME",
       "desc": "A Snake-inspired arcade game with a cyberpunk aesthetic, featuring power-ups (Shield, Overclock, Ghost, Virus), combo scoring, firewall obstacles and both single-player campaign and local multiplayer modes with up to three players.",
-      "image": "https://greekgamesstudios.com/images/WebCYBER-WORM.png",
-      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/CYBER-WORM/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebCYBER-WORM.png",
+      "url": "https://weblauncher.greekgamesstudios.com/CYBER-WORM/Main.html"
     },
     {
       "id": "mg_9",
       "title": "DroneX",
       "tag": "MINI GAME",
       "desc": "A cyberpunk drone survival game with tap-to-fly controls, moving obstacles, combo scoring, data chip collection and power-ups including EMP blasts and shield orbs.",
-      "image": "https://www.greekgamesstudios.com/images/WebDRONEX.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/DroneX/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebDRONEX.png",
+      "url": "https://weblauncher.greekgamesstudios.com/DroneX/Main.html"
     },
     {
       "id": "mg_10",
       "title": "Grid Breach",
       "tag": "MINI GAME",
       "desc": "A cyberpunk block-stacking game with a 12×22 grid, nine unique pentomino pieces and power-ups including Purge, Shield, Nova bomb and Overclock. Features a glitch morph mechanic, garbage rows at higher levels, combo chains and a dramatic system overload game-over animation.",
-      "image": "https://www.greekgamesstudios.com/images/WebGRID-BREACH.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/Grid-Breach/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebGRID-BREACH.png",
+      "url": "https://weblauncher.greekgamesstudios.com/Grid-Breach/Main.html"
     },
     {
       "id": "mg_11",
       "title": "Data Link",
       "tag": "MINI GAME",
       "desc": "Rotate pipe segments on a grid to connect data nodes from source to target. Decrypt locked cells, survive glitch cells that auto-rotate and manage system integrity before the timer depletes. Grid size and hazard frequency scale with each level.",
-      "image": "https://www.greekgamesstudios.com/images/WebDATA-LINK.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/Data-Link/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebDATA-LINK.png",
+      "url": "https://weblauncher.greekgamesstudios.com/Data-Link/Main.html"
     },
     {
       "id": "mg_12",
       "title": "Cyber Swarm",
       "tag": "MINI GAME",
       "desc": "Pixel aliens descend from above. Move horizontally, shoot and dodge enemy fire. Collect power-ups (triple shot, shield, bomb) and survive as many waves as possible. Every fifth wave triggers a boss fight. Available in solo and co-op mode.",
-      "image": "https://www.greekgamesstudios.com/images/WebCyber-Swarm.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/Cyber-Swarm/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebCyber-Swarm.png",
+      "url": "https://weblauncher.greekgamesstudios.com/Cyber-Swarm/Main.html"
     },
     {
       "id": "mg_13",
       "title": "Road Rivals",
       "tag": "MINI GAME",
       "desc": "Top-down street racing against AI traffic and rival cars. Dodge cones, barriers and oil slicks while collecting boost, shields and coins. Build your score multiplier with near-misses. Supports local multiplayer for up to four drivers with three difficulty levels.",
-      "image": "https://www.greekgamesstudios.com/images/WebRoad-Rivals.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/Road-Rivals/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebRoad-Rivals.png",
+      "url": "https://weblauncher.greekgamesstudios.com/Road-Rivals/Main.html"
     },
     {
      "id": "mg_14",
       "title": "Hand Duel",
       "tag": "MINI GAME",
       "desc": "A beautifully crafted Rock Paper Scissors experience reimagined as a tense card duel. Outsmart the AI in best-of-5 battles, chain win streaks and enjoy sharp taunts with stunning card flips and visual effects.",
-      "image": "https://www.greekgamesstudios.com/images/WebHand-Duel.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/Hand-Duel/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebHand-Duel.png",
+      "url": "https://weblauncher.greekgamesstudios.com/Hand-Duel/Main.html"
     }
   ],
   "demos": [
@@ -119,8 +119,8 @@
       "title": "Try Not To Rage Series",
       "tag": "DEMO",
       "desc": "Information and prototypes before the official release of the Try Not To Rage game series. Play and learn what to expect in the full game!",
-      "image": "https://www.greekgamesstudios.com/images/TNTR.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/TNTRGS/try-not-to-rage.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/TNTR.png",
+      "url": "https://weblauncher.greekgamesstudios.com/TNTRGS/try-not-to-rage.html"
     }
   ]
 }
