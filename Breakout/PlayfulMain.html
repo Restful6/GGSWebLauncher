@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Breakout</title>
+
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Greek Games Studios">
+  <link rel="canonical" href="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Breakout/Main.html">
+  
+  <meta name="description" content="Play BREAKOUT, a free browser mini game by Greek Games Studios. Classic BREAKOUT reimagined with modern graphics and AI opponents. Play instantly, no download required.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="BREAKOUT - Free Browser Mini Game | Greek Games Studios">
+  <meta property="og:description" content="Play BREAKOUT instantly in your browser. Classic arcade action with modern visuals. No download needed.">
+  <meta property="og:image" content="https://greekgamesstudios.com/images/WebBreakoutLogo.png">
+  <meta property="og:url" content="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Breakout/Main.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Greek Games Studios">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BREAKOUT - Free Browser Mini Game">
+  <meta name="twitter:description" content="Play BREAKOUT instantly in your browser. No download needed.">
+  <meta name="twitter:image" content="https://greekgamesstudios.com/images/WebBreakoutLogo.png">
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "BREAKOUT",
+    "description": "A free browser-based mini game. Classic BREAKOUT reimagined with modern graphics and AI opponents.",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "url": "https://greekgamesstudios.com"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "genre": ["Arcade", "Classic", "Mini Game"],
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any",
+    "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Breakout/Main.html"
+  }
+  </script>
+
+<link rel="icon" type="png" href="/images/WebBreakoutLogo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0a0a1a;
+  --bg2:      #0d0d22;
+  --border:   #2a2a6a;
+  --title:    #f0c040;
+  --score:    #60c8ff;
+  --cyan:     #00e5ff;
+  --magenta:  #ff40c0;
+  --green:    #40ff80;
+  --red:      #ff4040;
+  --overlay:  rgba(6,6,22,0.95);
+}
+
+body {
+  background: var(--bg);
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+  /* Subtle scanline texture on body */
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,40,0.18) 3px,
+    rgba(0,0,40,0.18) 4px
+  );
+}
+
+/* ── TITLE ── */
+h1 {
+  font-size: clamp(0.9rem, 2.4vw, 1.6rem);
+  color: var(--title);
+  letter-spacing: 10px;
+  text-shadow:
+    0 0 8px rgba(240,192,64,0.7),
+    0 2px 0 #7a5a00,
+    0 4px 0 #4a3600;
+  margin-bottom: 5px;
+  image-rendering: pixelated;
+}
+
+/* ── WRAPPER ── */
+.wrapper {
+  position: relative;
+  width: min(1200px, 98vw);
+  aspect-ratio: 3/2;
+}
+
+/* ── STATS BAR ── */
+.stats {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 4px 10px;
+  font-size: clamp(0.4rem, 0.95vw, 0.68rem);
+  color: var(--score);
+  background: rgba(0,0,30,0.7);
+  border: 1px solid var(--border);
+  border-bottom: none;
+}
+.stats span { flex: 1; }
+#score-el   { text-align: left; }
+#level-el   { text-align: center; color: var(--title); }
+#lives-el   { text-align: right; white-space: nowrap; color: var(--red); }
+
+/* ── CANVAS ── */
+canvas {
+  background: var(--bg2);
+  border: 2px solid var(--border);
+  border-top: 1px solid #1a1a4a;
+  width: 100%;
+  height: auto;
+  display: block;
+  cursor: default;
+  image-rendering: pixelated;
+}
+
+/* ── DRAG ZONE (touch only) — sits BELOW the canvas ── */
+.drag-zone-bar {
+  display: none;
+  width: 100%;
+  height: clamp(52px, 14vw, 80px);
+  margin-top: 4px;
+  background: rgba(10,10,40,0.82);
+  border: 2px solid #2a2a6a;
+  border-radius: 3px;
+  position: relative;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: none;
+  overflow: hidden;
+}
+/* Subtle inner gradient */
+.drag-zone-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(40,80,200,0.08), rgba(10,20,80,0.18));
+  pointer-events: none;
+}
+/* Pill / drag handle indicator */
+.drag-zone-bar::after {
+  content: 'DRAG TO MOVE';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  inset: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.28rem, 1.8vw, 0.44rem);
+  color: rgba(80,140,255,0.32);
+  letter-spacing: 3px;
+  pointer-events: none;
+}
+
+/* On touch devices: show drag bar, make canvas taller (more square) */
+@media (pointer: coarse) {
+  .drag-zone-bar { display: block; }
+  /* Slightly more square on mobile for better brick visibility */
+  .wrapper { aspect-ratio: 4/3; }
+}
+
+/* ── OVERLAYS ── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay);
+  border: 2px solid #333388;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 10;
+  padding: 16px;
+  gap: 10px;
+}
+
+#pause-menu, #game-over-menu, #level-menu { display: none; }
+
+.overlay h2 {
+  font-size: clamp(1rem, 3.2vw, 2rem);
+  color: var(--title);
+  text-shadow:
+    0 0 10px rgba(240,192,64,0.6),
+    0 3px 0 #5a4000;
+  margin-bottom: 6px;
+}
+
+.overlay p {
+  font-size: clamp(0.4rem, 0.95vw, 0.65rem);
+  line-height: 2.6;
+  color: #aacce8;
+  max-width: 520px;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  background: #0a0a30;
+  color: var(--cyan);
+  border: 2px solid var(--cyan);
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.48rem, 1.1vw, 0.78rem);
+  padding: 11px 22px;
+  cursor: pointer;
+  width: clamp(170px, 28vw, 300px);
+  margin-top: 4px;
+  box-shadow: 0 4px 0 #003344, inset 0 1px 0 rgba(255,255,255,0.08);
+  transition: background 0.1s, color 0.1s, transform 0.07s, box-shadow 0.07s;
+  border-radius: 2px;
+}
+.btn:hover, .btn:focus {
+  background: var(--cyan);
+  color: #000822;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 #003344;
+  outline: none;
+}
+.btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #003344;
+}
+
+/* ── PU LEGEND ── */
+.pu-legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 2px 0;
+  font-size: clamp(0.32rem, 0.75vw, 0.52rem);
+  color: #888;
+}
+.pu-legend span { white-space: nowrap; }
+
+.hs-text { font-size: clamp(0.36rem, 0.82vw, 0.56rem); color: #ffaa44; }
+.footer  { font-size: 0.42rem; opacity: 0.28; margin-top: 4px; color: #aaa; }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<h1>BREAKOUT</h1>
+
+<div class="wrapper">
+  <div class="stats">
+    <span id="score-el">SCORE: 0</span>
+    <span id="level-el">LEVEL 1</span>
+    <span id="lives-el">❤ ❤ ❤ ❤ ❤</span>
+  </div>
+  <canvas id="c"></canvas>
+
+  <!-- ── OVERLAYS ── -->
+  <div id="start-menu" class="overlay">
+    <h2>BREAKOUT</h2>
+    <p>A-D / ARROWS / TOUCH<br>P = PAUSE &nbsp; ESC = RESUME</p>
+    <div class="pu-legend">
+      <span style="color:#ffaa00">▬ WIDE PADDLE</span>
+      <span style="color:#44ffaa">▼ SLOW BALL</span>
+      <span style="color:#ff4466">♥ EXTRA LIFE</span>
+      <span style="color:#ff88ff">✦ MULTI-BALL</span>
+    </div>
+    <div id="hs-el" class="hs-text"></div>
+    <button id="btn-start" class="btn">START GAME</button>
+    <div class="footer">Greek Games Studios</div>
+  </div>
+
+  <div id="pause-menu" class="overlay">
+    <h2>PAUSED</h2>
+    <button id="btn-resume" class="btn">RESUME</button>
+    <button id="btn-quit"   class="btn">MAIN MENU</button>
+  </div>
+
+  <div id="level-menu" class="overlay">
+    <h2 id="lvl-title">LEVEL 2!</h2>
+    <p id="lvl-desc">GET READY</p>
+    <button id="btn-next" class="btn">CONTINUE</button>
+  </div>
+
+  <div id="game-over-menu" class="overlay">
+    <h2 id="over-msg">GAME OVER</h2>
+    <p id="over-score"></p>
+    <button id="btn-again" class="btn">PLAY AGAIN</button>
+  </div>
+</div>
+
+<!-- Drag zone bar: touch only, sits below canvas, used to drag paddle -->
+<div class="drag-zone-bar" id="drag-zone-bar"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  CANVAS
+// ═══════════════════════════════════════════════════════════
+const c   = document.getElementById('c');
+const ctx = c.getContext('2d', { alpha: false });
+const W   = c.width  = 1200;
+const H   = c.height = 800;
+
+// ═══════════════════════════════════════════════════════════
+//  DOM REFS
+// ═══════════════════════════════════════════════════════════
+const $score = document.getElementById('score-el');
+const $lives = document.getElementById('lives-el');
+const $level = document.getElementById('level-el');
+const $hs    = document.getElementById('hs-el');
+const MENUS  = {
+  start : document.getElementById('start-menu'),
+  pause : document.getElementById('pause-menu'),
+  level : document.getElementById('level-menu'),
+  over  : document.getElementById('game-over-menu'),
+};
+
+// ═══════════════════════════════════════════════════════════
+//  roundRect POLYFILL
+// ═══════════════════════════════════════════════════════════
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r) {
+    r = Math.min(+r||0, w/2, h/2);
+    this.beginPath();
+    this.arcTo(x+w,y,   x+w,y+h, r);
+    this.arcTo(x+w,y+h, x,  y+h, r);
+    this.arcTo(x,  y+h, x,  y,   r);
+    this.arcTo(x,  y,   x+w,y,   r);
+    this.closePath();
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AUDIO
+// ═══════════════════════════════════════════════════════════
+let audio = null;
+const SFX = {
+  paddle   : { t:'square',   f:220, g:0.07, d:0.06 },
+  brick    : { t:'triangle', f:440, g:0.07, d:0.05 },
+  wall     : { t:'sine',     f:130, g:0.04, d:0.04 },
+  lose     : { t:'sawtooth', f:90,  g:0.10, d:0.30 },
+  power    : { t:'sine',     f:700, g:0.09, d:0.18 },
+  hard     : { t:'square',   f:260, g:0.05, d:0.04 },
+  levelup  : { t:'triangle', f:880, g:0.08, d:0.20 },
+};
+function beep(type) {
+  try {
+    if (!audio) audio = new (window.AudioContext||window.webkitAudioContext)();
+    if (audio.state === 'suspended') audio.resume();
+    const s = SFX[type]; if (!s) return;
+    const o = audio.createOscillator();
+    const g = audio.createGain();
+    o.connect(g); g.connect(audio.destination);
+    const t = audio.currentTime;
+    o.type = s.t;
+    o.frequency.setValueAtTime(s.f, t);
+    g.gain.setValueAtTime(s.g, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + s.d);
+    o.start(t); o.stop(t + s.d);
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PALETTE  — vivid arcade, 8 colors, no pastels
+// ═══════════════════════════════════════════════════════════
+const PAL = [
+  '#e03040', // 0 red
+  '#f07010', // 1 orange
+  '#e8c800', // 2 yellow
+  '#20d060', // 3 green
+  '#10b8e8', // 4 sky
+  '#8030e8', // 5 purple
+  '#e030a0', // 6 pink
+  '#c0c0c0', // 7 silver (armored)
+];
+
+// ═══════════════════════════════════════════════════════════
+//  STARFIELD  (pre-generated, reused every frame)
+// ═══════════════════════════════════════════════════════════
+const STARS = [];
+(function() {
+  for (let i=0; i<120; i++) {
+    STARS.push({
+      x: Math.random()*W,
+      y: Math.random()*H,
+      r: Math.random()*1.2+0.3,
+      a: Math.random()*0.55+0.1,
+    });
+  }
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  LEVEL DEFINITIONS
+// ═══════════════════════════════════════════════════════════
+const LEVELS = [
+  {
+    name:'LEVEL 1', desc:'CLASSIC',
+    rows:6, cols:12, speed:1.0,
+    layout:(r,c)=>({ ok:true, hits:1, ci:r%6 }),
+  },
+  {
+    name:'LEVEL 2', desc:'CHECKERBOARD',
+    rows:7, cols:12, speed:1.12,
+    layout:(r,c)=>({ ok:(r+c)%2===0, hits:1, ci:r%6 }),
+  },
+  {
+    name:'LEVEL 3', desc:'DIAMOND',
+    rows:9, cols:13, speed:1.22,
+    layout:(r,c,R,C)=>{
+      const d = Math.abs(r-(R-1)/2) + Math.abs(c-(C-1)/2);
+      return { ok:d<=5, hits:1, ci:Math.round(d)%6 };
+    },
+  },
+  {
+    name:'LEVEL 4', desc:'ARMORED BRICKS',
+    rows:7, cols:12, speed:1.35,
+    layout:(r,c)=>({
+      ok:true,
+      hits: r<3 ? 2 : 1,
+      ci:  r<3 ? 7 : r%6,
+    }),
+  },
+  {
+    name:'LEVEL 5', desc:'TRIANGLE',
+    rows:8, cols:13, speed:1.48,
+    layout:(r,c,R,C)=>{
+      const m = R-1-r;
+      return { ok:c>=m&&c<C-m, hits:r<2?2:1, ci:r%6 };
+    },
+  },
+  {
+    name:'LEVEL 6', desc:'MAXIMUM OVERDRIVE',
+    rows:8, cols:13, speed:1.68,
+    layout:(r,c)=>({
+      ok:true,
+      hits: r<2 ? 3 : r<5 ? 2 : 1,
+      ci:  r<2 ? 7 : r%6,
+    }),
+  },
+];
+
+function levelDef() { return LEVELS[Math.min(level-1, LEVELS.length-1)]; }
+
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let gameState = 'menu';
+let score = 0, lives = 5, level = 1;
+let highScore = 0;
+try { highScore = parseInt(localStorage.getItem('brk_hs')||'0')||0; } catch(e){}
+let keys = {}, touchX = null;
+let dragStartClientX = null, dragStartPadX = null;let rafId = null, lastTs = 0;
+let visibleBricks = 0;
+
+// ═══════════════════════════════════════════════════════════
+//  PADDLE
+// ═══════════════════════════════════════════════════════════
+const PAD = {
+  x:W/2-80, y:H-46, w:160, h:16,
+  targetW:160, speed:15,
+
+  draw() {
+    const x=this.x, y=this.y, w=this.w, h=this.h;
+    // Main body — flat bright blue
+    ctx.fillStyle = '#1060d0';
+    ctx.fillRect(x, y, w, h);
+    // Top bevel highlight (lighter)
+    ctx.fillStyle = '#4090ff';
+    ctx.fillRect(x, y, w, 3);
+    // Bottom bevel shadow
+    ctx.fillStyle = '#0030a0';
+    ctx.fillRect(x, y+h-3, w, 3);
+    // Left bevel
+    ctx.fillStyle = '#3070e0';
+    ctx.fillRect(x, y+3, 3, h-6);
+    // Right bevel
+    ctx.fillStyle = '#0040b0';
+    ctx.fillRect(x+w-3, y+3, 3, h-6);
+    // Center glint
+    ctx.fillStyle = 'rgba(160,200,255,0.35)';
+    ctx.fillRect(x + Math.floor(w*0.25), y+2, Math.floor(w*0.5), 3);
+  },
+
+  move(dt) {
+    // If relative drag is active, PAD.x is already set directly in onTouchMove.
+    // touchX is kept in sync; we skip interpolation to avoid fighting the drag.
+    if (touchX !== null && dragStartClientX !== null) {
+      // Direct drag — clamp only
+      this.x = Math.max(0, Math.min(W - this.w, this.x));
+    } else if (touchX !== null) {
+      // Fallback absolute touch (shouldn't normally trigger now)
+      const tx = touchX - this.w/2;
+      this.x += (tx - this.x) * Math.min(1, dt*18);
+    } else {
+      // Keyboard + mobile buttons
+      // Keyboard only
+      if (keys['ArrowRight'] || keys['d'] || keys['D']) this.x += this.speed;
+      if (keys['ArrowLeft']  || keys['a'] || keys['A']) this.x -= this.speed;
+    }
+    // Width tween
+    if (Math.abs(this.w - this.targetW) > 0.5) this.w += (this.targetW - this.w) * 0.1;
+    // Clamp
+    this.x = Math.max(0, Math.min(W - this.w, this.x));
+  },
+
+  reset() { this.x=W/2-80; this.w=this.targetW=160; },
+};
+
+// ═══════════════════════════════════════════════════════════
+//  BALL
+// ═══════════════════════════════════════════════════════════
+const BALL_R   = 9;
+const BASE_SPD = 6.5;
+let balls = [];
+
+class Ball {
+  constructor(x, y) {
+    this.x = x ?? PAD.x + PAD.w/2;
+    this.y = y ?? PAD.y - BALL_R - 2;
+    const spd = BASE_SPD * levelDef().speed;
+    const ang  = (0.22 + Math.random()*0.56) * Math.PI;
+    this.dx = Math.cos(ang) * spd * (Math.random()>.5 ? 1 : -1);
+    this.dy = -Math.abs(Math.sin(ang) * spd);
+    this.spd = spd;
+    this.trail = [];
+  }
+
+  draw() {
+    // Trail
+    for (let i=0; i<this.trail.length; i++) {
+      const t  = this.trail[i];
+      const a  = (i / this.trail.length) * 0.3;
+      const ri = BALL_R * (i / this.trail.length) * 0.55;
+      ctx.globalAlpha = a;
+      ctx.fillStyle   = '#70c0ff';
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, ri, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    // Ball — white core with arcade-bright shading
+    ctx.fillStyle = '#e0f4ff';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, BALL_R, 0, Math.PI*2);
+    ctx.fill();
+    // Bottom shade
+    ctx.fillStyle = '#60b0e0';
+    ctx.beginPath();
+    ctx.arc(this.x+1, this.y+3, BALL_R*0.65, 0, Math.PI*2);
+    ctx.fill();
+    // Core white
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(this.x-2, this.y-2, BALL_R*0.45, 0, Math.PI*2);
+    ctx.fill();
+    // Specular
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.beginPath();
+    ctx.arc(this.x-3, this.y-3, BALL_R*0.22, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  move() {
+    this.trail.push({x:this.x, y:this.y});
+    if (this.trail.length > 7) this.trail.shift();
+
+    this.x += this.dx;
+    this.y += this.dy;
+
+    if (this.x + BALL_R > W) {
+      this.x = W - BALL_R;
+      this.dx = -Math.abs(this.dx);
+      beep('wall');
+    } else if (this.x - BALL_R < 0) {
+      this.x = BALL_R;
+      this.dx = Math.abs(this.dx);
+      beep('wall');
+    }
+    if (this.y - BALL_R < 0) {
+      this.y = BALL_R;
+      this.dy = Math.abs(this.dy);
+      beep('wall');
+    }
+  }
+
+  offScreen() { return this.y - BALL_R > H; }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BRICK  — pixel-art bevel style
+// ═══════════════════════════════════════════════════════════
+let bricks = [];
+
+// Pre-compute lighter/darker variants for bevel
+function lighten(hex, amt) {
+  let n = parseInt(hex.slice(1),16);
+  let r = Math.min(255,(n>>16)+amt), g=Math.min(255,((n>>8)&0xff)+amt), b=Math.min(255,(n&0xff)+amt);
+  return `rgb(${r},${g},${b})`;
+}
+function darken(hex, amt) { return lighten(hex, -amt); }
+
+class Brick {
+  constructor(x,y,w,h,color,maxHits,hasPU) {
+    this.x=x; this.y=y; this.w=w; this.h=h;
+    this.color=color; this.maxHits=maxHits; this.hits=0;
+    this.visible=true; this.hasPU=hasPU;
+  }
+
+  draw() {
+    if (!this.visible) return;
+    const {x,y,w,h} = this;
+    const dmg = this.hits / this.maxHits;
+    ctx.globalAlpha = 1 - dmg * 0.38;
+
+    // Main fill
+    ctx.fillStyle = this.color;
+    ctx.fillRect(x, y, w, h);
+
+    // Top highlight (lighter 2px)
+    ctx.fillStyle = lighten(this.color, 70);
+    ctx.fillRect(x, y, w, 2);
+
+    // Left highlight
+    ctx.fillStyle = lighten(this.color, 45);
+    ctx.fillRect(x, y+2, 2, h-4);
+
+    // Bottom shadow
+    ctx.fillStyle = darken(this.color, 70);
+    ctx.fillRect(x, y+h-2, w, 2);
+
+    // Right shadow
+    ctx.fillStyle = darken(this.color, 50);
+    ctx.fillRect(x+w-2, y+2, 2, h-4);
+
+    // Inner face (slightly darker for depth)
+    ctx.fillStyle = darken(this.color, 18);
+    ctx.fillRect(x+2, y+2, w-4, h-4);
+
+    // Restore base color strip in middle
+    ctx.fillStyle = this.color;
+    ctx.fillRect(x+3, y+3, w-6, h-6);
+
+    // Crack overlay for damaged bricks
+    if (this.hits > 0) {
+      ctx.globalAlpha *= 0.8;
+      ctx.strokeStyle = 'rgba(0,0,0,0.9)';
+      ctx.lineWidth   = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x+w*.22, y);
+      ctx.lineTo(x+w*.47, y+h*.55);
+      ctx.lineTo(x+w*.68, y+h);
+      if (this.hits > 1) {
+        ctx.moveTo(x+w*.78, y);
+        ctx.lineTo(x+w*.53, y+h*.4);
+        ctx.lineTo(x+w*.32, y+h);
+      }
+      ctx.stroke();
+    }
+
+    // Power-up dot indicator
+    if (this.hasPU) {
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle   = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(x+w/2, y+h/2, 3, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    ctx.globalAlpha = 1;
+  }
+
+  hit() {
+    this.hits++;
+    if (this.hits >= this.maxHits) { this.visible = false; return 'dead'; }
+    return 'damaged';
+  }
+}
+
+function buildBricks(lvl) {
+  bricks = [];
+  const def = LEVELS[Math.min(lvl-1, LEVELS.length-1)];
+  const { rows, cols } = def;
+  const bW = Math.floor((W - 80) / cols) - 8;
+  const bH = 22;
+  const pX = 8, pY = 8;
+  const oX = (W - (cols*(bW+pX) - pX)) / 2;
+  const oY = 52;
+  visibleBricks = 0;
+
+  for (let r=0; r<rows; r++) {
+    for (let co=0; co<cols; co++) {
+      const info = def.layout(r, co, rows, cols);
+      if (!info.ok) continue;
+      const hasPU = Math.random() < 0.10;
+      bricks.push(new Brick(
+        oX + co*(bW+pX),
+        oY + r*(bH+pY),
+        bW, bH,
+        PAL[info.ci],
+        info.hits,
+        hasPU
+      ));
+      visibleBricks++;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════════════════════════════════
+const pool   = [];
+const active = [];
+const MAX_P  = 120;
+
+function spawnParticles(x, y, color, n) {
+  const add = Math.min(n, MAX_P - active.length);
+  for (let i=0; i<add; i++) {
+    const p = pool.pop() || {};
+    p.x=x; p.y=y; p.c=color;
+    p.r  = Math.random()*3+1;
+    p.dx = (Math.random()-.5)*6;
+    p.dy = (Math.random()-.5)*6;
+    p.life = p.max = 28 + (Math.random()*22)|0;
+    // Alternate between square and dot for pixel feel
+    p.sq = Math.random() > 0.5;
+    active.push(p);
+  }
+}
+
+function tickParticles() {
+  for (let i=active.length-1; i>=0; i--) {
+    const p=active[i];
+    p.x+=p.dx; p.y+=p.dy; p.dy+=0.15;
+    if (--p.life <= 0) pool.push(active.splice(i,1)[0]);
+  }
+}
+
+function drawParticles() {
+  for (let i=0; i<active.length; i++) {
+    const p=active[i];
+    ctx.globalAlpha = p.life/p.max;
+    ctx.fillStyle   = p.c;
+    const sz = p.r*2;
+    ctx.fillRect(p.x-p.r, p.y-p.r, sz, sz);
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  FLOATING SCORE TEXT
+// ═══════════════════════════════════════════════════════════
+const floats = [];
+
+function addFloat(x, y, text, color) {
+  floats.push({ x, y, text, color, life:45, max:45, vy:-1.1 });
+}
+
+function tickFloats() {
+  for (let i=floats.length-1; i>=0; i--) {
+    const f=floats[i];
+    f.y += f.vy;
+    if (--f.life <= 0) floats.splice(i,1);
+  }
+}
+
+function drawFloats() {
+  ctx.font         = 'bold 11px "Press Start 2P", monospace';
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  for (const f of floats) {
+    ctx.globalAlpha = f.life/f.max;
+    // Dark outline for readability
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillText(f.text, f.x+1, f.y+1);
+    ctx.fillStyle = f.color;
+    ctx.fillText(f.text, f.x, f.y);
+  }
+  ctx.globalAlpha  = 1;
+  ctx.textAlign    = 'left';
+  ctx.textBaseline = 'alphabetic';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  POWER-UP DROPS
+// ═══════════════════════════════════════════════════════════
+let puDrops = [];
+
+const PU_CFG = {
+  wide : { color:'#ffaa00', label:'WIDE',  dur:11000 },
+  slow : { color:'#44ffaa', label:'SLOW',  dur: 9000 },
+  life : { color:'#ff4466', label:'LIFE',  dur:    0 },
+  multi: { color:'#ff88ff', label:'MULTI', dur:    0 },
+};
+
+const PU_TYPES = Object.keys(PU_CFG);
+
+class PuDrop {
+  constructor(x, y, type) {
+    this.x=x; this.y=y; this.type=type;
+    this.w=50; this.h=18; this.dy=2.2;
+    this.alive=true;
+    this.cfg=PU_CFG[type];
+    this.flash=0;
+  }
+
+  tick() {
+    this.y += this.dy;
+    this.flash = (this.flash+1)%18;
+    if (this.y > H+20) { this.alive=false; return; }
+    if (this.y+this.h > PAD.y &&
+        this.x+this.w > PAD.x &&
+        this.x        < PAD.x+PAD.w) {
+      this.collect(); this.alive=false;
+    }
+  }
+
+  draw() {
+    const {x,y,w,h} = this;
+    // Bevel box
+    ctx.fillStyle = darken(this.cfg.color, 50);
+    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = this.cfg.color;
+    ctx.fillRect(x+1, y+1, w-2, h-2);
+    // Top shine
+    ctx.fillStyle = lighten(this.cfg.color, 60);
+    ctx.fillRect(x+1, y+1, w-2, 2);
+    // Flashing inner when close to paddle
+    if (this.flash < 9) {
+      ctx.fillStyle = lighten(this.cfg.color, 30);
+      ctx.fillRect(x+2, y+2, w-4, h-4);
+    }
+    // Label
+    ctx.fillStyle   = '#000';
+    ctx.font        = 'bold 7px monospace';
+    ctx.textAlign   = 'center';
+    ctx.textBaseline= 'middle';
+    ctx.fillText(this.cfg.label, x+w/2, y+h/2);
+    ctx.textBaseline= 'alphabetic';
+    ctx.textAlign   = 'left';
+  }
+
+  collect() {
+    beep('power');
+    if (this.type === 'wide') {
+      PAD.targetW = Math.min(310, PAD.targetW + 80);
+      setTimeout(()=>{ PAD.targetW = 160; }, this.cfg.dur);
+    } else if (this.type === 'slow') {
+      balls.forEach(b=>{
+        const s = Math.hypot(b.dx, b.dy);
+        if (s>0) { b.dx=b.dx/s*(s*0.55); b.dy=b.dy/s*(s*0.55); }
+      });
+      setTimeout(()=>{
+        balls.forEach(b=>{
+          const s = Math.hypot(b.dx, b.dy);
+          if (s>0 && s < b.spd) { b.dx=b.dx/s*b.spd; b.dy=b.dy/s*b.spd; }
+        });
+      }, this.cfg.dur);
+    } else if (this.type === 'life') {
+      lives = Math.min(9, lives+1);
+      updateStats();
+    } else if (this.type === 'multi') {
+      if (balls.length < 3) {
+        const src = balls[0];
+        const nb  = new Ball(src.x, src.y);
+        nb.dx = -src.dx; nb.dy = src.dy; nb.spd = src.spd;
+        balls.push(nb);
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  COLLISION
+// ═══════════════════════════════════════════════════════════
+function collidePaddle(ball) {
+  if (ball.dy < 0) return;
+  const R = BALL_R;
+  if (ball.x+R < PAD.x || ball.x-R > PAD.x+PAD.w) return;
+  if (ball.y+R < PAD.y || ball.y-R > PAD.y+PAD.h) return;
+
+  ball.y = PAD.y - R - 1;
+  const pos = Math.max(0, Math.min(1, (ball.x - PAD.x) / PAD.w));
+  const ang = (pos - 0.5) * 1.3;
+  const spd = Math.max(Math.hypot(ball.dx, ball.dy), ball.spd);
+  ball.dx = Math.sin(ang) * spd;
+  ball.dy = -Math.cos(ang) * spd;
+  if (Math.abs(ball.dy) < spd * 0.28) ball.dy = -spd * 0.28;
+  beep('paddle');
+}
+
+function collideBricks(ball) {
+  const R = BALL_R;
+  for (let i=0; i<bricks.length; i++) {
+    const b=bricks[i];
+    if (!b.visible) continue;
+
+    if (ball.x+R<b.x || ball.x-R>b.x+b.w ||
+        ball.y+R<b.y || ball.y-R>b.y+b.h) continue;
+
+    const oL = ball.x+R - b.x;
+    const oR = b.x+b.w - (ball.x-R);
+    const oT = ball.y+R - b.y;
+    const oB = b.y+b.h - (ball.y-R);
+
+    if (Math.min(oL,oR) < Math.min(oT,oB)) {
+      ball.dx = oL<oR ? -Math.abs(ball.dx) : Math.abs(ball.dx);
+    } else {
+      ball.dy = oT<oB ? -Math.abs(ball.dy) : Math.abs(ball.dy);
+    }
+
+    const res = b.hit();
+    if (res === 'dead') {
+      visibleBricks--;
+      const pts = 10 * level;
+      score += pts;
+      beep('brick');
+      spawnParticles(b.x+b.w/2, b.y+b.h/2, b.color, 9);
+      addFloat(b.x+b.w/2, b.y, '+'+pts, b.color);
+      if (b.hasPU) {
+        const type = PU_TYPES[Math.random()*PU_TYPES.length|0];
+        puDrops.push(new PuDrop(b.x+b.w/2-25, b.y, type));
+      }
+    } else {
+      beep('hard');
+      spawnParticles(b.x+b.w/2, b.y+b.h/2, '#aaaaaa', 4);
+      score += 3 * level;
+    }
+    updateStats();
+    break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  UPDATE
+// ═══════════════════════════════════════════════════════════
+function update(dt) {
+  if (gameState !== 'play') return;
+
+  PAD.move(dt);
+
+  for (let i=balls.length-1; i>=0; i--) {
+    const b=balls[i];
+    b.move();
+    collidePaddle(b);
+    collideBricks(b);
+    if (b.offScreen()) balls.splice(i,1);
+  }
+
+  if (balls.length === 0) {
+    lives--;
+    updateStats();
+    beep('lose');
+    if (lives <= 0) endGame(false);
+    else            balls = [new Ball()];
+  }
+
+  if (bricks.length > 0 && visibleBricks <= 0) {
+    triggerLevelWin();
+  }
+
+  for (let i=puDrops.length-1; i>=0; i--) {
+    puDrops[i].tick();
+    if (!puDrops[i].alive) puDrops.splice(i,1);
+  }
+
+  tickParticles();
+  tickFloats();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════
+function render() {
+  // Background
+  ctx.fillStyle = '#08081c';
+  ctx.fillRect(0, 0, W, H);
+
+  // Stars
+  for (let i=0; i<STARS.length; i++) {
+    const s=STARS[i];
+    ctx.globalAlpha = s.a;
+    ctx.fillStyle   = '#c0d8ff';
+    ctx.fillRect(s.x|0, s.y|0, s.r|0, s.r|0);
+  }
+  ctx.globalAlpha = 1;
+
+  // Subtle horizontal scanlines (every 4px)
+  ctx.fillStyle = 'rgba(0,0,0,0.10)';
+  for (let y=0; y<H; y+=4) ctx.fillRect(0, y, W, 2);
+
+  // Brick-area top border line
+  ctx.strokeStyle = 'rgba(80,80,160,0.35)';
+  ctx.lineWidth   = 1;
+  ctx.beginPath(); ctx.moveTo(0,48); ctx.lineTo(W,48); ctx.stroke();
+
+  // Draw order
+  for (let i=0; i<bricks.length;  i++) bricks[i].draw();
+  for (let i=0; i<puDrops.length; i++) puDrops[i].draw();
+  drawParticles();
+  for (let i=0; i<balls.length;   i++) balls[i].draw();
+  PAD.draw();
+  drawFloats();
+
+  // Bottom danger zone — solid 2-pixel red line
+  ctx.fillStyle = 'rgba(220,40,40,0.55)';
+  ctx.fillRect(0, H-2, W, 2);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  GAME LOOP
+// ═══════════════════════════════════════════════════════════
+function loop(ts) {
+  const dt = Math.min((ts - lastTs) / 1000, 0.05);
+  lastTs = ts;
+  update(dt);
+  render();
+  rafId = requestAnimationFrame(loop);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STATE TRANSITIONS
+// ═══════════════════════════════════════════════════════════
+function triggerLevelWin() {
+  gameState = 'levelWin';
+  beep('levelup');
+  if (level >= LEVELS.length) { endGame(true); return; }
+  document.getElementById('lvl-title').textContent = 'LEVEL ' + (level+1) + '!';
+  document.getElementById('lvl-desc').textContent  = LEVELS[level].desc;
+  showMenu('level-menu');
+}
+
+// ── SCORE REPORTING TO APP ──
+function sendScoreToApp(score, isNewRecord) {
+  if (window.ReactNativeWebView) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'SEND_SCORE',
+      score: score,
+      game: 'Breakout',
+      isNewRecord: isNewRecord,
+    }));
+  }
+}
+
+function endGame(win) {
+  gameState = 'over';
+  try {
+    if (score > highScore) { highScore = score; localStorage.setItem('brk_hs', ''+highScore); }
+  } catch(e){}
+  const isNew = score > highScore;
+  sendScoreToApp(score, isNew);
+
+  document.getElementById('over-msg').textContent   = win ? '🏆 YOU WIN!' : 'GAME OVER';
+  document.getElementById('over-score').textContent = `SCORE: ${score}   BEST: ${highScore}`;
+  showMenu('game-over-menu');
+}
+
+function resetGame() {
+  score=0; lives=5; level=1;
+  PAD.reset();
+  buildBricks(1);
+  balls       = [new Ball()];
+  puDrops.length = 0;
+  active.length  = 0;
+  floats.length  = 0;
+  updateStats();
+  refreshHS();
+}
+
+function nextLevel() {
+  level++;
+  PAD.reset();
+  buildBricks(level);
+  balls       = [new Ball()];
+  puDrops.length = 0;
+  floats.length  = 0;
+  updateStats();
+}
+
+function updateStats() {
+  $score.textContent = 'SCORE: ' + score;
+  $level.textContent = 'LEVEL ' + level;
+  $lives.textContent = lives > 0 ? ('❤ '.repeat(lives)).trim() : '☆';
+}
+
+function refreshHS() {
+  $hs.textContent = highScore > 0 ? 'BEST: ' + highScore : '';
+}
+
+function showMenu(id) {
+  Object.values(MENUS).forEach(m => m.style.display='none');
+  if (id) document.getElementById(id).style.display = 'flex';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BUTTON EVENTS
+// ═══════════════════════════════════════════════════════════
+document.getElementById('btn-start').onclick = () => {
+  resetGame(); gameState='play'; showMenu(null);
+  if (audio?.state==='suspended') audio.resume();
+};
+
+document.getElementById('btn-resume').onclick = () => { gameState='play'; showMenu(null); };
+document.getElementById('btn-quit').onclick   = () => { gameState='menu'; showMenu('start-menu'); refreshHS(); };
+
+document.getElementById('btn-next').onclick = () => {
+  nextLevel(); gameState='play'; showMenu(null);
+  if (audio?.state==='suspended') audio.resume();
+};
+
+document.getElementById('btn-again').onclick = () => { resetGame(); gameState='play'; showMenu(null); };
+
+// ═══════════════════════════════════════════════════════════
+//  KEYBOARD
+// ═══════════════════════════════════════════════════════════
+window.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (e.key==='p' || e.key==='P') {
+    if (gameState==='play')  { gameState='pause'; showMenu('pause-menu'); }
+    else if (gameState==='pause') { gameState='play'; showMenu(null); }
+  }
+  if (e.key==='Escape' && gameState==='pause') { gameState='play'; showMenu(null); }
+  if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
+});
+window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+// ═══════════════════════════════════════════════════════════
+//  TOUCH — canvas + drag-zone: RELATIVE DRAG
+//  Touching anywhere on canvas/drag-zone drags the paddle
+//  relative to where you first put your finger, so your
+//  thumb doesn't have to sit on top of the paddle.
+// ═══════════════════════════════════════════════════════════
+// dragStartClientX / dragStartPadX declared in STATE section above
+
+function onTouchStart(e) {
+  e.preventDefault();
+  if (gameState !== 'play') return;
+  if (e.touches.length === 0) return;
+  dragStartClientX = e.touches[0].clientX;
+  dragStartPadX    = PAD.x;
+  touchX           = null;   // disable absolute mode while dragging
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  if (gameState !== 'play') return;
+  if (dragStartClientX === null || e.touches.length === 0) return;
+
+  const r       = c.getBoundingClientRect();
+  const scale   = W / r.width;                             // canvas px per css px
+  const deltaCS = (e.touches[0].clientX - dragStartClientX) * scale;
+  // Directly set paddle x from drag offset — instant, no lag
+  PAD.x = Math.max(0, Math.min(W - PAD.w, dragStartPadX + deltaCS));
+  // Suppress the automatic move() interpolation this frame
+  touchX = PAD.x + PAD.w / 2;   // keep touchX in sync so move() doesn't fight us
+}
+
+function onTouchEnd(e) {
+  dragStartClientX = null;
+  dragStartPadX    = null;
+  touchX           = null;
+}
+
+// Attach to canvas (still works for desktop mouse drag too)
+c.addEventListener('touchstart', onTouchStart, {passive:false});
+c.addEventListener('touchmove',  onTouchMove,  {passive:false});
+c.addEventListener('touchend',   onTouchEnd,   {passive:false});
+c.addEventListener('touchcancel',onTouchEnd,   {passive:false});
+
+// Attach same drag handlers to the bar below canvas (primary mobile control)
+const dragBar = document.getElementById('drag-zone-bar');
+dragBar.addEventListener('touchstart', onTouchStart, {passive:false});
+dragBar.addEventListener('touchmove',  onTouchMove,  {passive:false});
+dragBar.addEventListener('touchend',   onTouchEnd,   {passive:false});
+dragBar.addEventListener('touchcancel',onTouchEnd,   {passive:false});
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+resetGame();
+showMenu('start-menu');
+lastTs = performance.now();
+rafId  = requestAnimationFrame(loop);
+</script>
+</body>
+</html>

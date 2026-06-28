@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strike-Billiards</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Greek Games Studios">
+  <link rel="canonical" href="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Strike-Billiards/Main.html">
+  
+  <meta name="description" content="Play Strike-Billiards, a free browser mini game by Greek Games Studios. Classic billiards reimagined with modern graphics and AI opponents. Play instantly, no download required.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Strike-Billiards - Free Browser Mini Game | Greek Games Studios">
+  <meta property="og:description" content="Play Strike-Billiards instantly in your browser. Classic arcade action with modern visuals. No download needed.">
+  <meta property="og:image" content="https://greekgamesstudios.com/images/WebStrikeBilliardsLogo.png">
+  <meta property="og:url" content="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Strike-Billiards/Main.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Greek Games Studios">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Strike-Billiards - Free Browser Mini Game">
+  <meta name="twitter:description" content="Play Strike-Billiards instantly in your browser. No download needed.">
+  <meta name="twitter:image" content="https://greekgamesstudios.com/images/WebStrikeBilliardsLogo.png">
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Strike-Billiards",
+    "description": "A free browser mini game by Greek Games Studios. Classic billiards reimagined with modern graphics and AI opponents.",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "url": "https://greekgamesstudios.com"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "genre": ["Arcade", "Classic", "Mini Game"],
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any",
+    "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Strike-Billiards/Main.html"
+  }
+  </script>
+
+    <link rel="icon" type="png" href="/images/WebStrikeBilliardsLogo.png">
+    <style>
+        :root {
+            --bg:         #080d0a;
+            --felt-mid:   #175830;
+            --wood:       #1e0d04;
+            --wood-rim:   #4a2208;
+            --accent:     #c8a84b;
+            --text:       #ddd8cc;
+            --muted:      #556055;
+            --p1c: #30d8ff;
+            --p2c: #ffd740;
+            --p3c: #ff4d6a;
+            --p4c: #50ee8a;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { overflow: hidden; height: 100%; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Consolas', 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 12px;
+            gap: 8px;
+            user-select: none;
+        }
+
+        h1 {
+            font-size: 2.4em;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-shadow: 0 2px 12px rgba(200,168,75,0.35);
+        }
+
+        /* ── GAME WRAPPER ── */
+        #game-wrapper {
+            position: relative;
+            width: 1040px;
+            height: 540px;
+            flex-shrink: 0;
+        }
+
+        #pool-table {
+            display: block;
+            width:  1000px;
+            height: 500px;
+            border: 20px solid var(--wood);
+            border-radius: 8px;
+            outline: 3px solid var(--wood-rim);
+            cursor: crosshair;
+            box-shadow:
+                0 8px 40px rgba(0,0,0,0.85),
+                inset 0 0 24px rgba(0,0,0,0.7);
+            background: #0f3820; /* fallback */
+        }
+
+        /* ── OVERLAYS ── */
+        .overlay {
+            position: absolute;
+            top: 20px; left: 20px;
+            width: 1000px; height: 500px;
+            padding: 30px 40px;
+            background: rgba(5,10,6,0.97);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            z-index: 100;
+        }
+
+        .ov-title {
+            font-size: 2.2em;
+            letter-spacing: 3px;
+            color: var(--accent);
+        }
+
+        .ov-sub {
+            font-size: 0.92em;
+            color: var(--muted);
+            max-width: 520px;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+/* ── BUTTONS ── */
+        .btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 11px 28px;
+            font-size: 1.15em;
+            font-family: inherit;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background .15s, color .15s, box-shadow .15s;
+            min-width: 150px;
+        }
+        .btn:hover {
+            background: var(--accent);
+            color: #060a06;
+            box-shadow: 0 0 18px rgba(200,168,75,.35);
+        }
+
+        .pbtns { display: flex; gap: 14px; }
+
+        .pbtn {
+            width: 78px; height: 78px;
+            font-size: 2.4em;
+            border-radius: 4px;
+            cursor: pointer;
+            /* Χρησιμοποιούμε τη μεταβλητή για το περίγραμμα */
+            border: 1px solid var(--btn-color);
+            background: transparent;
+            font-family: inherit;
+            transition: background .15s, color .15s, box-shadow .15s;
+        }
+
+        /* Ορίζουμε το χρώμα ανά κουμπί σε μεταβλητή */
+        .pbtn:nth-child(1) { --btn-color: var(--p1c); color: var(--btn-color); }
+        .pbtn:nth-child(2) { --btn-color: var(--p2c); color: var(--btn-color); }
+        .pbtn:nth-child(3) { --btn-color: var(--p3c); color: var(--btn-color); }
+        .pbtn:nth-child(4) { --btn-color: var(--p4c); color: var(--btn-color); }
+
+        .pbtn:hover { 
+            /* Τώρα το background παίρνει το χρώμα της μεταβλητής, όχι το μαύρο του κειμένου */
+            background: var(--btn-color); 
+            color: #000; 
+            box-shadow: 0 0 18px var(--btn-color); 
+        }
+
+        /* ── WIN SCREEN ── */
+        .win-rows { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 420px; }
+        .win-row  {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 18px; border: 1px solid #2a2a2a; border-radius: 3px;
+            font-size: 1.1em;
+        }
+        .win-row.gold { border-color: var(--accent); background: rgba(200,168,75,.07); }
+
+        /* ── HUD ── */
+        #hud {
+            display: none;
+            gap: 10px;
+            justify-content: center;
+            align-items: stretch;
+            width: 1040px;
+        }
+
+        .pcard {
+            flex: 1;
+            max-width: 250px;
+            padding: 8px 14px;
+            border: 1px solid #1e2a1e;
+            border-radius: 3px;
+            background: rgba(255,255,255,.02);
+            transition: border-color .25s, background .25s;
+            position: relative;
+        }
+        .pcard.active {
+            border-color: var(--cc);
+            background: rgba(255,255,255,.05);
+        }
+        .pcard.active::after {
+            content: '▶ SHOOT';
+            position: absolute;
+            top: 5px; right: 10px;
+            font-size: 0.6em;
+            color: var(--cc);
+            opacity: .8;
+            letter-spacing: 1px;
+        }
+        .pname  { font-size: .8em;  color: var(--cc); letter-spacing: 1px; font-weight: bold; }
+        .pscore { font-size: 1.7em; color: var(--text); font-weight: bold; }
+
+        /* ── FOOTER ── */
+        footer { font-size: .82em; color: var(--muted); }
+        footer strong { color: var(--accent); }
+
+        /* ── MOBILE BLOCK ── */
+        #mobile-block { display: none; }
+
+        /* ── MOBILE SCALING ── */
+        body.is-mobile {
+            padding: 6px;
+            gap: 4px;
+            overflow: auto;
+        }
+
+        body.is-mobile h1 {
+            font-size: clamp(1em, 5vw, 1.6em);
+            letter-spacing: 2px;
+        }
+
+        body.is-mobile #game-wrapper {
+            width: 100vw;
+            height: calc(100vw * 0.52);
+            max-width: 1040px;
+        }
+
+        body.is-mobile #pool-table {
+            width: calc(100vw - 4vw);
+            height: calc((100vw - 4vw) * 0.5);
+            max-width: 1000px;
+        }
+
+        body.is-mobile .overlay {
+            width: calc(100vw - 4vw);
+            height: calc((100vw - 4vw) * 0.5);
+            padding: 16px 20px;
+            gap: 10px;
+        }
+
+        body.is-mobile .ov-title {
+            font-size: clamp(1em, 4.5vw, 2.2em);
+        }
+
+        body.is-mobile .ov-sub {
+            font-size: clamp(0.7em, 2.5vw, 0.92em);
+        }
+
+        body.is-mobile .btn {
+            padding: 8px 18px;
+            font-size: clamp(0.8em, 3.5vw, 1.15em);
+            min-width: 100px;
+        }
+
+        body.is-mobile .pbtn {
+            width: clamp(44px, 14vw, 78px);
+            height: clamp(44px, 14vw, 78px);
+            font-size: clamp(1.4em, 6vw, 2.4em);
+        }
+
+        body.is-mobile #hud {
+            width: 100vw;
+            max-width: 1040px;
+            gap: 5px;
+        }
+
+        body.is-mobile .pcard {
+            padding: 5px 8px;
+        }
+
+        body.is-mobile .pname {
+            font-size: clamp(0.55em, 2vw, 0.8em);
+        }
+
+        body.is-mobile .pscore {
+            font-size: clamp(1em, 3.5vw, 1.7em);
+        }
+
+        body.is-mobile footer {
+            font-size: clamp(0.6em, 2vw, 0.82em);
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+<h1>STRIKE BILLIARDS</h1>
+
+<div id="game-wrapper">
+
+    <!-- MAIN MENU -->
+    <div id="screen-menu" class="overlay">
+        <div class="ov-title">STRIKE BILLIARDS</div>
+        <p class="ov-sub">Classic pool with combos & multi-player support.<br>Pot all balls before your opponents!</p>
+        <button class="btn" id="btn-start">PLAY GAME</button>
+        <p class="ov-sub" style="font-size:.8em">
+            Drag the cue stick <em>away</em> from the ball like holding a real cue. Release to shoot.
+        </p>
+    </div>
+
+    <!-- PLAYER SELECT -->
+    <div id="screen-players" class="overlay" style="display:none">
+        <div class="ov-title">SELECT PLAYERS</div>
+        <p class="ov-sub">How many players?<br>More players = more balls on the table.</p>
+        <div class="pbtns">
+            <button class="pbtn" data-n="1">1</button>
+            <button class="pbtn" data-n="2">2</button>
+            <button class="pbtn" data-n="3">3</button>
+            <button class="pbtn" data-n="4">4</button>
+        </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="screen-over" class="overlay" style="display:none">
+        <div class="ov-title" id="go-title">YOU WIN!</div>
+        <div class="win-rows" id="win-rows"></div>
+        <button class="btn" id="btn-again">PLAY AGAIN</button>
+    </div>
+
+    <canvas id="pool-table" width="1000" height="500"></canvas>
+</div>
+
+<div id="hud"></div>
+
+<footer><strong>Powered by Greek Games Studios</strong></footer>
+
+<div id="mobile-block">
+    <h2>NOT SUPPORTED</h2>
+    <p>Please play on a PC or Desktop.</p>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════
+const FRICTION      = 0.983;
+const BALL_R        = 13;
+const POCKET_R      = 24;
+const CUE_MULT      = 0.13;
+const MAX_POWER     = 200;
+const CUE_LEN       = 185;
+const PULLBACK_MAX  = 22;
+const MIN_SPD_SQ    = 0.004; // (0.063)^2
+
+const P_COLORS = ['#30d8ff','#ffd740','#ff4d6a','#50ee8a'];
+const P_NAMES  = ['Player 1','Player 2','Player 3','Player 4'];
+
+// 15 ball colors (1-8 solid, 9-15 stripe reuse palette)
+const BALL_COL = [
+    '#f0c020','#1a5fb4','#e01b24','#7a3588',
+    '#e66100','#26a269','#8a1c1c','#1a1a1a',
+    '#f0c020','#1a5fb4','#e01b24','#7a3588',
+    '#e66100','#26a269','#8a1c1c'
+];
+
+// ═══════════════════════════════════════════════
+// DOM
+// ═══════════════════════════════════════════════
+const canvas  = document.getElementById('pool-table');
+const ctx     = canvas.getContext('2d', { alpha: false });
+const W = canvas.width, H = canvas.height;
+
+const scMenu    = document.getElementById('screen-menu');
+const scPlayers = document.getElementById('screen-players');
+const scOver    = document.getElementById('screen-over');
+const goTitle   = document.getElementById('go-title');
+const winRows   = document.getElementById('win-rows');
+const hud       = document.getElementById('hud');
+const btnStart  = document.getElementById('btn-start');
+const btnAgain  = document.getElementById('btn-again');
+
+// ═══════════════════════════════════════════════
+// AUDIO  (lazy init on first interaction)
+// ═══════════════════════════════════════════════
+let actx = null;
+const sndCD = {};
+
+function ensureAudio() {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+}
+
+function snd(type) {
+    if (!actx) return;
+    const t = actx.currentTime;
+    if ((sndCD[type] || 0) > t) return;
+
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    o.connect(g); g.connect(actx.destination);
+
+    switch (type) {
+        case 'hit':
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(340, t);
+            o.frequency.exponentialRampToValueAtTime(160, t + .18);
+            g.gain.setValueAtTime(.22, t);
+            g.gain.exponentialRampToValueAtTime(.001, t + .22);
+            o.start(t); o.stop(t + .22);
+            sndCD[type] = t + .25;
+            break;
+        case 'collide':
+            o.type = 'sine';
+            o.frequency.setValueAtTime(190 + Math.random() * 80, t);
+            g.gain.setValueAtTime(.15, t);
+            g.gain.exponentialRampToValueAtTime(.001, t + .07);
+            o.start(t); o.stop(t + .07);
+            sndCD[type] = t + .04;
+            break;
+        case 'cushion':
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(105, t);
+            g.gain.setValueAtTime(.09, t);
+            g.gain.exponentialRampToValueAtTime(.001, t + .1);
+            o.start(t); o.stop(t + .1);
+            sndCD[type] = t + .06;
+            break;
+        case 'pocket':
+            o.type = 'sine';
+            o.frequency.setValueAtTime(480, t);
+            o.frequency.linearRampToValueAtTime(700, t + .18);
+            g.gain.setValueAtTime(.28, t);
+            g.gain.exponentialRampToValueAtTime(.001, t + .3);
+            o.start(t); o.stop(t + .3);
+            sndCD[type] = t + .1;
+            break;
+        case 'combo':
+            o.type = 'sawtooth';
+            o.frequency.setValueAtTime(650, t);
+            o.frequency.linearRampToValueAtTime(1050, t + .28);
+            g.gain.setValueAtTime(.28, t);
+            g.gain.exponentialRampToValueAtTime(.001, t + .4);
+            o.start(t); o.stop(t + .4);
+            sndCD[type] = t + .5;
+            break;
+        case 'win':
+            [523,659,784,1047].forEach((f, i) => {
+                const o2 = actx.createOscillator(), g2 = actx.createGain();
+                o2.connect(g2); g2.connect(actx.destination);
+                o2.type = 'sine';
+                o2.frequency.setValueAtTime(f, t + i * .13);
+                g2.gain.setValueAtTime(.22, t + i * .13);
+                g2.gain.exponentialRampToValueAtTime(.001, t + i * .13 + .3);
+                o2.start(t + i * .13); o2.stop(t + i * .13 + .35);
+            });
+            return;
+    }
+}
+
+// ═══════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════
+let phase   = 'menu';   // 'menu'|'playing'|'over'
+let numP    = 1;
+let players = [];
+let curP    = 0;
+
+let balls   = [];
+let pockets = [];
+let moving  = false;
+let wasMove = false;
+let aiming  = false;
+let mx = W/2, my = H/2;  // mouse pos in canvas coords
+let rafId   = null;
+
+let potted    = 0;   // balls potted this turn
+let scratched = false;
+let comboTxt  = '';
+let comboT    = 0;
+
+// VFX arrays
+let sparks  = [];
+let trails  = [];
+let flashes = [];
+
+// Cached felt gradient
+let feltGrad = null;
+
+// ═══════════════════════════════════════════════
+// SETUP
+// ═══════════════════════════════════════════════
+function initPockets() {
+    const pr = POCKET_R;
+    pockets = [
+        {x: pr,   y: pr},
+        {x: W/2,  y: pr - 2},
+        {x: W-pr, y: pr},
+        {x: pr,   y: H-pr},
+        {x: W/2,  y: H-pr+2},
+        {x: W-pr, y: H-pr}
+    ];
+}
+
+function numRows(np) { return np === 1 ? 3 : np <= 3 ? 4 : 5; }
+
+function setupTable(np) {
+    numP = np;
+    curP = 0;
+    players = Array.from({length: np}, (_, i) => ({
+        name: P_NAMES[i], score: 0, color: P_COLORS[i]
+    }));
+
+    balls = [];
+
+    // Cue ball
+    balls.push({
+        id:'cue', x: W*0.26, y: H/2,
+        vx:0, vy:0,
+        color:'#f5f5f5', isStripe:false, isPocketed:false
+    });
+
+    // Triangle rack
+    const rows = numRows(np);
+    const sx   = W * 0.64;
+    const sy   = H / 2;
+    const rStep = BALL_R * Math.sqrt(3) + 0.3; // horizontal per row
+    const cStep = BALL_R * 2.05;               // vertical per column
+
+    let id = 1;
+    for (let row = 0; row < rows; row++) {
+        const cx = sx + row * rStep;
+        for (let col = 0; col <= row; col++) {
+            const cy = sy - (row * cStep * 0.5) + col * cStep;
+            balls.push({
+                id, x: cx + (Math.random()-.5)*.3, y: cy + (Math.random()-.5)*.3,
+                vx:0, vy:0,
+                color: BALL_COL[id-1], isStripe: id > 8, isPocketed: false
+            });
+            id++;
+        }
+    }
+
+    // State reset
+    moving = aiming = wasMove = scratched = false;
+    potted = comboT = 0; comboTxt = '';
+    sparks = []; trails = []; flashes = [];
+
+    initPockets();
+
+    feltGrad = ctx.createRadialGradient(W/2,H/2,0, W/2,H/2,600);
+    feltGrad.addColorStop(0,   '#1f6638');
+    feltGrad.addColorStop(0.5, '#125028');
+    feltGrad.addColorStop(1,   '#0a3418');
+
+    buildHUD();
+}
+
+// ═══════════════════════════════════════════════
+// HUD
+// ═══════════════════════════════════════════════
+function buildHUD() {
+    hud.innerHTML = '';
+    hud.style.display = 'flex';
+    players.forEach((p, i) => {
+        const c = document.createElement('div');
+        c.className = 'pcard' + (i===0?' active':'');
+        c.id = 'pc'+i;
+        c.style.setProperty('--cc', p.color);
+        c.innerHTML = `<div class="pname">● ${p.name}</div><div class="pscore" id="ps${i}">0</div>`;
+        hud.appendChild(c);
+    });
+}
+
+function refreshHUD() {
+    players.forEach((p, i) => {
+        const c = document.getElementById('pc'+i);
+        const s = document.getElementById('ps'+i);
+        if (!c||!s) return;
+        c.className = 'pcard'+(i===curP?' active':'');
+        c.style.setProperty('--cc', p.color);
+        s.textContent = p.score;
+    });
+}
+
+// ═══════════════════════════════════════════════
+// VFX
+// ═══════════════════════════════════════════════
+function mkSparks(x, y, ang, n=3) {
+    for (let i=0; i<n; i++) {
+        const sp = 1.5+Math.random()*2.5;
+        const a  = ang + (Math.random()-.5)*Math.PI*.8;
+        sparks.push({x,y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+            life:14+~~(Math.random()*14), col:Math.random()>.5?'#ffdd66':'#ffffff'});
+    }
+}
+function mkTrail(x,y) {
+    if (Math.random()>.28) return;
+    trails.push({x,y,life:13,max:13,r:BALL_R*.38});
+}
+function mkFlash(x,y) {
+    flashes.push({x,y,r:POCKET_R,life:20,max:20});
+}
+
+// ═══════════════════════════════════════════════
+// DRAW
+// ═══════════════════════════════════════════════
+function draw() {
+    // Felt
+    ctx.fillStyle = feltGrad;
+    ctx.fillRect(0,0,W,H);
+
+    // Subtle center line + head spot
+    ctx.strokeStyle = 'rgba(255,255,255,.035)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.1)';
+    ctx.beginPath(); ctx.arc(W*.25, H/2, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(W*.75, H/2, 2, 0, Math.PI*2); ctx.fill();
+
+    // Cushion shading on edges
+    ctx.fillStyle = 'rgba(0,0,0,.12)';
+    ctx.fillRect(0,0,W,8); ctx.fillRect(0,H-8,W,8);
+    ctx.fillRect(0,0,8,H); ctx.fillRect(W-8,0,8,H);
+
+    // Pockets
+    pockets.forEach(p => {
+        ctx.beginPath(); ctx.arc(p.x,p.y,POCKET_R,0,Math.PI*2);
+        ctx.fillStyle='#030805'; ctx.fill();
+        ctx.strokeStyle='rgba(60,30,5,.9)'; ctx.lineWidth=2.5; ctx.stroke();
+    });
+
+    // Trails
+    for (const t of trails) {
+        ctx.globalAlpha = (t.life/t.max)*.22;
+        ctx.fillStyle='#fff';
+        ctx.beginPath(); ctx.arc(t.x,t.y,t.r*(t.life/t.max),0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+
+    // Pocket flashes
+    ctx.shadowColor='#30ffaa'; ctx.shadowBlur=22;
+    for (const f of flashes) {
+        const prog = f.life/f.max;
+        ctx.globalAlpha = prog*.55;
+        ctx.fillStyle='#30ffaa';
+        ctx.beginPath(); ctx.arc(f.x,f.y,f.r+(1-prog)*18,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+
+    // Balls
+    for (const b of balls) {
+        if (!b.isPocketed) drawBall(b);
+    }
+
+    // Sparks
+    for (const s of sparks) {
+        ctx.globalAlpha = s.life/28;
+        ctx.fillStyle = s.col;
+        ctx.fillRect(~~s.x,~~s.y,3,3);
+    }
+    ctx.globalAlpha=1;
+
+    // Cue stick
+    if (aiming && !moving) drawCue();
+
+    // Combo text
+    if (comboT > 0) {
+        const al = Math.min(1, comboT/25);
+        ctx.save();
+        ctx.globalAlpha = al;
+        ctx.translate(W/2, H/2-55);
+        ctx.scale(1+Math.sin(comboT*.2)*.04, 1+Math.sin(comboT*.2)*.04);
+        ctx.shadowColor='#ffdd00'; ctx.shadowBlur=18;
+        ctx.fillStyle='#ffdd00'; ctx.font='bold 40px Consolas';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(comboTxt, 0, 0);
+        ctx.restore(); ctx.shadowBlur=0;
+        comboT--;
+        if (comboT===0) comboTxt='';
+    }
+
+    // Turn banner (multi-player only)
+    if (numP>1 && !moving && phase==='playing') {
+        const p = players[curP];
+        ctx.fillStyle=p.color; ctx.globalAlpha=.75;
+        ctx.font='bold 12px Consolas';
+        ctx.textAlign='center'; ctx.textBaseline='top';
+        ctx.fillText(p.name.toUpperCase()+"'S TURN", W/2, 8);
+        ctx.globalAlpha=1;
+    }
+}
+
+function drawBall(b) {
+    const {x,y,color,id,isStripe} = b;
+
+    // Drop shadow (ellipse)
+    ctx.beginPath();
+    ctx.ellipse(x+2, y+5, BALL_R, BALL_R*.55, 0, 0, Math.PI*2);
+    ctx.fillStyle='rgba(0,0,0,.28)'; ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(x, y, BALL_R, 0, Math.PI*2);
+
+    if (id === 'cue') {
+        const cg = ctx.createRadialGradient(x-3,y-4,0, x,y,BALL_R);
+        cg.addColorStop(0,'#ffffff'); cg.addColorStop(.7,'#e0e0e0'); cg.addColorStop(1,'#b8b8b8');
+        ctx.fillStyle=cg; ctx.fill();
+    } else if (isStripe) {
+        // White body
+        ctx.fillStyle='#ece8e0'; ctx.fill();
+        // Colored stripe (clipped horizontal band)
+        ctx.save();
+        ctx.beginPath(); ctx.arc(x,y,BALL_R,0,Math.PI*2); ctx.clip();
+        ctx.fillStyle=color;
+        ctx.fillRect(x-BALL_R, y-BALL_R*.44, BALL_R*2, BALL_R*.88);
+        ctx.restore();
+        // Outline
+        ctx.beginPath(); ctx.arc(x,y,BALL_R,0,Math.PI*2);
+        ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=.8; ctx.stroke();
+    } else {
+        ctx.fillStyle=color; ctx.fill();
+        ctx.strokeStyle='rgba(0,0,0,.22)'; ctx.lineWidth=.8; ctx.stroke();
+    }
+
+    // Number label (all except cue)
+    if (id !== 'cue') {
+        ctx.beginPath(); ctx.arc(x,y,BALL_R*.47,0,Math.PI*2);
+        ctx.fillStyle='#fff'; ctx.fill();
+        ctx.fillStyle='#111';
+        ctx.font=`bold ${id>=10?9:11}px Consolas`;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(id, x, y+.5);
+    }
+
+    // Specular highlight
+    const hl = ctx.createRadialGradient(x-4,y-5,0, x-2,y-2,BALL_R*.9);
+    hl.addColorStop(0,'rgba(255,255,255,.65)');
+    hl.addColorStop(.45,'rgba(255,255,255,.12)');
+    hl.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.beginPath(); ctx.arc(x,y,BALL_R,0,Math.PI*2);
+    ctx.fillStyle=hl; ctx.fill();
+}
+
+function drawCue() {
+    const cb = balls[0];
+    if (!cb || cb.isPocketed) return;
+
+    const dx = mx - cb.x, dy = my - cb.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    if (dist<2) return;
+
+    const ux = dx/dist, uy = dy/dist; // unit: ball→mouse (= "behind cue" direction)
+    const power    = Math.min(dist, MAX_POWER);
+    const pullback = (power/MAX_POWER) * PULLBACK_MAX;
+
+    // Tip stays near ball, pulled back as power grows
+    const tipDist = BALL_R + 5 + pullback;
+    const tipX = cb.x + ux*tipDist,  tipY = cb.y + uy*tipDist;
+    const butX = tipX + ux*CUE_LEN,  butY = tipY + uy*CUE_LEN;
+
+    // ── Shadow ──
+    ctx.save();
+    ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(butX,butY); ctx.lineTo(tipX,tipY);
+    ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.lineWidth=14; ctx.stroke();
+
+    // ── Wood gradient ──
+    const wg = ctx.createLinearGradient(butX,butY,tipX,tipY);
+    wg.addColorStop(0,    '#160802');
+    wg.addColorStop(0.12, '#4a2008');
+    wg.addColorStop(0.45, '#7a3e18');
+    wg.addColorStop(0.78, '#c28440');
+    wg.addColorStop(0.92, '#e8c470');
+    wg.addColorStop(1,    '#3a88cc'); // blue ferrule/tip
+    ctx.beginPath(); ctx.moveTo(butX,butY); ctx.lineTo(tipX,tipY);
+    ctx.strokeStyle=wg; ctx.lineWidth=9; ctx.stroke();
+
+    // ── Highlight ──
+    ctx.beginPath(); ctx.moveTo(butX,butY); ctx.lineTo(tipX,tipY);
+    ctx.strokeStyle='rgba(255,255,255,.13)'; ctx.lineWidth=3; ctx.stroke();
+    ctx.restore();
+
+    // ── Aim guide (shoot direction = opposite of ux,uy) ──
+    const sx=-ux, sy=-uy;
+    const pr = power/MAX_POWER;
+    const aimCol = pr<.4 ? 'rgba(210,220,255,.32)' : pr<.75 ? 'rgba(255,205,0,.48)' : 'rgba(255,55,55,.62)';
+    ctx.save();
+    ctx.setLineDash([5,8]); ctx.lineWidth=1.5;
+    ctx.strokeStyle=aimCol;
+    ctx.beginPath();
+    ctx.moveTo(cb.x+sx*(BALL_R+3), cb.y+sy*(BALL_R+3));
+    ctx.lineTo(cb.x+sx*950, cb.y+sy*950);
+    ctx.stroke();
+    ctx.setLineDash([]); ctx.restore();
+
+    // ── Power arc around cue ball ──
+    const arcR = BALL_R+13;
+    ctx.beginPath();
+    ctx.arc(cb.x,cb.y,arcR, -Math.PI/2, -Math.PI/2 + pr*Math.PI*2);
+    ctx.strokeStyle = pr<.75 ? 'rgba(255,195,0,.85)' : 'rgba(255,55,55,.9)';
+    ctx.lineWidth=3; ctx.stroke();
+}
+
+// ═══════════════════════════════════════════════
+// PHYSICS
+// ═══════════════════════════════════════════════
+function update() {
+    if (!moving) return;
+    moving = false;
+
+    for (const b of balls) {
+        if (b.isPocketed) continue;
+
+        b.vx *= FRICTION; b.vy *= FRICTION;
+        b.x  += b.vx;    b.y  += b.vy;
+
+        const spd2 = b.vx*b.vx + b.vy*b.vy;
+        if (spd2 > MIN_SPD_SQ) {
+            moving = true;
+        } else { b.vx=0; b.vy=0; }
+
+        // Trail (cue ball only, high speed)
+        if (b.id==='cue' && spd2>16) mkTrail(b.x-b.vx, b.y-b.vy);
+
+        // Pocket check (distance squared)
+        for (const pk of pockets) {
+            const pdx=b.x-pk.x, pdy=b.y-pk.y;
+            if (pdx*pdx+pdy*pdy < POCKET_R*POCKET_R) { pocketBall(b,pk); break; }
+        }
+
+        // Wall bounce
+        if      (b.x+BALL_R > W) { b.x=W-BALL_R; b.vx*=-1; snd('cushion'); }
+        else if (b.x-BALL_R < 0) { b.x=BALL_R;   b.vx*=-1; snd('cushion'); }
+        if      (b.y+BALL_R > H) { b.y=H-BALL_R; b.vy*=-1; snd('cushion'); }
+        else if (b.y-BALL_R < 0) { b.y=BALL_R;   b.vy*=-1; snd('cushion'); }
+    }
+
+    // Ball-ball collisions (O(n²) but n≤16, totally fine)
+    for (let i=0; i<balls.length; i++) {
+        if (balls[i].isPocketed) continue;
+        for (let j=i+1; j<balls.length; j++) {
+            if (balls[j].isPocketed) continue;
+            collidePair(balls[i], balls[j]);
+        }
+    }
+}
+
+function collidePair(a, b) {
+    const dx=b.x-a.x, dy=b.y-a.y;
+    const d2=dx*dx+dy*dy;
+    const min=BALL_R*2;
+    if (d2 >= min*min) return;
+
+    const dist  = Math.sqrt(d2) || 0.0001;
+    const ang   = Math.atan2(dy,dx);
+    const sin   = Math.sin(ang), cos=Math.cos(ang);
+
+    // Rotate into collision frame
+    let v1x =  a.vx*cos + a.vy*sin,  v1y = -a.vx*sin + a.vy*cos;
+    let v2x =  b.vx*cos + b.vy*sin,  v2y = -b.vx*sin + b.vy*cos;
+
+    // Elastic exchange (equal mass)
+    const tmp=v1x; v1x=v2x; v2x=tmp;
+
+    // Separate balls
+    const ov=(min-dist)/2;
+    a.x -= cos*ov; a.y -= sin*ov;
+    b.x += cos*ov; b.y += sin*ov;
+
+    // Rotate back
+    a.vx=v1x*cos-v1y*sin; a.vy=v1x*sin+v1y*cos;
+    b.vx=v2x*cos-v2y*sin; b.vy=v2x*sin+v2y*cos;
+
+    snd('collide');
+    if (Math.abs(v1x-v2x) > 1.5) mkSparks(a.x+dx*.5,a.y+dy*.5,ang);
+}
+
+function pocketBall(b, pk) {
+    b.isPocketed=true; b.vx=0; b.vy=0;
+    snd('pocket'); mkFlash(pk.x,pk.y);
+
+    if (b.id==='cue') {
+        scratched=true;
+        setTimeout(()=>{
+            b.x=W*.26; b.y=H/2; b.isPocketed=false;
+        }, 600);
+    } else {
+        potted++;
+        players[curP].score += 100;
+        refreshHUD();
+    }
+}
+
+// ═══════════════════════════════════════════════
+// VFX UPDATE
+// ═══════════════════════════════════════════════
+function tickVFX() {
+    for (let i=sparks.length-1; i>=0; i--) {
+        const s=sparks[i];
+        s.x+=s.vx; s.y+=s.vy; s.vy+=.08;
+        if (--s.life<=0) sparks.splice(i,1);
+    }
+    for (let i=trails.length-1; i>=0; i--)  { if (--trails[i].life<=0)  trails.splice(i,1); }
+    for (let i=flashes.length-1; i>=0; i--) { if (--flashes[i].life<=0) flashes.splice(i,1); }
+}
+
+// ═══════════════════════════════════════════════
+// TURN LOGIC
+// ═══════════════════════════════════════════════
+function onTurnEnd() {
+    let bonus=0, earned=false;
+
+    if (potted===1) {
+        comboTxt='+100'; comboT=55;
+    } else if (potted===2) {
+        bonus=150;
+        comboTxt=`DOUBLE! +${200+bonus}`; comboT=120;
+        snd('combo'); earned=true;
+    } else if (potted>=3) {
+        bonus=potted*50+200;
+        comboTxt=`MULTI BALL! +${potted*100+bonus}`; comboT=150;
+        snd('combo'); earned=true;
+    }
+
+    if (bonus) { players[curP].score+=bonus; refreshHUD(); }
+
+    // Scratch penalty
+    if (scratched) {
+        players[curP].score=Math.max(0,players[curP].score-50);
+        comboTxt='SCRATCH -50'; comboT=80;
+        refreshHUD();
+    }
+
+    // Pass turn: extra turn if potted ≥1 and no scratch
+    const keepTurn = (potted>0 && !scratched);
+    if (!keepTurn && numP>1) {
+        curP=(curP+1)%numP;
+        refreshHUD();
+    }
+
+    potted=0; scratched=false;
+}
+
+// ═══════════════════════════════════════════════
+// GAME LOOP
+// ═══════════════════════════════════════════════
+function loop() {
+    update(); tickVFX(); draw();
+
+    if (!moving && wasMove) { wasMove=false; onTurnEnd(); }
+    if (moving)  wasMove=true;
+
+    // Win check
+    const left = balls.slice(1).filter(b=>!b.isPocketed).length;
+    if (left===0 && !moving) { showOver(); return; }
+
+    rafId = requestAnimationFrame(loop);
+}
+
+// ── SCORE REPORTING TO APP ──
+function sendScoreToApp(score, isNewRecord) {
+  if (window.ReactNativeWebView) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'SEND_SCORE',
+      score: score,
+      game: 'Strike Billiards',
+      isNewRecord: isNewRecord,
+    }));
+  }
+}
+
+function showOver() {
+    cancelAnimationFrame(rafId);
+    snd('win');
+    phase='over';
+
+    // Send score for singleplayer mode
+    if (numP === 1) {
+      sendScoreToApp(players[0].score, false);
+    }
+
+    const ranked = [...players].sort((a,b)=>b.score-a.score);
+    const winner = ranked[0];
+
+    if (numP>1) {
+        goTitle.textContent = winner.name.toUpperCase()+' WINS!';
+        goTitle.style.color = winner.color;
+    } else {
+        goTitle.textContent = 'YOU WIN!';
+        goTitle.style.color = '#ffd740';
+    }
+
+    winRows.innerHTML='';
+    ranked.forEach((p,i)=>{
+        const row=document.createElement('div');
+        row.className='win-row'+(i===0?' gold':'');
+        row.innerHTML=`<span style="color:${p.color}">${i===0?'🏆 ':''}${p.name}</span><span>${p.score} pts</span>`;
+        winRows.appendChild(row);
+    });
+    scOver.style.display='flex';
+}
+
+// ═══════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════
+function toCanvas(e) {
+    const r=canvas.getBoundingClientRect();
+    return {
+        x: (e.clientX-r.left) * (W/r.width),
+        y: (e.clientY-r.top)  * (H/r.height)
+    };
+}
+
+function onDown(e) {
+    if (moving || phase!=='playing') return;
+    ensureAudio();
+    aiming=true;
+    const c=toCanvas(e); mx=c.x; my=c.y;
+}
+
+function onMove(e) {
+    if (!aiming) return;
+    // Track even outside canvas
+    const r=canvas.getBoundingClientRect();
+    mx=(e.clientX-r.left)*(W/r.width);
+    my=(e.clientY-r.top) *(H/r.height);
+}
+
+function onUp() {
+    if (!aiming) return;
+    aiming=false;
+    shoot();
+}
+
+function shoot() {
+    const cb=balls[0];
+    if (!cb||cb.isPocketed) return;
+
+    // Direction: from mouse → cue ball (ball goes this way)
+    const dx=cb.x-mx, dy=cb.y-my;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if (dist<5) return;
+
+    const power=Math.min(dist,MAX_POWER);
+    cb.vx=(dx/dist)*power*CUE_MULT;
+    cb.vy=(dy/dist)*power*CUE_MULT;
+    moving=wasMove=true;
+    potted=0; scratched=false;
+    snd('hit');
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints>0;
+
+if (isMobile) {
+    document.body.classList.add('is-mobile');
+}
+
+// ── Menu & UI buttons (work on both desktop and mobile) ──
+btnStart.addEventListener('click', ()=>{
+    scMenu.style.display='none';
+    scPlayers.style.display='flex';
+});
+
+document.querySelectorAll('.pbtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+        ensureAudio();
+        const n=parseInt(btn.dataset.n);
+        scPlayers.style.display='none';
+        setupTable(n);
+        phase='playing';
+        loop();
+    });
+});
+
+btnAgain.addEventListener('click', ()=>location.reload());
+
+// ── Mouse controls (desktop) ──
+canvas.addEventListener('mousedown', onDown);
+document.addEventListener('mousemove', onMove);
+document.addEventListener('mouseup',   onUp);
+
+// ── Touch controls (mobile) ──
+function toCanvasFromTouch(touch) {
+    return { clientX: touch.clientX, clientY: touch.clientY };
+}
+
+canvas.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    onDown(toCanvasFromTouch(e.touches[0]));
+}, { passive: false });
+
+document.addEventListener('touchmove', e=>{
+    // Μπλοκάρουμε το scrolling μόνο όταν ο χρήστης σημαδεύει
+    if (aiming) {
+        e.preventDefault();
+        onMove(toCanvasFromTouch(e.touches[0]));
+    }
+}, { passive: false });
+
+document.addEventListener('touchend', e=>{
+    // Μπλοκάρουμε το default click μόνο όταν τελειώνει η βολή
+    if (aiming) {
+        e.preventDefault();
+    }
+    onUp();
+}, { passive: false });
+</script>
+</body>
+</html>

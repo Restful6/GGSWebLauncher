@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Data-Link</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Greek Games Studios">
+  <link rel="canonical" href="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Data-Link/Main.html">
+  
+  <meta name="description" content="Play Data-Link, a free browser mini game by Greek Games Studios. Connect the dots and form chains. Play instantly, no download required.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Data-Link - Free Browser Mini Game | Greek Games Studios">
+  <meta property="og:description" content="Play Data-Link instantly in your browser. Connect the dots and form chains. No download needed.">
+  <meta property="og:image" content="https://greekgamesstudios.com/images/WebDATA-LINK.png">
+  <meta property="og:url" content="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Data-Link/Main.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Greek Games Studios">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Data-Link - Free Browser Mini Game">
+  <meta name="twitter:description" content="Play Data-Link instantly in your browser. Connect the dots and form chains. No download needed.">
+  <meta name="twitter:image" content="https://greekgamesstudios.com/images/WebDATA-LINK.png">
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Data-Link",
+    "description": "A free browser-based mini game. Connect the dots and form chains.",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "url": "https://greekgamesstudios.com"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "genre": ["Arcade", "Classic", "Mini Game"],
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any",
+    "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Data-Link/Main.html"
+  }
+  </script>
+
+    <link rel="icon" type="png" href="/images/WebDATA-LINK.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --bg:        #07090d;
+            --grid-bg:   #0e1018;
+            --panel:     #0a0c12;
+            --blue:      #00b8c8;
+            --red:       #d4003a;
+            --green:     #00b050;
+            --gold:      #c8a820;
+            --magenta:   #a000c0;
+            --inactive:  #22262e;
+            --text:      #9ea4b0;
+            --border:    #1a1e28;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow: hidden; user-select: none; touch-action: manipulation;
+        }
+
+        #ui-container {
+            width: 96%;
+            max-width: 660px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ── Header ── */
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--blue);
+            padding-bottom: 8px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--blue);
+            letter-spacing: 3px;
+        }
+        .stats {
+            display: flex;
+            gap: 14px;
+            font-size: 0.8rem;
+        }
+        .stat-lbl { opacity: 0.5; margin-right: 3px; }
+        .stat-val { color: var(--blue); }
+        .stat-val.warn { color: var(--red); }
+
+        /* ── Toolbar ── */
+        #toolbar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .tool-btn {
+            flex: 1;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.72rem;
+            padding: 5px 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: border-color 0.12s, color 0.12s;
+        }
+        .tool-btn:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+        .tool-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+        .hiscore-display {
+            margin-left: auto;
+            font-size: 0.72rem;
+            white-space: nowrap;
+        }
+        .hiscore-display .stat-val { color: var(--gold); }
+
+        /* ── Board ── */
+        #game-board {
+            display: grid;
+            gap: 3px;
+            padding: 8px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+        }
+
+        .cell {
+            width: 13vmin;
+            height: 13vmin;
+            max-width: 72px;
+            max-height: 72px;
+            background: var(--grid-bg);
+            position: relative;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: transform 0.14s ease;
+            will-change: transform;
+        }
+        .cell:active { transform: scale(0.91) !important; }
+
+        /* ── Pipes ── */
+        .port { position: absolute; background: var(--inactive); transition: background 0.18s; }
+        .port-0 { top: 0;     left: 42.5%; width: 15%; height: 50%; }   /* N */
+        .port-1 { top: 42.5%; left: 50%;   width: 50%; height: 15%; }   /* E */
+        .port-2 { top: 50%;   left: 42.5%; width: 15%; height: 50%; }   /* S */
+        .port-3 { top: 42.5%; left: 0;     width: 50%; height: 15%; }   /* W */
+
+        .center-hub {
+            position: absolute;
+            top: 35%; left: 35%; width: 30%; height: 30%;
+            background: var(--inactive);
+            border-radius: 50%;
+            transition: background 0.18s;
+        }
+
+        /* Active flow — subtle glow */
+        .cell.active .port,
+        .cell.active .center-hub {
+            background: var(--blue);
+            box-shadow: 0 0 5px rgba(0,184,200,0.5);
+        }
+
+        /* Source / Target */
+        .cell.source .center-hub {
+            background: var(--red);
+            box-shadow: 0 0 7px rgba(212,0,58,0.6);
+            border-radius: 20%;
+            transform: scale(1.2);
+        }
+        .cell.target .center-hub {
+            background: var(--green);
+            box-shadow: 0 0 7px rgba(0,176,80,0.6);
+            border-radius: 0;
+            transform: scale(1.2) rotate(45deg);
+        }
+
+        /* Encrypted */
+        .cell.encrypted { outline: 1px dashed var(--red); }
+        .cell.encrypted::after {
+            content: "🔒";
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            font-size: 3.2vmin;
+            z-index: 5;
+        }
+
+        /* Glitch */
+        .cell.glitch { outline: 1px solid var(--magenta); }
+
+        /* Hint flash */
+        .cell.hint-on .port,
+        .cell.hint-on .center-hub { background: var(--gold) !important; }
+
+        /* Win pulse on target */
+        @keyframes win-pulse { 0%,100%{box-shadow:0 0 6px rgba(0,176,80,0.5)} 50%{box-shadow:0 0 16px rgba(0,176,80,0.9)} }
+        .cell.target.active .center-hub { animation: win-pulse 0.8s ease infinite; }
+
+        /* ── Modal ── */
+        #modal {
+            position: fixed; inset: 0;
+            background: rgba(4,5,10,0.92);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        #modal.open { display: flex; }
+        #modal h2 { margin: 0 0 8px; font-size: 1.7rem; letter-spacing: 3px; }
+        .win-text  { color: var(--green); }
+        .lose-text { color: var(--red); }
+        #modal p   { margin: 3px 0; font-size: 0.85rem; opacity: 0.7; }
+        #modal-score { font-size: 1.1rem; color: var(--blue); margin: 10px 0 4px; opacity: 1 !important; }
+        #modal-hi { color: var(--gold); display: none; font-size: 0.85rem; }
+
+        button.main-btn {
+            margin-top: 18px;
+            background: transparent;
+            border: 1px solid var(--blue);
+            color: var(--blue);
+            padding: 10px 26px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: background 0.12s, color 0.12s;
+        }
+        button.main-btn:hover { background: var(--blue); color: #000; }
+
+        /* ── Footer ── */
+        footer {
+            margin-top: 12px;
+            font-size: 0.72rem;
+            opacity: 0.35;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .g-studio { color: var(--blue); opacity: 1; }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+<div id="ui-container">
+    <header>
+        <h1>DATA_LINK</h1>
+        <div class="stats">
+            <div><span class="stat-lbl">LVL</span><span class="stat-val" id="ui-level">1</span></div>
+            <div><span class="stat-lbl">INT</span><span class="stat-val" id="ui-integrity">100</span><span class="stat-lbl">%</span></div>
+            <div><span class="stat-lbl">MOV</span><span class="stat-val" id="ui-moves">0</span></div>
+        </div>
+    </header>
+
+    <div id="toolbar">
+        <button class="tool-btn" id="btn-undo"  onclick="undoMove()"  disabled>↩ UNDO</button>
+        <button class="tool-btn" id="btn-hint"  onclick="showHint()">HINT -10%</button>
+        <button class="tool-btn" id="btn-mute"  onclick="toggleMute()">SFX</button>
+        <div class="hiscore-display">
+            <span class="stat-lbl">HI </span><span class="stat-val" id="ui-hiscore">0</span>
+        </div>
+    </div>
+
+    <div id="game-board"></div>
+
+    <footer>
+        Powered by <span class="g-studio">Greek Games Studios</span><br>
+        v2.0 // ZERO_BUGS_PROTOCOL
+    </footer>
+</div>
+
+<div id="modal">
+    <h2 id="modal-title"></h2>
+    <p  id="modal-desc"></p>
+    <p  id="modal-score"></p>
+    <p  id="modal-hi">NEW HIGH SCORE!</p>
+    <button class="main-btn" id="modal-btn" onclick="nextAction()">INITIATE</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  SOUND ENGINE  (Web Audio, no external deps)
+// ═══════════════════════════════════════════════════════
+let _actx = null;
+let _muted = false;
+
+function getCtx() {
+    if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
+    return _actx;
+}
+function beep(freq, type, dur, vol) {
+    if (_muted) return;
+    try {
+        const ctx = getCtx();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = type;
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(vol, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        o.start(); o.stop(ctx.currentTime + dur);
+    } catch (_) {}
+}
+function sfxClick()   { beep(460, 'square',   0.055, 0.07); }
+function sfxDecrypt() { beep(640, 'triangle', 0.10,  0.09); }
+function sfxHint()    { beep(380, 'triangle', 0.08,  0.06); }
+function sfxGlitch()  { beep(190, 'sawtooth', 0.09,  0.06); }
+function sfxWin() {
+    [523,659,784,1047].forEach((f,i) =>
+        setTimeout(() => beep(f,'triangle',0.14,0.10), i*90));
+}
+function sfxLose() {
+    [380,300,220].forEach((f,i) =>
+        setTimeout(() => beep(f,'sawtooth',0.18,0.08), i*110));
+}
+
+function toggleMute() {
+    _muted = !_muted;
+    document.getElementById('btn-mute').textContent = _muted ? '🔇 SFX' : '🔊 SFX';
+}
+
+// ═══════════════════════════════════════════════════════
+//  UI REFS
+// ═══════════════════════════════════════════════════════
+const UI = {
+    board:       document.getElementById('game-board'),
+    level:       document.getElementById('ui-level'),
+    integrity:   document.getElementById('ui-integrity'),
+    moves:       document.getElementById('ui-moves'),
+    hiscore:     document.getElementById('ui-hiscore'),
+    modal:       document.getElementById('modal'),
+    modalTitle:  document.getElementById('modal-title'),
+    modalDesc:   document.getElementById('modal-desc'),
+    modalScore:  document.getElementById('modal-score'),
+    modalHi:     document.getElementById('modal-hi'),
+    modalBtn:    document.getElementById('modal-btn'),
+    btnUndo:     document.getElementById('btn-undo'),
+    btnHint:     document.getElementById('btn-hint'),
+};
+
+// ═══════════════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════════════
+let GS = {
+    level:       1,
+    size:        4,
+    grid:        [],
+    playing:     false,
+    integrity:   100,
+    moves:       0,
+    timerId:     null,
+    glitchId:    null,
+    history:     [],       // [{x,y,prevRot}] — undo stack
+    pathSet:     null,     // Set<y*size+x> for hint
+    highScore:   parseInt(localStorage.getItem('dl2_hi') || '0'),
+    hinting:     false,
+};
+
+UI.hiscore.textContent = GS.highScore;
+
+// ═══════════════════════════════════════════════════════
+//  PIPE CATALOGUE  [N,E,S,W]
+// ═══════════════════════════════════════════════════════
+const PIPE_TYPES = [
+    [1,0,1,0],  // straight vertical
+    [0,1,0,1],  // straight horizontal
+    [1,1,0,0],  // corner NE
+    [0,1,1,0],  // corner ES
+    [0,0,1,1],  // corner SW
+    [1,0,0,1],  // corner NW
+    [1,1,1,0],  // T — no West
+    [0,1,1,1],  // T — no North
+    [1,0,1,1],  // T — no East
+    [1,1,0,1],  // T — no South
+    [1,1,1,1],  // cross
+];
+
+// ═══════════════════════════════════════════════════════
+//  LEVEL GENERATOR  (all bugs fixed)
+// ═══════════════════════════════════════════════════════
+function generateLevel() {
+    // Grid grows up to 8×8 as level increases
+    GS.size = Math.min(4 + Math.floor((GS.level - 1) / 2), 8);
+    const sz = GS.size;
+
+    // 1. Empty grid
+    const grid = Array.from({length: sz}, () =>
+        Array.from({length: sz}, () => ({
+            ports: [0,0,0,0], rot: 0,
+            isSource: false, isTarget: false,
+            isEncrypted: false, isGlitch: false,
+            element: null
+        }))
+    );
+
+    // 2. Random right/down path from (0,0) to (sz-1, sz-1)
+    const path = [];
+    let cx = 0, cy = 0;
+    path.push({x:0, y:0});
+    while (cx !== sz-1 || cy !== sz-1) {
+        const moves = [];
+        if (cx < sz-1) moves.push({x: cx+1, y: cy});
+        if (cy < sz-1) moves.push({x: cx, y: cy+1});
+        const nxt = moves[Math.floor(Math.random() * moves.length)];
+        path.push(nxt);
+        cx = nxt.x; cy = nxt.y;
+    }
+
+    // 3. Assign ports to path cells  ← SOURCE BUG FIXED HERE
+    //    (original code hardcoded source ports to East-only, breaking South-first paths)
+    for (let i = 0; i < path.length; i++) {
+        const {x, y} = path[i];
+        const prev = i > 0            ? path[i-1] : null;
+        const next = i < path.length-1 ? path[i+1] : null;
+        const cell = grid[y][x];
+        cell.ports = [0,0,0,0];
+        if (prev) {
+            if (prev.y < y) cell.ports[0] = 1;  // from North
+            if (prev.x < x) cell.ports[3] = 1;  // from West
+        }
+        if (next) {
+            if (next.y > y) cell.ports[2] = 1;  // to South
+            if (next.x > x) cell.ports[1] = 1;  // to East
+        }
+    }
+
+    // 4. Mark source & target
+    grid[0][0].isSource      = true;
+    grid[sz-1][sz-1].isTarget = true;
+
+    // 5. Fill non-path cells + scramble rotations + add hazards
+    const pathSet = new Set(path.map(p => p.y * sz + p.x));
+    const hazardChance = 0.04 + GS.level * 0.016;
+
+    for (let y = 0; y < sz; y++) {
+        for (let x = 0; x < sz; x++) {
+            const cell = grid[y][x];
+
+            if (!pathSet.has(y * sz + x)) {
+                // Random filler pipe
+                cell.ports = [...PIPE_TYPES[Math.floor(Math.random() * PIPE_TYPES.length)]];
+            }
+
+            // Scramble rotation (never source/target)
+            if (!cell.isSource && !cell.isTarget) {
+                cell.rot = Math.floor(Math.random() * 4) * 90;
+            }
+
+            // Hazards
+            if (!cell.isSource && !cell.isTarget) {
+                const r = Math.random();
+                if      (r < hazardChance)       cell.isEncrypted = true;
+                else if (r < hazardChance * 1.6) cell.isGlitch    = true;
+            }
+        }
+    }
+
+    GS.grid    = grid;
+    GS.pathSet = pathSet;
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDERER  (DocumentFragment for single reflow)
+// ═══════════════════════════════════════════════════════
+function renderBoard() {
+    const sz   = GS.size;
+    const frag = document.createDocumentFragment();
+    UI.board.style.gridTemplateColumns = `repeat(${sz}, 1fr)`;
+
+    GS.grid.forEach((row, y) => {
+        row.forEach((cell, x) => {
+            const div = document.createElement('div');
+            div.className = 'cell';
+            if (cell.isSource)    div.classList.add('source');
+            if (cell.isTarget)    div.classList.add('target');
+            if (cell.isEncrypted) div.classList.add('encrypted');
+            if (cell.isGlitch)    div.classList.add('glitch');
+
+            // Port segments
+            cell.ports.forEach((has, i) => {
+                if (!has) return;
+                const p = document.createElement('div');
+                p.className = `port port-${i}`;
+                div.appendChild(p);
+            });
+
+            // Hub
+            if (cell.ports.some(Boolean)) {
+                const hub = document.createElement('div');
+                hub.className = 'center-hub';
+                div.appendChild(hub);
+            }
+
+            div.style.transform = `rotate(${cell.rot}deg)`;
+            div.addEventListener('click', () => handleTap(x, y));
+            cell.element = div;
+            frag.appendChild(div);
+        });
+    });
+
+    UI.board.innerHTML = '';
+    UI.board.appendChild(frag);
+    updateFlow();
+}
+
+// ═══════════════════════════════════════════════════════
+//  INTERACTION
+// ═══════════════════════════════════════════════════════
+function handleTap(x, y) {
+    if (!GS.playing) return;
+    const cell = GS.grid[y][x];
+    if (cell.isSource || cell.isTarget) return;
+
+    // Tap encrypted → decrypt (costs one turn, no rotation)
+    if (cell.isEncrypted) {
+        cell.isEncrypted = false;
+        cell.element.classList.remove('encrypted');
+        GS.moves++;
+        UI.moves.textContent = GS.moves;
+        sfxDecrypt();
+        return;
+    }
+
+    // Save undo snapshot (max 20 entries)
+    GS.history.push({x, y, prevRot: cell.rot});
+    if (GS.history.length > 20) GS.history.shift();
+    UI.btnUndo.disabled = false;
+
+    // Rotate clockwise
+    cell.rot = (cell.rot + 90) % 360;
+    cell.element.style.transform = `rotate(${cell.rot}deg)`;
+    GS.moves++;
+    UI.moves.textContent = GS.moves;
+    sfxClick();
+    updateFlow();
+}
+
+function undoMove() {
+    if (!GS.playing || GS.history.length === 0) return;
+    const {x, y, prevRot} = GS.history.pop();
+    const cell = GS.grid[y][x];
+    cell.rot = prevRot;
+    cell.element.style.transform = `rotate(${cell.rot}deg)`;
+    GS.moves = Math.max(0, GS.moves - 1);
+    UI.moves.textContent = GS.moves;
+    UI.btnUndo.disabled = GS.history.length === 0;
+    updateFlow();
+}
+
+function showHint() {
+    if (!GS.playing || GS.hinting) return;
+    GS.hinting = true;
+    UI.btnHint.disabled = true;
+
+    // Integrity penalty
+    GS.integrity = Math.max(1, GS.integrity - 10);
+    UI.integrity.textContent = GS.integrity;
+    sfxHint();
+
+    // Flash path cells yellow
+    GS.grid.forEach((row, y) => row.forEach((cell, x) => {
+        if (GS.pathSet.has(y * GS.size + x)) cell.element.classList.add('hint-on');
+    }));
+
+    setTimeout(() => {
+        GS.grid.forEach(row => row.forEach(cell => cell.element.classList.remove('hint-on')));
+        GS.hinting = false;
+        UI.btnHint.disabled = false;
+    }, 900);
+}
+
+// ═══════════════════════════════════════════════════════
+//  FLOW LOGIC  (BFS / DFS with Uint8Array for perf)
+// ═══════════════════════════════════════════════════════
+function getAbsPorts(x, y) {
+    const cell = GS.grid[y][x];
+    const r    = (cell.rot / 90) | 0;
+    // Rotate [N,E,S,W] by r steps clockwise
+    return [0,1,2,3].map(i => cell.ports[(i + 4 - r) % 4]);
+}
+
+function updateFlow() {
+    const sz        = GS.size;
+    const connected = Array.from({length: sz}, () => new Uint8Array(sz));
+    const stack     = [{x:0, y:0}];
+    connected[0][0] = 1;
+    let win = false;
+
+    while (stack.length > 0) {
+        const {x, y} = stack.pop();
+        if (x === sz-1 && y === sz-1) win = true;
+        const p = getAbsPorts(x, y);
+
+        // North
+        if (y > 0 && p[0]) {
+            const p2 = getAbsPorts(x, y-1);
+            if (p2[2] && !connected[y-1][x]) { connected[y-1][x] = 1; stack.push({x, y: y-1}); }
+        }
+        // East
+        if (x < sz-1 && p[1]) {
+            const p2 = getAbsPorts(x+1, y);
+            if (p2[3] && !connected[y][x+1]) { connected[y][x+1] = 1; stack.push({x: x+1, y}); }
+        }
+        // South
+        if (y < sz-1 && p[2]) {
+            const p2 = getAbsPorts(x, y+1);
+            if (p2[0] && !connected[y+1][x]) { connected[y+1][x] = 1; stack.push({x, y: y+1}); }
+        }
+        // West
+        if (x > 0 && p[3]) {
+            const p2 = getAbsPorts(x-1, y);
+            if (p2[1] && !connected[y][x-1]) { connected[y][x-1] = 1; stack.push({x: x-1, y}); }
+        }
+    }
+
+    // Batch DOM update
+    for (let y = 0; y < sz; y++) {
+        for (let x = 0; x < sz; x++) {
+            const el = GS.grid[y][x].element;
+            if (connected[y][x]) el.classList.add('active');
+            else                 el.classList.remove('active');
+        }
+    }
+
+    if (win) endGame(true);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCORING
+// ═══════════════════════════════════════════════════════
+function calcScore() {
+    // Higher score for: more integrity left, higher level, fewer moves
+    const moveBonus = Math.max(0, 200 - GS.moves * 2);
+    return Math.floor(GS.integrity * GS.level * 8 + GS.level * 80 + moveBonus);
+}
+
+// ═══════════════════════════════════════════════════════
+//  GAME LOOP
+// ═══════════════════════════════════════════════════════
+function startGame() {
+    // Stop any running loops first
+    clearInterval(GS.timerId);
+    clearInterval(GS.glitchId);
+
+    // Reset state
+    GS.playing   = true;
+    GS.integrity = 100;
+    GS.moves     = 0;
+    GS.history   = [];
+    GS.hinting   = false;
+
+    UI.level.textContent         = GS.level;
+    UI.integrity.textContent     = GS.integrity;
+    UI.integrity.className       = 'stat-val';
+    UI.moves.textContent         = 0;
+    UI.btnUndo.disabled          = true;
+    UI.btnHint.disabled          = false;
+    UI.modal.classList.remove('open');
+
+    generateLevel();
+    renderBoard(); // may call endGame(true) for instantly-solved boards
+
+    // Guard: if game was solved instantly (statistically near-impossible, but safe)
+    if (!GS.playing) return;
+
+    // Drain speed: 1200ms base, 50ms faster per level, floor 500ms
+    const tick = Math.max(500, 1200 - GS.level * 50);
+
+    GS.timerId = setInterval(() => {
+        if (!GS.playing) return;
+        GS.integrity--;
+        UI.integrity.textContent = GS.integrity;
+        if (GS.integrity <= 20) UI.integrity.classList.add('warn');
+        if (GS.integrity <= 0)  endGame(false);
+    }, tick);
+
+    // Glitch interval: glitch cells auto-rotate every few seconds
+    GS.glitchId = setInterval(() => {
+        if (!GS.playing) return;
+        let changed = false;
+        GS.grid.forEach(row => row.forEach(cell => {
+            if (cell.isGlitch && !cell.isEncrypted) {
+                cell.rot = (cell.rot + 90) % 360;
+                cell.element.style.transform = `rotate(${cell.rot}deg)`;
+                changed = true;
+            }
+        }));
+        if (changed) { sfxGlitch(); updateFlow(); }
+    }, 3800);
+}
+
+// ── SCORE REPORTING TO APP ──
+function sendScoreToApp(score, isNewRecord) {
+  if (window.ReactNativeWebView) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'SEND_SCORE',
+      score: score,
+      game: 'Data Link',
+      isNewRecord: isNewRecord,
+    }));
+  }
+}
+
+function endGame(won) {
+    if (!GS.playing) return;  // guard against double-call
+    GS.playing = false;
+    clearInterval(GS.timerId);
+    clearInterval(GS.glitchId);
+
+    const score  = calcScore();
+    let   newHi  = false;
+
+    UI.modalHi.style.display = 'none';
+
+    const isNew = won && score > GS.highScore;
+  sendScoreToApp(score, isNew);
+
+  if (won) {
+        if (score > GS.highScore) {
+            GS.highScore = score;
+            localStorage.setItem('dl2_hi', GS.highScore);
+            UI.hiscore.textContent   = GS.highScore;
+            UI.modalHi.style.display = 'block';
+            newHi = true;
+        }
+        UI.modalTitle.textContent = 'ACCESS GRANTED';
+        UI.modalTitle.className   = 'win-text';
+        UI.modalDesc.textContent  = `Packet delivered · Integrity remaining: ${GS.integrity}%`;
+        UI.modalScore.textContent = `SCORE  ${score}`;
+        UI.modalBtn.textContent   = 'NEXT LEVEL';
+        GS.level++;
+        sfxWin();
+    } else {
+        UI.modalTitle.textContent = 'SYSTEM FAILURE';
+        UI.modalTitle.className   = 'lose-text';
+        UI.modalDesc.textContent  = 'Connection lost. Rebooting from level 1.';
+        UI.modalScore.textContent = `REACHED LEVEL  ${GS.level}`;
+        UI.modalBtn.textContent   = 'REBOOT SYSTEM';
+        GS.level = 1;
+        sfxLose();
+    }
+
+    UI.modal.classList.add('open');
+}
+
+function nextAction() { startGame(); }
+
+// ── Boot ──
+startGame();
+</script>
+</body>
+</html>

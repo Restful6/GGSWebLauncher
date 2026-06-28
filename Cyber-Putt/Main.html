@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Cyber-Putt</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Greek Games Studios">
+  <link rel="canonical" href="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Cyber-Putt/Main.html">
+  
+  <meta name="description" content="Play CYBER-PUTT, a free browser mini game by Greek Games Studios. Play instantly, no download required.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="CYBER-PUTT - Free Browser Mini Game | Greek Games Studios">
+  <meta property="og:description" content="Play CYBER-PUTT instantly in your browser. Play instantly, no download needed.">
+  <meta property="og:image" content="https://greekgamesstudios.com/images/WebCyberPuttLogo.png">
+  <meta property="og:url" content="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Cyber-Putt/Main.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Greek Games Studios">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CYBER-PUTT - Free Browser Mini Game">
+  <meta name="twitter:description" content="Play CYBER-PUTT instantly in your browser. No download needed.">
+  <meta name="twitter:image" content="https://greekgamesstudios.com/images/WebCyberPuttLogo.png">
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "CYBER-PUTT",
+    "description": "A free browser-based mini game. Play instantly, no download required.",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "url": "https://greekgamesstudios.com"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "genre": ["Arcade", "Classic", "Mini Game"],
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any",
+    "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Cyber-Putt/Main.html"
+  }
+  </script>
+
+<link rel="icon" type="png" href="/images/WebCyberPuttLogo.png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    background: #06100e;
+    color: #c8dde8;
+    font-family: 'Orbitron', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#game-container {
+    position: relative;
+    width: min(95vw, 800px);
+    aspect-ratio: 4 / 3;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    border: 2px solid #1a3530;
+    cursor: crosshair;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+
+/* ===== OVERLAYS ===== */
+.overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: rgba(4, 12, 18, 0.94);
+    border-radius: 10px;
+    padding: 28px 24px;
+    backdrop-filter: blur(4px);
+}
+.overlay.hidden { display: none; }
+
+.overlay h1 {
+    font-size: clamp(1.6em, 5vw, 2.8em);
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: #3dd9b0;
+}
+.overlay h2 {
+    font-size: clamp(0.9em, 2.8vw, 1.4em);
+    color: #7ab8a8;
+    letter-spacing: 3px;
+    font-weight: 700;
+}
+.overlay p {
+    font-size: clamp(0.6em, 1.8vw, 0.82em);
+    color: #5a7870;
+    text-align: center;
+    line-height: 1.8;
+    max-width: 78%;
+    letter-spacing: 1px;
+}
+.overlay .divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #3dd9b0, transparent);
+    border-radius: 1px;
+}
+
+.rating-badge {
+    font-size: clamp(1em, 3vw, 1.7em);
+    font-weight: 900;
+    letter-spacing: 4px;
+    padding: 8px 24px;
+    border-radius: 6px;
+    border: 1px solid currentColor;
+}
+
+.btn {
+    background: transparent;
+    border: 2px solid #3dd9b0;
+    color: #3dd9b0;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(0.7em, 2vw, 1em);
+    font-weight: 700;
+    padding: 11px 32px;
+    border-radius: 5px;
+    cursor: pointer;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    transition: background 0.18s, color 0.18s;
+}
+.btn:hover, .btn:active { background: #3dd9b0; color: #030d0b; }
+
+/* Scorecard */
+.scorecard {
+    display: grid;
+    grid-template-columns: 38px repeat(9, 1fr);
+    gap: 3px;
+    width: 90%;
+    max-width: 650px;
+    font-size: clamp(0.48em, 1.35vw, 0.7em);
+}
+.sc {
+    background: #0c1f1c;
+    padding: 6px 2px;
+    text-align: center;
+    border-radius: 3px;
+    color: #6a9088;
+}
+.sc.hd  { background: #071614; color: #3dd9b0; }
+.sc.hio { background: #1a0835; color: #c060ff; }
+.sc.neg { background: #082014; color: #30d870; }
+.sc.pos { background: #200808; color: #e04040; }
+
+/* ===== HUD ===== */
+#hud {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: none;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 9px 13px;
+    pointer-events: none;
+    z-index: 5;
+}
+.hchip {
+    background: rgba(4, 18, 16, 0.85);
+    border: 1px solid #1a3530;
+    border-radius: 5px;
+    padding: 5px 11px;
+    font-size: clamp(0.5em, 1.5vw, 0.78em);
+    text-align: center;
+    line-height: 1.5;
+    color: #4a8070;
+}
+.hchip .v {
+    display: block;
+    color: #c8dde8;
+    font-size: 1.3em;
+    font-weight: 700;
+}
+
+/* Skip / Concede button */
+#skip-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 11px;
+    display: none;
+    z-index: 6;
+    pointer-events: all;
+    background: rgba(22, 6, 6, 0.88);
+    border: 1px solid #5a2020;
+    color: #a05050;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(0.45em, 1.3vw, 0.65em);
+    padding: 6px 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 1px;
+}
+#skip-btn:hover { background: #5a2020; color: #f0c0c0; }
+
+/* Power bar */
+#pbar {
+    position: absolute;
+    bottom: 13px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 52%;
+    max-width: 260px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 5;
+}
+#pbar.show { opacity: 1; }
+#pbar-label {
+    font-size: 0.48em;
+    color: #3a6058;
+    text-align: center;
+    margin-bottom: 5px;
+    letter-spacing: 3px;
+}
+#pbar-track {
+    height: 6px;
+    background: #0c1f1c;
+    border-radius: 3px;
+    border: 1px solid #1a3530;
+    overflow: hidden;
+}
+#pbar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+    background: #3dd9b0;
+    transition: background 0.08s;
+}
+
+/* Toast */
+#toast {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(0.8em, 2.4vw, 1.2em);
+    font-weight: 900;
+    letter-spacing: 4px;
+    padding: 10px 22px;
+    border-radius: 6px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s;
+    z-index: 9;
+    white-space: nowrap;
+    border: 1px solid currentColor;
+}
+#toast.show { opacity: 1; }
+
+footer {
+    margin-top: 9px;
+    font-size: 0.58em;
+    color: #1e3530;
+    letter-spacing: 3px;
+}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD -->
+    <div id="hud">
+        <div class="hchip">HOLE<span class="v" id="h-hole">1/9</span></div>
+        <div class="hchip">STROKES<span class="v" id="h-str">0</span></div>
+        <div class="hchip">PAR<span class="v" id="h-par">2</span></div>
+    </div>
+
+    <!-- Concede button (after too many strokes) -->
+    <button id="skip-btn">GIVE UP HOLE</button>
+
+    <!-- Power bar -->
+    <div id="pbar">
+        <div id="pbar-label">POWER</div>
+        <div id="pbar-track"><div id="pbar-fill"></div></div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast"></div>
+
+    <!-- START MENU -->
+    <div id="m-start" class="overlay">
+        <h1>CYBER-PUTT</h1>
+        <div class="divider"></div>
+        <p>
+            Drag from the ball to aim &amp; shoot.<br>
+            Walls · Bouncers · Sand Traps · Boost Pads · Portals<br>
+            9 Holes · Par System · Full Scorecard
+        </p>
+        <button class="btn" id="btn-start">START GAME</button>
+    </div>
+
+    <!-- LEVEL COMPLETE -->
+    <div id="m-lc" class="overlay hidden">
+        <h2 id="lc-title">HOLE 1 COMPLETE</h2>
+        <div class="rating-badge" id="lc-rating">PAR</div>
+        <p id="lc-detail">2 strokes · Par 2</p>
+        <p id="lc-total">Running total: 0</p>
+        <button class="btn" id="btn-next">NEXT HOLE →</button>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="m-go" class="overlay hidden">
+        <h1>ROUND COMPLETE</h1>
+        <h2 id="go-score">–</h2>
+        <div class="scorecard" id="go-sc"></div>
+        <div class="rating-badge" id="go-rating">–</div>
+        <button class="btn" id="btn-restart">PLAY AGAIN</button>
+    </div>
+</div>
+
+<footer>POWERED BY GREEK GAMES STUDIOS</footer>
+
+<script>
+// ============================================================
+//  SETUP
+// ============================================================
+const canvas = document.getElementById('game-canvas');
+const ctx    = canvas.getContext('2d', { alpha: false });
+canvas.width  = 800;
+canvas.height = 600;
+const W = 800, H = 600;
+
+// DOM refs
+const HUD      = document.getElementById('hud');
+const skipBtn  = document.getElementById('skip-btn');
+const pbar     = document.getElementById('pbar');
+const pbarFill = document.getElementById('pbar-fill');
+const toastEl  = document.getElementById('toast');
+const mStart   = document.getElementById('m-start');
+const mLC      = document.getElementById('m-lc');
+const mGO      = document.getElementById('m-go');
+
+document.getElementById('btn-start').onclick   = startGame;
+document.getElementById('btn-next').onclick    = goNextHole;
+document.getElementById('btn-restart').onclick = restartGame;
+skipBtn.onclick = skipHole;
+
+// ============================================================
+//  CONSTANTS
+// ============================================================
+const FRICTION    = 0.984;
+const SAND_FRIC   = 0.905;
+const MAX_POWER   = 14;
+const MIN_VEL     = 0.08;
+const TOTAL_HOLES = 9;
+const MAX_DRAG    = 155;   // canvas-px
+const AIM_R       = 75;    // click radius around ball
+
+// Par per hole — progressive difficulty
+const PARS      = [2, 2, 3, 3, 3, 4, 3, 4, 4];
+const TOTAL_PAR = 28;
+
+// ============================================================
+//  STATE
+// ============================================================
+let gameState = 'menu';   // menu | playing | sinking | levelComplete | gameOver
+let rafId     = null;
+
+let ball = { x:100, y:300, radius:10, vx:0, vy:0, teleCD:0, boostCD:0 };
+let hole = { x:700, y:300, radius:14 };
+let obstacles  = [];
+let particles  = [];
+
+let currentHole  = 0;
+let strokes      = 0;
+let totalStrokes = 0;
+let holeScores   = [];
+
+let isAiming   = false;
+let aimCur     = { x:0, y:0 };
+
+let sinkTimer    = 0;
+const SINK_DUR   = 48;
+
+let autoComplete  = false;
+let holeCardTimer = 0;    // "HOLE X" intro card countdown
+let animT         = 0;    // frame counter for animations
+
+let bgPattern = null;
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function dst(x1,y1,x2,y2) { const dx=x2-x1,dy=y2-y1; return Math.sqrt(dx*dx+dy*dy); }
+function d2(x1,y1,x2,y2)  { const dx=x2-x1,dy=y2-y1; return dx*dx+dy*dy; }
+function clamp(v,lo,hi)    { return v<lo?lo:v>hi?hi:v; }
+function rnd(lo,hi)        { return Math.floor(Math.random()*(hi-lo+1))+lo; }
+function inRect(x,y,r)     { return x>=r.x&&x<=r.x+r.width&&y>=r.y&&y<=r.y+r.height; }
+
+// Cross-browser rounded rect path
+function rRect(x,y,w,h,r) {
+    const R = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+R,y);
+    ctx.lineTo(x+w-R,y); ctx.quadraticCurveTo(x+w,y,x+w,y+R);
+    ctx.lineTo(x+w,y+h-R); ctx.quadraticCurveTo(x+w,y+h,x+w-R,y+h);
+    ctx.lineTo(x+R,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-R);
+    ctx.lineTo(x,y+R); ctx.quadraticCurveTo(x,y,x+R,y);
+    ctx.closePath();
+}
+
+// ============================================================
+//  RATINGS
+// ============================================================
+function strokeRating(s, par) {
+    const d = s - par;
+    if (s === 1)  return { label:'HOLE IN ONE!',  color:'#c060ff', bg:'rgba(40,10,70,0.9)' };
+    if (d <= -2)  return { label:'EAGLE',          color:'#30d870', bg:'rgba(8,40,20,0.9)'  };
+    if (d === -1) return { label:'BIRDIE',          color:'#70e040', bg:'rgba(12,30,8,0.9)'  };
+    if (d ===  0) return { label:'PAR',             color:'#3dd9b0', bg:'rgba(8,30,28,0.9)'  };
+    if (d ===  1) return { label:'BOGEY',           color:'#e0a030', bg:'rgba(30,18,0,0.9)'  };
+    if (d ===  2) return { label:'DOUBLE BOGEY',    color:'#e04040', bg:'rgba(30,8,8,0.9)'   };
+    return              { label:`+${d}`,            color:'#c03030', bg:'rgba(24,4,4,0.9)'   };
+}
+
+function finalRating(total) {
+    const d = total - TOTAL_PAR;
+    if (d <= -6) return { label:'LEGENDARY',       color:'#c060ff' };
+    if (d <= -3) return { label:'EXCELLENT',        color:'#30d870' };
+    if (d <=  1) return { label:'SOLID ROUND',      color:'#3dd9b0' };
+    if (d <=  6) return { label:'AVERAGE',          color:'#e0a030' };
+    return              { label:'NEEDS PRACTICE',   color:'#e04040' };
+}
+
+// ============================================================
+//  LEVEL GENERATION  (no-overlap)
+// ============================================================
+function getBBox(obj, pad=0) {
+    if (obj.radius !== undefined)
+        return { x:obj.x-obj.radius-pad, y:obj.y-obj.radius-pad, w:(obj.radius+pad)*2, h:(obj.radius+pad)*2 };
+    return { x:obj.x-pad, y:obj.y-pad, w:obj.width+pad*2, h:obj.height+pad*2 };
+}
+function overlapsBB(a, b, pad=22) {
+    const ba=getBBox(a,pad), bb=getBBox(b);
+    return ba.x < bb.x+bb.w && ba.x+ba.w > bb.x && ba.y < bb.y+bb.h && ba.y+ba.h > bb.y;
+}
+function overlapAny(obj, list) { return list.some(o => overlapsBB(obj,o)); }
+
+function generateLevel(idx) {
+    const lvl = { obstacles:[] };
+    const placed = [];
+
+    // Ball — left side
+    const bx = rnd(55,155), by = rnd(80,H-80);
+    lvl.ballStart = { x:bx, y:by, radius:10 };
+    placed.push(lvl.ballStart);
+
+    // Hole — right side, minimum distance 280
+    let hx, hy, att=0;
+    do {
+        hx = rnd(W-155, W-60);
+        hy = rnd(80, H-80);
+        att++;
+    } while (dst(bx,by,hx,hy) < 280 && att < 40);
+    lvl.hole = { x:hx, y:hy, radius:14 };
+    placed.push(lvl.hole);
+
+    // Obstacle count scales with level
+    const base  = 4 + Math.floor(idx * 0.85);
+    const count = rnd(base, base+4);
+    const TRIES = 65;
+
+    for (let i=0; i<count; i++) {
+        let added = false;
+        for (let a=0; a<TRIES && !added; a++) {
+            const roll = Math.random();
+            const ox = rnd(80,W-80), oy = rnd(80,H-80);
+            let obs;
+
+            if (roll < 0.28) {
+                // Wall
+                let w=rnd(14,35), h=rnd(72,148);
+                if (Math.random()>0.5) [w,h]=[h,w];
+                obs = { type:'rect', x:ox-w/2, y:oy-h/2, width:w, height:h };
+            } else if (roll < 0.48) {
+                // Bouncer
+                obs = { type:'circle', x:ox, y:oy, radius:rnd(16,28) };
+            } else if (roll < 0.67) {
+                // Sand
+                const sw=rnd(55,108), sh=rnd(45,95);
+                obs = { type:'sand', x:ox-sw/2, y:oy-sh/2, width:sw, height:sh };
+            } else if (roll < 0.84) {
+                // Boost pad — angle roughly toward hole + variance
+                const ang = Math.atan2(hy-oy, hx-ox) + (Math.random()-0.5)*0.9;
+                obs = { type:'boost', x:ox-26, y:oy-13, width:52, height:26, angle:ang };
+            } else {
+                // Portal pair
+                obs = { type:'portal', x:ox, y:oy, radius:14, teleCD:0, link:null };
+            }
+
+            if (!overlapAny(obs, placed)) {
+                if (obs.type === 'portal') {
+                    // Find 2nd portal at least 200px away
+                    let p2 = null;
+                    for (let p=0; p<55 && !p2; p++) {
+                        const x2=rnd(80,W-80), y2=rnd(80,H-80);
+                        if (d2(ox,oy,x2,y2) < 200*200) continue;
+                        const cand = { type:'portal', x:x2, y:y2, radius:14, teleCD:0, link:obs };
+                        if (!overlapAny(cand,placed) && !overlapsBB(cand,obs)) p2=cand;
+                    }
+                    if (p2) {
+                        obs.link = p2;
+                        lvl.obstacles.push(obs, p2);
+                        placed.push(obs, p2);
+                        added = true;
+                    }
+                } else {
+                    lvl.obstacles.push(obs);
+                    placed.push(obs);
+                    added = true;
+                }
+            }
+        }
+    }
+    return lvl;
+}
+
+// ============================================================
+//  PARTICLES
+// ============================================================
+function spawnHoleParticles() {
+    for (let i=0; i<24; i++) {
+        const ang = Math.random()*Math.PI*2;
+        const spd = 1+Math.random()*4;
+        particles.push({ x:hole.x, y:hole.y, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd,
+                         life:1, decay:0.022+Math.random()*0.025, r:2+Math.random()*3,
+                         hue:160+Math.random()*60 });
+    }
+}
+
+function spawnBoostParticles(pad) {
+    const cx=pad.x+pad.width/2, cy=pad.y+pad.height/2;
+    for (let i=0; i<12; i++) {
+        const ang = pad.angle+(Math.random()-0.5)*0.75;
+        const spd = 2+Math.random()*4;
+        particles.push({ x:cx, y:cy, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd,
+                         life:1, decay:0.055+Math.random()*0.04, r:1.5+Math.random()*2, hue:42 });
+    }
+}
+
+function updateParticles() {
+    for (let i=particles.length-1; i>=0; i--) {
+        const p=particles[i];
+        p.x+=p.vx; p.y+=p.vy;
+        p.vx*=0.93; p.vy*=0.93;
+        p.life-=p.decay;
+        if (p.life<=0) particles.splice(i,1);
+    }
+}
+
+function drawParticles() {
+    for (const p of particles) {
+        ctx.globalAlpha = p.life * 0.88;
+        ctx.fillStyle = `hsl(${p.hue},75%,58%)`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r*p.life, 0, Math.PI*2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+}
+
+// ============================================================
+//  COLLISION DETECTION  (move first → then resolve)
+// ============================================================
+function checkCollisions() {
+    // Canvas walls — push out + reflect
+    if (ball.x - ball.radius < 0)  { ball.x = ball.radius;     ball.vx =  Math.abs(ball.vx); }
+    if (ball.x + ball.radius > W)  { ball.x = W-ball.radius;   ball.vx = -Math.abs(ball.vx); }
+    if (ball.y - ball.radius < 0)  { ball.y = ball.radius;     ball.vy =  Math.abs(ball.vy); }
+    if (ball.y + ball.radius > H)  { ball.y = H-ball.radius;   ball.vy = -Math.abs(ball.vy); }
+
+    for (const obs of obstacles) {
+        switch (obs.type) {
+            case 'rect': {
+                // AABB closest-point collision + proper normal reflection
+                const cx = clamp(ball.x, obs.x, obs.x+obs.width);
+                const cy = clamp(ball.y, obs.y, obs.y+obs.height);
+                const dx = ball.x-cx, dy = ball.y-cy;
+                const d2v = dx*dx+dy*dy;
+                if (d2v > 0 && d2v < ball.radius*ball.radius) {
+                    const d = Math.sqrt(d2v);
+                    const nx=dx/d, ny=dy/d;
+                    // Push out of penetration
+                    ball.x = cx + nx*ball.radius;
+                    ball.y = cy + ny*ball.radius;
+                    // Reflect velocity along normal (only if moving into wall)
+                    const dot = ball.vx*nx + ball.vy*ny;
+                    if (dot < 0) { ball.vx -= 2*dot*nx; ball.vy -= 2*dot*ny; }
+                }
+                break;
+            }
+            case 'circle': {
+                const dx = ball.x-obs.x, dy = ball.y-obs.y;
+                const d2v = dx*dx+dy*dy;
+                const minD = ball.radius+obs.radius;
+                if (d2v > 0 && d2v < minD*minD) {
+                    const d = Math.sqrt(d2v);
+                    const nx=dx/d, ny=dy/d;
+                    // Push out
+                    ball.x = obs.x + nx*minD;
+                    ball.y = obs.y + ny*minD;
+                    // Reflect with tiny bounce boost
+                    const dot = ball.vx*nx + ball.vy*ny;
+                    if (dot < 0) { ball.vx -= 2*dot*nx*1.05; ball.vy -= 2*dot*ny*1.05; }
+                }
+                break;
+            }
+            case 'boost': {
+                if (ball.boostCD === 0 && inRect(ball.x,ball.y,obs)) {
+                    const spd = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
+                    const newSpd = Math.max(spd*1.65, MAX_POWER*0.72);
+                    ball.vx = Math.cos(obs.angle)*newSpd;
+                    ball.vy = Math.sin(obs.angle)*newSpd;
+                    ball.boostCD = 52;
+                    spawnBoostParticles(obs);
+                }
+                break;
+            }
+            case 'portal': {
+                // BUGFIX: cooldown on BOTH portals + ball to prevent re-teleport
+                if (ball.teleCD === 0 && obs.teleCD === 0 && obs.link) {
+                    if (d2(ball.x,ball.y,obs.x,obs.y) < (ball.radius+obs.radius)**2) {
+                        ball.x = obs.link.x;
+                        ball.y = obs.link.y;
+                        ball.teleCD  = 90;
+                        obs.teleCD   = 90;          // entry portal cooldown
+                        obs.link.teleCD = 90;       // exit portal cooldown
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+
+// ============================================================
+//  UPDATE
+// ============================================================
+function update() {
+    animT += 0.05;
+    updateParticles();
+
+    // Sinking animation
+    if (gameState === 'sinking') {
+        sinkTimer++;
+        const t = sinkTimer / SINK_DUR;
+        ball.radius = Math.max(0, 10*(1-t));
+        ball.x += (hole.x-ball.x)*0.13;
+        ball.y += (hole.y-ball.y)*0.13;
+        if (sinkTimer >= SINK_DUR) showLevelComplete();
+        return;
+    }
+
+    if (gameState !== 'playing') return;
+
+    // Tick cooldowns
+    if (ball.teleCD  > 0) ball.teleCD--;
+    if (ball.boostCD > 0) ball.boostCD--;
+    for (const obs of obstacles)
+        if (obs.type==='portal' && obs.teleCD>0) obs.teleCD--;
+
+    if (ball.vx === 0 && ball.vy === 0) return;
+
+    // Sand friction
+    let fric = FRICTION;
+    for (const obs of obstacles)
+        if (obs.type==='sand' && inRect(ball.x,ball.y,obs)) { fric=SAND_FRIC; break; }
+
+    ball.vx *= fric;
+    ball.vy *= fric;
+
+    // MOVE FIRST, then resolve collisions (prevents tunneling)
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+    checkCollisions();
+
+    // Stop check
+    if (Math.abs(ball.vx) < MIN_VEL && Math.abs(ball.vy) < MIN_VEL) {
+        ball.vx = ball.vy = 0;
+        ball.teleCD = ball.boostCD = 0;
+        if (autoComplete) { triggerHoleComplete(); return; }
+    }
+
+    // Hole-in check (slightly generous radius for fun factor)
+    if (d2(ball.x,ball.y,hole.x,hole.y) < (hole.radius + ball.radius*0.55)**2) {
+        ball.vx = ball.vy = 0;
+        triggerHoleComplete();
+    }
+}
+
+function triggerHoleComplete() {
+    if (gameState !== 'playing') return;
+    gameState    = 'sinking';
+    sinkTimer    = 0;
+    totalStrokes += strokes;
+    holeScores.push(strokes);
+    spawnHoleParticles();
+    skipBtn.style.display = 'none';
+    autoComplete = false;
+}
+
+// ============================================================
+//  DRAW
+// ============================================================
+function buildBgPattern() {
+    const oc = document.createElement('canvas');
+    oc.width = 36; oc.height = 36;
+    const o = oc.getContext('2d');
+    o.fillStyle = '#071210';
+    o.fillRect(0,0,36,36);
+    o.strokeStyle = '#0a1a18';
+    o.lineWidth = 0.5;
+    o.strokeRect(0,0,18,18);
+    o.strokeRect(18,18,18,18);
+    bgPattern = ctx.createPattern(oc,'repeat');
+}
+
+function draw() {
+    // Background
+    ctx.fillStyle = bgPattern || '#071210';
+    ctx.fillRect(0,0,W,H);
+
+    // Sand (floor layer first)
+    for (const obs of obstacles) if (obs.type==='sand') drawObs(obs);
+
+    // Hole
+    drawHole();
+
+    // Direction arrow while ball rolls
+    if (ball.vx !== 0 || ball.vy !== 0) drawArrow();
+
+    // Other obstacles
+    for (const obs of obstacles) if (obs.type!=='sand') drawObs(obs);
+
+    // Particles
+    drawParticles();
+
+    // Ball
+    drawBall();
+
+    // Aim guide
+    if (isAiming) drawAim();
+
+    // Hole intro card
+    if (holeCardTimer > 0) drawHoleCard();
+}
+
+function drawHole() {
+    const r = hole.radius;
+
+    // Proximity pulse ring
+    if (gameState === 'playing') {
+        const ballD2 = d2(ball.x,ball.y,hole.x,hole.y);
+        if (ballD2 < 120*120) {
+            const intensity = 1 - Math.sqrt(ballD2)/120;
+            const pulse = 0.5 + 0.5*Math.sin(animT*4);
+            ctx.strokeStyle = `rgba(61,217,176,${(0.15+intensity*0.3)*pulse})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(hole.x, hole.y, r*(1.3+0.12*pulse), 0, Math.PI*2);
+            ctx.stroke();
+        }
+    }
+
+    // Dark pit
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(hole.x,hole.y,r,0,Math.PI*2); ctx.fill();
+
+    // Rim
+    ctx.strokeStyle = 'rgba(61,217,176,0.65)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(hole.x,hole.y,r,0,Math.PI*2); ctx.stroke();
+
+    // Flagpole
+    ctx.strokeStyle = '#4a6060';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(hole.x, hole.y - r*0.15);
+    ctx.lineTo(hole.x, hole.y - r*1.6);
+    ctx.stroke();
+
+    // Flag
+    ctx.fillStyle = '#c83030';
+    ctx.beginPath();
+    ctx.moveTo(hole.x,         hole.y - r*1.6);
+    ctx.lineTo(hole.x + r*0.9, hole.y - r*1.3);
+    ctx.lineTo(hole.x,         hole.y - r);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawArrow() {
+    const dx=hole.x-ball.x, dy=hole.y-ball.y;
+    if (dx*dx+dy*dy < 100*100) return;
+    const ang = Math.atan2(dy,dx);
+    const ax = ball.x + Math.cos(ang)*28;
+    const ay = ball.y + Math.sin(ang)*28;
+    ctx.save();
+    ctx.translate(ax,ay); ctx.rotate(ang);
+    ctx.fillStyle = 'rgba(61,217,176,0.4)';
+    ctx.beginPath();
+    ctx.moveTo(8,0); ctx.lineTo(-5,-5); ctx.lineTo(-5,5);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+}
+
+function drawBall() {
+    if (ball.radius < 0.5) return;
+    const r = ball.radius;
+    // Drop shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.beginPath();
+    ctx.ellipse(ball.x+3, ball.y+5, r*0.85, r*0.45, 0, 0, Math.PI*2);
+    ctx.fill();
+    // Gradient sphere
+    const g = ctx.createRadialGradient(ball.x-r*0.35,ball.y-r*0.38,r*0.05, ball.x,ball.y,r);
+    g.addColorStop(0,   '#ffffff');
+    g.addColorStop(0.3, '#c2e4f0');
+    g.addColorStop(1,   '#2a8090');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(ball.x,ball.y,r,0,Math.PI*2); ctx.fill();
+}
+
+function drawObs(obs) {
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    switch (obs.type) {
+        case 'rect': {
+            ctx.fillStyle = '#0e2535';
+            rRect(obs.x,obs.y,obs.width,obs.height,3);
+            ctx.fill();
+            ctx.strokeStyle = '#1a4060';
+            ctx.lineWidth = 1.5;
+            rRect(obs.x,obs.y,obs.width,obs.height,3);
+            ctx.stroke();
+            // Inner highlight edge
+            ctx.strokeStyle = 'rgba(60,140,180,0.12)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(obs.x+4, obs.y+obs.height-4);
+            ctx.lineTo(obs.x+4, obs.y+4);
+            ctx.lineTo(obs.x+obs.width-4, obs.y+4);
+            ctx.stroke();
+            break;
+        }
+        case 'sand': {
+            ctx.fillStyle = 'rgba(168,128,48,0.3)';
+            rRect(obs.x,obs.y,obs.width,obs.height,5);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(188,148,68,0.4)';
+            ctx.lineWidth = 1;
+            rRect(obs.x,obs.y,obs.width,obs.height,5);
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(200,165,75,0.32)';
+            ctx.font = `8px Orbitron, sans-serif`;
+            ctx.fillText('SAND', obs.x+obs.width/2, obs.y+obs.height/2);
+            break;
+        }
+        case 'circle': {
+            const g = ctx.createRadialGradient(obs.x-obs.radius*0.3, obs.y-obs.radius*0.3, 2, obs.x,obs.y,obs.radius);
+            g.addColorStop(0, '#52b862');
+            g.addColorStop(1, '#0e2e18');
+            ctx.fillStyle = g;
+            ctx.beginPath(); ctx.arc(obs.x,obs.y,obs.radius,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle = 'rgba(70,200,90,0.55)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(obs.x,obs.y,obs.radius,0,Math.PI*2); ctx.stroke();
+            ctx.fillStyle = 'rgba(100,240,110,0.38)';
+            ctx.font = `bold ${Math.round(obs.radius*0.82)}px Orbitron, sans-serif`;
+            ctx.fillText('B', obs.x, obs.y);
+            break;
+        }
+        case 'boost': {
+            ctx.translate(obs.x+obs.width/2, obs.y+obs.height/2);
+            ctx.rotate(obs.angle);
+            // Pad body
+            ctx.fillStyle = '#1a1400';
+            ctx.strokeStyle = '#a08000';
+            ctx.lineWidth = 1.5;
+            rRect(-obs.width/2,-obs.height/2,obs.width,obs.height,4);
+            ctx.fill();
+            rRect(-obs.width/2,-obs.height/2,obs.width,obs.height,4);
+            ctx.stroke();
+            // Arrow head
+            ctx.fillStyle = '#d4a800';
+            const hw=obs.width*0.44, hh=obs.height*0.37;
+            ctx.beginPath();
+            ctx.moveTo(hw,0);
+            ctx.lineTo(-hw*0.45,-hh); ctx.lineTo(-hw*0.1,0); ctx.lineTo(-hw*0.45,hh);
+            ctx.closePath(); ctx.fill();
+            break;
+        }
+        case 'portal': {
+            const onCD   = obs.teleCD > 0;
+            const pulse  = 0.72 + 0.28*Math.sin(animT*(onCD ? 0.8 : 2.8));
+            const baseC  = onCD ? [80,80,80] : [255,120,30];
+            const alpha  = onCD ? 0.45 : 0.8;
+
+            // Pulsing outer ring
+            ctx.strokeStyle = `rgba(${baseC[0]},${baseC[1]},${baseC[2]},${alpha*pulse})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(obs.x,obs.y, obs.radius*(0.88+0.18*pulse), 0, Math.PI*2);
+            ctx.stroke();
+
+            // Rotating inner swirl (3 arcs)
+            if (!onCD) {
+                ctx.strokeStyle = `rgba(255,140,50,0.35)`;
+                ctx.lineWidth = 1.2;
+                for (let i=0; i<3; i++) {
+                    const offset = animT*2 + i*(Math.PI*2/3);
+                    ctx.beginPath();
+                    ctx.arc(obs.x,obs.y, obs.radius*0.5, offset, offset+Math.PI*0.7);
+                    ctx.stroke();
+                }
+            }
+
+            // Filled core
+            const g = ctx.createRadialGradient(obs.x,obs.y,0, obs.x,obs.y,obs.radius*0.8);
+            g.addColorStop(0, onCD ? 'rgba(55,55,55,0.92)' : 'rgba(255,130,30,0.88)');
+            g.addColorStop(1, 'rgba(0,0,0,0.75)');
+            ctx.fillStyle = g;
+            ctx.beginPath(); ctx.arc(obs.x,obs.y,obs.radius*0.78,0,Math.PI*2); ctx.fill();
+            break;
+        }
+    }
+    ctx.restore();
+}
+
+function drawAim() {
+    const dx = aimCur.x - ball.x, dy = aimCur.y - ball.y;
+    const dragDSq = dx*dx+dy*dy;
+    const dragD   = Math.min(Math.sqrt(dragDSq), MAX_DRAG);
+    const power   = dragD / MAX_DRAG; // 0-1
+
+    const shotAng = Math.atan2(dy,dx) + Math.PI;
+    const lineLen = 65 + power*105;
+
+    // Colored dashed guide line
+    const r = Math.round(power*215);
+    const g = Math.round((1-power)*170);
+    ctx.save();
+    ctx.translate(ball.x, ball.y);
+    ctx.rotate(shotAng);
+    ctx.strokeStyle = `rgba(${r},${g},70,0.62)`;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5,5]);
+    ctx.beginPath();
+    ctx.moveTo(ball.radius+4, 0);
+    ctx.lineTo(lineLen, 0);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // Power dots along the aim line
+    const dots = Math.ceil(power*5);
+    for (let i=1; i<=dots; i++) {
+        const t  = i / (dots+1);
+        const px = ball.x + Math.cos(shotAng)*(lineLen*t + ball.radius+4);
+        const py = ball.y + Math.sin(shotAng)*(lineLen*t + ball.radius+4);
+        ctx.fillStyle = `rgba(230,190,35,${1-t*0.55})`;
+        ctx.beginPath();
+        ctx.arc(px,py,2.5,0,Math.PI*2);
+        ctx.fill();
+    }
+
+    // Update power bar
+    pbarFill.style.width   = `${power*100}%`;
+    pbarFill.style.background = power>0.72 ? '#e04040' : power>0.42 ? '#e0a030' : '#3dd9b0';
+}
+
+function drawHoleCard() {
+    holeCardTimer--;
+    const alpha = holeCardTimer > 20 ? 1 : holeCardTimer/20;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = 'rgba(3,10,14,0.72)';
+    ctx.fillRect(0, H/2-52, W, 105);
+    ctx.fillStyle = '#3dd9b0';
+    ctx.font = 'bold 32px Orbitron, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`HOLE ${currentHole+1}`, W/2, H/2-14);
+    ctx.font = '16px Orbitron, sans-serif';
+    ctx.fillStyle = '#7ab8a8';
+    ctx.fillText(`PAR ${PARS[currentHole]}`, W/2, H/2+18);
+    ctx.restore();
+}
+
+// ============================================================
+//  INPUT  (bug-fixed)
+// ============================================================
+function getPos(e) {
+    const rect=canvas.getBoundingClientRect();
+    const sx=W/rect.width, sy=H/rect.height;
+    const src=e.touches ? e.touches[0] : e;
+    return { x:(src.clientX-rect.left)*sx, y:(src.clientY-rect.top)*sy };
+}
+function getPosEnd(e) {
+    const rect=canvas.getBoundingClientRect();
+    const sx=W/rect.width, sy=H/rect.height;
+    const src=e.changedTouches ? e.changedTouches[0] : e;  // BUGFIX: use changedTouches on end
+    return { x:(src.clientX-rect.left)*sx, y:(src.clientY-rect.top)*sy };
+}
+
+canvas.addEventListener('mousedown',  onDown);
+canvas.addEventListener('touchstart', onDown, { passive:false });
+canvas.addEventListener('mousemove',  onMove);
+canvas.addEventListener('touchmove',  onMove, { passive:false });
+canvas.addEventListener('mouseup',    onUp);
+canvas.addEventListener('touchend',   onUp,   { passive:false });
+// BUGFIX: mouseleave only cancels aim — does NOT fire a shot
+canvas.addEventListener('mouseleave', () => {
+    if (isAiming) { isAiming=false; pbar.classList.remove('show'); pbarFill.style.width='0%'; }
+});
+
+function onDown(e) {
+    e.preventDefault();
+    if (gameState !== 'playing') return;
+    if (ball.vx !== 0 || ball.vy !== 0) return; // ball moving
+    const pos = getPos(e);
+    if (d2(pos.x,pos.y,ball.x,ball.y) <= AIM_R*AIM_R) {
+        isAiming = true;
+        aimCur   = { ...pos };
+        pbar.classList.add('show');
+    }
+}
+function onMove(e) {
+    e.preventDefault();
+    if (!isAiming) return;
+    aimCur = getPos(e);
+}
+function onUp(e) {
+    e.preventDefault();
+    if (!isAiming) return;
+    isAiming = false;
+    pbar.classList.remove('show');
+    pbarFill.style.width = '0%';
+    shoot(getPosEnd(e));
+}
+
+function shoot(pos) {
+    const dx=pos.x-ball.x, dy=pos.y-ball.y;
+    const dSq = dx*dx+dy*dy;
+    if (dSq < 25) return; // ignore micro-taps
+
+    const dragD = Math.min(Math.sqrt(dSq), MAX_DRAG);
+    const power = (dragD/MAX_DRAG)*MAX_POWER;
+    const ang   = Math.atan2(dy,dx)+Math.PI;
+
+    ball.vx = Math.cos(ang)*power;
+    ball.vy = Math.sin(ang)*power;
+    ball.teleCD = ball.boostCD = 0;
+    strokes++;
+    updateHUD();
+
+    // Show "give up" button after par + 3 strokes
+    if (strokes >= PARS[currentHole]+3) skipBtn.style.display = 'block';
+
+    // Auto-complete (max stroke protection) at par + 7
+    if (strokes >= PARS[currentHole]+7) {
+        autoComplete = true;
+        showToast('MAX STROKES!', '#e04040', 2200);
+    }
+}
+
+// ============================================================
+//  UI & FLOW
+// ============================================================
+function updateHUD() {
+    document.getElementById('h-hole').textContent = `${currentHole+1}/${TOTAL_HOLES}`;
+    document.getElementById('h-str').textContent  = strokes;
+    document.getElementById('h-par').textContent  = PARS[currentHole];
+}
+
+let toastTmr = null;
+function showToast(msg, color, duration=2000) {
+    toastEl.textContent    = msg;
+    toastEl.style.color    = color;
+    toastEl.style.background = 'rgba(4,10,16,0.92)';
+    toastEl.style.borderColor = color;
+    toastEl.classList.add('show');
+    clearTimeout(toastTmr);
+    toastTmr = setTimeout(() => toastEl.classList.remove('show'), duration);
+}
+
+function showLevelComplete() {
+    gameState = 'levelComplete';
+    const par = PARS[currentHole];
+    const rat = strokeRating(strokes, par);
+
+    // Brief toast first, then open menu
+    showToast(rat.label, rat.color, 1400);
+    setTimeout(() => {
+        document.getElementById('lc-title').textContent   = `HOLE ${currentHole+1} COMPLETE`;
+        const rEl = document.getElementById('lc-rating');
+        rEl.textContent     = rat.label;
+        rEl.style.color     = rat.color;
+        rEl.style.background = rat.bg;
+        document.getElementById('lc-detail').textContent  = `${strokes} stroke${strokes!==1?'s':''} · Par ${par}`;
+        document.getElementById('lc-total').textContent   = `Running total: ${totalStrokes} strokes`;
+        mLC.classList.remove('hidden');
+    }, 1500);
+}
+
+function goNextHole() {
+    mLC.classList.add('hidden');
+    currentHole++;
+    if (currentHole >= TOTAL_HOLES) { showGameOver(); return; }
+    loadHole(currentHole);
+}
+
+function skipHole() {
+    if (gameState !== 'playing') return;
+    skipBtn.style.display = 'none';
+    ball.vx = ball.vy = 0;
+    triggerHoleComplete();
+}
+
+// ── SCORE REPORTING TO APP ──
+function sendScoreToApp(score, isNewRecord) {
+  if (window.ReactNativeWebView) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'SEND_SCORE',
+      score: score,
+      game: 'Cyber Putt',
+      isNewRecord: isNewRecord,
+    }));
+  }
+}
+
+function showGameOver() {
+    gameState = 'gameOver';
+    HUD.style.display     = 'none';
+    skipBtn.style.display = 'none';
+
+    const rat = finalRating(totalStrokes);
+    // Convert to score: lower strokes = higher score (max 10000 base)
+  const gameScore = Math.max(0, 100000 - totalStrokes * 1000);
+  sendScoreToApp(gameScore, false);
+
+  document.getElementById('go-score').textContent = `Total: ${totalStrokes}  ·  Par ${TOTAL_PAR}`;
+    const goR = document.getElementById('go-rating');
+    goR.textContent = rat.label; goR.style.color = rat.color;
+
+    // Build scorecard
+    const sc = document.getElementById('go-sc');
+    sc.innerHTML = '';
+    const mk = (txt, cls='sc') => {
+        const d=document.createElement('div');
+        d.className=cls; d.textContent=txt; return d;
+    };
+    // Header row
+    sc.appendChild(mk('','sc hd'));
+    for (let i=1;i<=TOTAL_HOLES;i++) sc.appendChild(mk(i,'sc hd'));
+    // Par row
+    sc.appendChild(mk('Par'));
+    PARS.forEach(p=>sc.appendChild(mk(p)));
+    // Score row
+    sc.appendChild(mk('You'));
+    holeScores.forEach((s,i)=>{
+        const diff=s-PARS[i];
+        let cls='sc';
+        if (s===1) cls='sc hio';
+        else if (diff<0) cls='sc neg';
+        else if (diff>0) cls='sc pos';
+        sc.appendChild(mk(s,cls));
+    });
+
+    mGO.classList.remove('hidden');
+}
+
+function startGame() {
+    mStart.classList.add('hidden');
+    currentHole=0; totalStrokes=0; holeScores=[];
+    HUD.style.display='flex';
+    buildBgPattern();
+    loadHole(0);
+    if (!rafId) rafId = requestAnimationFrame(gameLoop);
+}
+
+function restartGame() {
+    mGO.classList.add('hidden');
+    currentHole=0; totalStrokes=0; holeScores=[];
+    particles=[];
+    HUD.style.display='flex';
+    loadHole(0);
+}
+
+function loadHole(idx) {
+    const lvl = generateLevel(idx);
+    ball.x=lvl.ballStart.x; ball.y=lvl.ballStart.y;
+    ball.vx=ball.vy=0; ball.radius=10;
+    ball.teleCD=ball.boostCD=0;
+    hole.x=lvl.hole.x; hole.y=lvl.hole.y; hole.radius=14;
+    obstacles = lvl.obstacles;
+    particles = [];
+    strokes   = 0;
+    isAiming  = false;
+    autoComplete  = false;
+    holeCardTimer = 80;    // Show "HOLE X" intro for ~1.3 sec
+    skipBtn.style.display = 'none';
+    gameState = 'playing';
+    updateHUD();
+}
+
+// ============================================================
+//  GAME LOOP
+// ============================================================
+function gameLoop() {
+    update();
+    draw();
+    rafId = requestAnimationFrame(gameLoop);
+}
+</script>
+</body>
+</html>

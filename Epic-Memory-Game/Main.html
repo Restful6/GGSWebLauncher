@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Epic-Memory-Game</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Greek Games Studios">
+  <link rel="canonical" href="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Epic-Memory-Game/Main.html">
+  
+  <meta name="description" content="Play Epic-Memory-Game, a free browser mini game by Greek Games Studios. Test your memory and match pairs of cards. Play instantly, no download required.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Epic-Memory-Game - Free Browser Mini Game | Greek Games Studios">
+  <meta property="og:description" content="Play Epic-Memory-Game instantly in your browser. Test your memory and match pairs of cards. No download needed.">
+  <meta property="og:image" content="https://greekgamesstudios.com/images/WebEpic-Memory-GameLogo.png">
+  <meta property="og:url" content="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Epic-Memory-Game/Main.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Greek Games Studios">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Epic-Memory-Game - Free Browser Mini Game">
+  <meta name="twitter:description" content="Play Epic-Memory-Game instantly in your browser. No download needed.">
+  <meta name="twitter:image" content="https://greekgamesstudios.com/images/WebEpic-Memory-GameLogo.png">
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Epic-Memory-Game",
+    "description": "A free browser-based mini game. Test your memory and match pairs of cards.",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "url": "https://greekgamesstudios.com"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "genre": ["Arcade", "Classic", "Mini Game"],
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any",
+    "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Epic-Memory-Game/Main.html"
+  }
+  </script>
+
+<link rel="icon" type="png" href="/images/WebEpic-Memory-GameLogo.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --primary: #7c3aed;
+    --primary-dark: #6d28d9;
+    --success: #059669;
+    --dark: #1e1b4b;
+    --gold: #f59e0b;
+    --p1-color: #60a5fa;
+    --p2-color: #f472b6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    background: linear-gradient(150deg, #1e1b4b 0%, #3b1f6e 50%, #1e1b4b 100%);
+    background-attachment: fixed;
+    color: white;
+    min-height: 100vh;
+    padding: 15px;
+    overflow-x: hidden;
+  }
+  .container { max-width: 900px; margin: 0 auto; text-align: center; }
+
+  /* ── Typography ── */
+  h1 {
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    margin: 16px 0 4px;
+    background: linear-gradient(90deg, #c084fc, #818cf8, #60a5fa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.5px;
+  }
+  .powered { font-size: 0.95rem; opacity: 0.65; margin-bottom: 20px; }
+
+  /* ── Views ── */
+  .view { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s ease-out; }
+  .view.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Main Menu ── */
+  .menu-box {
+    background: rgba(0,0,0,0.25);
+    padding: 35px;
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    gap: 8px;
+  }
+  .input-group label {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+  select, button {
+    padding: 14px 18px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.18s;
+    font-family: inherit;
+  }
+  select {
+    background: rgba(255,255,255,0.12);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.18);
+    outline: none;
+  }
+  select:focus { border-color: var(--primary); }
+  select option { background: #2d1b69; color: white; }
+  
+  .primary-btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding: 16px;
+    margin-top: 10px;
+  }
+  button:hover  { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(109,40,217,0.35); }
+  button:active { transform: translateY(0); }
+  
+  .menu-best-score {
+    margin-top: 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #818cf8;
+    background: rgba(0,0,0,0.2);
+    padding: 10px 20px;
+    border-radius: 12px;
+  }
+
+  /* ── Game View Header ── */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  .top-bar h1 { font-size: clamp(1.4rem, 4vw, 2.2rem); margin: 0; }
+  .secondary-btn {
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 10px 16px;
+    color: white;
+    font-weight: 600;
+  }
+  .sound-btn { padding: 10px 14px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.18); }
+
+  /* ── Stats & Turn Indicator ── */
+  .turn-indicator {
+    font-size: 1.3rem;
+    font-weight: 700;
+    min-height: 30px;
+    margin-bottom: 5px;
+    transition: color 0.3s;
+  }
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin: 4px 0 4px;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 8px 18px;
+    min-width: 90px;
+    border: 2px solid rgba(255,255,255,0.1);
+    transition: all 0.3s ease;
+  }
+  .stat-box.active-p1 { border-color: var(--p1-color); box-shadow: 0 0 15px rgba(96, 165, 250, 0.4); }
+  .stat-box.active-p2 { border-color: var(--p2-color); box-shadow: 0 0 15px rgba(244, 114, 182, 0.4); }
+
+  .stat-label { font-size: 0.7rem; opacity: 0.7; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+  .stat-val { font-size: 1.4rem; }
+
+  .best-score-game { font-size: 0.85rem; opacity: 0.6; margin: 2px 0 6px; min-height: 18px; }
+
+  /* ── Streak banner ── */
+  .streak-banner {
+    min-height: 28px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin: 4px 0 6px;
+    transition: opacity 0.4s;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Peek overlay ── */
+  .peek-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.4s;
+  }
+  .peek-overlay.hide { opacity: 0; }
+  .peek-overlay.gone { display: none; }
+  .peek-label {
+    font-size: 1.6rem;
+    font-weight: 700;
+    background: rgba(0,0,0,0.6);
+    padding: 14px 28px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
+  /* ── Board ── */
+  .game-board {
+    display: grid;
+    gap: 10px;
+    margin: 14px auto;
+    padding: 18px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.06);
+    width: 100%;
+    max-width: 700px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    aspect-ratio: 1;
+    border-radius: 14px;
+    cursor: pointer;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    contain: layout style;
+  }
+  .card:not(.flip):not(.match):hover { transform: scale(1.05); }
+  .card.flip  { transform: rotateY(180deg); }
+  .card.match { transform: rotateY(180deg); animation: matchPop 0.5s ease-out; cursor: default; }
+
+  @keyframes matchPop {
+    0%   { transform: rotateY(180deg) scale(1); }
+    45%  { transform: rotateY(180deg) scale(1.14); }
+    100% { transform: rotateY(180deg) scale(1); }
+  }
+
+  .front, .back {
+    position: absolute;
+    width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    contain: layout style;
+  }
+  .back {
+    background: linear-gradient(135deg, #4c1d95, #3b1f6e);
+    color: rgba(255,255,255,0.4);
+    font-size: 1.4rem;
+    font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .front { background: #f1f5f9; color: #333; transform: rotateY(180deg); }
+  
+  /* Στο 2P mode ίσως θέλουμε χρώμα ανάλογα με τον παίκτη, 
+     αλλά το πράσινο είναι πάντα ικανοποιητικό για όλους! */
+  .card.match .front { background: linear-gradient(135deg, #065f46, #059669); color: white; }
+
+  /* ── Modal ── */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.35s, visibility 0.35s;
+    z-index: 100;
+  }
+  .modal.show { visibility: visible; opacity: 1; }
+  .modal-content {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    padding: 38px 44px;
+    border-radius: 24px;
+    text-align: center;
+    transform: scale(0.82);
+    transition: transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(124,58,237,0.45);
+    max-width: 90vw;
+    width: 420px;
+  }
+  .modal.show .modal-content { transform: scale(1); }
+  .modal-content h2 { font-size: 1.9rem; margin-bottom: 16px; color: #c084fc; }
+  .modal-content p  { margin: 8px 0; font-size: 1.05rem; }
+  .new-best-msg { color: var(--gold); font-weight: 700; margin-top: 10px !important; min-height: 22px; }
+  
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+  .modal-actions button { padding: 12px 24px; font-size: 1.05rem; width: 100%; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .stats { gap: 10px; }
+    .stat-box { padding: 6px 12px; min-width: 72px; }
+    .stat-val { font-size: 1.15rem; }
+    select, button { padding: 11px 14px; font-size: 0.95rem; }
+    .game-board { gap: 7px; padding: 12px; }
+    .modal-actions { flex-direction: column; }
+    .top-bar h1 { display: none; }
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<base target="_blank">
+</head>
+<body>
+
+<div class="container">
+  
+  <div id="mainMenuView" class="view active">
+    <h1>Epic Memory Game</h1>
+    <div class="powered">Powered by <strong>Greek Games Studios</strong></div>
+    
+    <div class="menu-box">
+      <div class="input-group">
+        <label for="mode">Game Mode</label>
+        <select id="mode">
+          <option value="1">1 Player</option>
+          <option value="2">2 Players</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="difficulty">Difficulty</label>
+        <select id="difficulty">
+          <option value="4">Easy (4×4)</option>
+          <option value="6" selected>Normal (6×4)</option>
+          <option value="8">Hard (8×6)</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="theme">Theme</label>
+        <select id="theme">
+          <option value="emoji">Emoji Explosion</option>
+          <option value="animals">Wild Animals</option>
+          <option value="food">Yummy Food</option>
+          <option value="flags">World Flags</option>
+          <option value="pokemon">Pokémon</option>
+          <option value="superhero">Superheroes</option>
+          <option value="gaming">Gaming Icons</option>
+          <option value="crypto">Crypto</option>
+          <option value="cars">Sports Cars</option>
+          <option value="space">Space & Planets</option>
+        </select>
+      </div>
+
+      <button id="startBtn" class="primary-btn">Play Now</button>
+    </div>
+    
+    <div class="menu-best-score" id="menuBestScore">Best Score: 0</div>
+  </div>
+
+  <div id="gameView" class="view">
+    <div class="top-bar">
+      <button id="backToMenuBtn" class="secondary-btn">Menu</button>
+      <h1>Epic Memory Game</h1>
+      <button class="sound-btn" id="soundBtn" title="Toggle sound">🔊</button>
+    </div>
+
+    <div class="best-score-game" id="gameBestScore"></div>
+    <div class="turn-indicator" id="turnIndicator"></div>
+    
+    <div class="stats" id="statsContainer">
+      <div class="stat-box" id="box1">
+        <div class="stat-label" id="label1">Moves</div>
+        <div class="stat-val" id="val1">0</div>
+      </div>
+      <div class="stat-box" id="boxTime">
+        <div class="stat-label">Time</div>
+        <div class="stat-val" id="timer">00:00</div>
+      </div>
+      <div class="stat-box" id="box2">
+        <div class="stat-label" id="label2">Score</div>
+        <div class="stat-val" id="val2">1000</div>
+      </div>
+    </div>
+    <div class="streak-banner" id="streakBanner"></div>
+
+    <div id="gameBoard" class="game-board"></div>
+  </div>
+
+</div>
+
+<div class="peek-overlay gone" id="peekOverlay">
+  <div class="peek-label">👀 Memorize! <span id="peekCountdown">3</span></div>
+</div>
+
+<div class="modal" id="winModal">
+  <div class="modal-content">
+    <h2 id="winTitle">VICTORY! ★</h2>
+    <div id="winDetails"></div>
+    <p class="new-best-msg" id="newBestMsg"></p>
+    
+    <div class="modal-actions">
+      <button class="secondary-btn" id="modalMenuBtn">Back to Menu</button>
+      <button class="primary-btn" style="margin-top:0;" onclick="startGame()">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Audio ──────────────────────────────────────────────────────────────────
+let soundEnabled = true;
+let _audioCtx = null;
+
+function getCtx() {
+  if (!_audioCtx || _audioCtx.state === 'closed') {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return _audioCtx;
+}
+
+function beep(freq = 440, dur = 0.1, type = 'sine') {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.frequency.value = freq;
+    o.type = type;
+    g.gain.setValueAtTime(0.22, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + dur + 0.01);
+  } catch (e) {}
+}
+
+document.getElementById('soundBtn').addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  document.getElementById('soundBtn').textContent = soundEnabled ? '🔊' : '🔇';
+  beep(440, 0.05);
+});
+
+// ── Confetti ───────────────────────────────────────────────────────────────
+function launchConfetti() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ['#c084fc','#818cf8','#60a5fa','#f59e0b','#34d399','#f472b6'];
+  const particles = Array.from({ length: 180 }, () => {
+    const angle = (Math.random() * 300 + 120) * Math.PI / 180;
+    const speed = 5 + Math.random() * 9;
+    return {
+      x: canvas.width * (0.2 + Math.random() * 0.6),
+      y: canvas.height * 0.35,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      w: 5 + Math.random() * 7,
+      h: 3 + Math.random() * 5,
+      rot: Math.random() * 360,
+      rotV: (Math.random() - 0.5) * 10,
+      life: 1,
+      decay: 0.010 + Math.random() * 0.007,
+    };
+  });
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = 0;
+    particles.forEach(p => {
+      if (p.life <= 0) return;
+      p.vy += 0.18; p.vx *= 0.99;
+      p.x += p.vx; p.y += p.vy;
+      p.rot += p.rotV; p.life -= p.decay;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+      alive++;
+    });
+    if (alive > 0) requestAnimationFrame(draw);
+    else canvas.remove();
+  }
+  draw();
+}
+
+// ── Themes ────────────────────────────────────────────────────────────────
+const themes = {
+  emoji:    ['🎈','🎨','🎯','🎮','🎲','🎪','🎭','🤩','🥳','🚀','🌟','🍄','🔮','💎','🧿','🏆'],
+  animals:  ['🦁','🐯','🐺','🦊','🐻','🐼','🐨','🐸','🦉','🦅','🦜','🦚','🐙','🦑','🐳','🦈'],
+  food:     ['🍕','🍔','🌮','🍣','🥗','🍰','🍦','🥤','🍉','🍇','🍓','🍍','🍒','🥑','🌽','🍩'],
+  flags:    ['🇬🇷','🇮🇹','🇪🇸','🇫🇷','🇩🇪','🇬🇧','🇺🇸','🇯🇵','🇧🇷','🇨🇦','🇦🇺','🇳🇱','🇸🇪','🇳🇴','🇵🇹','🇹🇷'],
+  pokemon:  ['⚡','🔥','💧','🌿','🦎','🦇','🐉','🐦','🐢','🦔','🌀','🦦','🦥','🌊','🌑','🪨'],
+  superhero:['🦸','🦹','💪','🦾','⚡','🕸️','🕷️','🦇','🌟','🔴','🔵','🟢','🟡','🟣','🛡️','⚔️'],
+  gaming:   ['🎮','🕹️','🎲','🃏','🏎️','✈️','🚀','🛸','💾','💿','🖱️','⌨️','🖥️','🗡️','🛡️','🏹'],
+  crypto:   ['₿','Ξ','Ł','◈','◆','▲','▼','★','☆','⚡','🔷','🔶','💠','🔺','🔻','🟠'],
+  cars:     ['🏎️','🚔','🚓','🚒','🚑','🚜','🏍️','🛵','🚲','🛺','🚠','🚡','🛩️','🚁','⛵','🚀'],
+  space:    ['🌍','🌎','🌏','🌕','🌖','🌛','🌟','⭐','✨','🚀','🛸','🌌','🪐','☄️','🌠','👽'],
+};
+
+// ── State ──────────────────────────────────────────────────────────────────
+let cards = [];
+let flippedCards = [];
+let isProcessing = false, isPeeking = false;
+let timerID = null, seconds = 0, peekTimers = [];
+
+// 1P State
+let moves = 0, score = 1000, matchCount = 0, streak = 0;
+
+// 2P State
+let numPlayers = 1;
+let currentPlayer = 1;
+let p1Score = 0, p2Score = 0;
+
+// DOM
+const gameBoard   = document.getElementById('gameBoard');
+const timerEl     = document.getElementById('timer');
+const streakEl    = document.getElementById('streakBanner');
+const gameBestEl  = document.getElementById('gameBestScore');
+const menuBestEl  = document.getElementById('menuBestScore');
+const peekOverlay = document.getElementById('peekOverlay');
+const peekCd      = document.getElementById('peekCountdown');
+const diffSelect  = document.getElementById('difficulty');
+const modeSelect  = document.getElementById('mode');
+const turnIndicator = document.getElementById('turnIndicator');
+
+const box1 = document.getElementById('box1'), label1 = document.getElementById('label1'), val1 = document.getElementById('val1');
+const box2 = document.getElementById('box2'), label2 = document.getElementById('label2'), val2 = document.getElementById('val2');
+
+// ── Views Management ───────────────────────────────────────────────────────
+const mainMenuView = document.getElementById('mainMenuView');
+const gameView     = document.getElementById('gameView');
+const winModal     = document.getElementById('winModal');
+
+function showMenu() {
+  stopGame();
+  winModal.classList.remove('show');
+  gameView.classList.remove('active');
+  mainMenuView.classList.add('active');
+  updateMenuBestDisplay();
+}
+
+function showGame() {
+  mainMenuView.classList.remove('active');
+  gameView.classList.add('active');
+  winModal.classList.remove('show');
+}
+
+// ── Best Score (localStorage) ──────────────────────────────────────────────
+function bestKey() { return `emg_best_${diffSelect.value}`; }
+function getBest()  { try { return parseInt(localStorage.getItem(bestKey()) || '0'); } catch(e) { return 0; } }
+function saveBest(s) {
+  try {
+    const prev = getBest();
+    if (s > prev) { localStorage.setItem(bestKey(), s); return true; }
+  } catch(e) {}
+  return false;
+}
+function updateMenuBestDisplay() {
+  if (modeSelect.value === "2") {
+    menuBestEl.textContent = "🏆 2 Players Mode (No High Scores)";
+    return;
+  }
+  const b = getBest();
+  const levelName = diffSelect.options[diffSelect.selectedIndex].text.split(' ')[0];
+  menuBestEl.textContent = b ? `🏆 Best Score (${levelName}): ${b}` : `🏆 Best Score (${levelName}): 0`;
+}
+function refreshBestDisplayGame() {
+  if (numPlayers === 2) { gameBestEl.textContent = ''; return; }
+  const b = getBest();
+  gameBestEl.textContent = b ? `🏆 Best: ${b}` : '';
+}
+
+modeSelect.addEventListener('change', updateMenuBestDisplay);
+diffSelect.addEventListener('change', updateMenuBestDisplay);
+updateMenuBestDisplay();
+
+// ── Fisher-Yates shuffle ───────────────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── Peek (memorize phase) ──────────────────────────────────────────────────
+const PEEK_SEC = 3;
+
+function startPeek(allCardEls) {
+  isPeeking = true;
+  isProcessing = true;
+  allCardEls.forEach(c => c.classList.add('flip'));
+
+  peekOverlay.classList.remove('gone', 'hide');
+  peekCd.textContent = PEEK_SEC;
+
+  let remaining = PEEK_SEC;
+  const tick = setInterval(() => {
+    remaining--;
+    peekCd.textContent = remaining;
+    if (remaining <= 0) clearInterval(tick);
+  }, 1000);
+  peekTimers.push(tick);
+
+  const end = setTimeout(() => {
+    peekOverlay.classList.add('hide');
+    setTimeout(() => peekOverlay.classList.add('gone'), 420);
+    allCardEls.forEach(c => c.classList.remove('flip'));
+    isPeeking = false;
+    isProcessing = false;
+    startTimer();
+  }, PEEK_SEC * 1000);
+  peekTimers.push(end);
+}
+
+// ── Stop Game / Cleanup ────────────────────────────────────────────────────
+function stopGame() {
+  clearInterval(timerID);
+  peekTimers.forEach(t => clearTimeout(t));
+  peekTimers = [];
+  timerID = null;
+  peekOverlay.classList.add('gone');
+  peekOverlay.classList.remove('hide');
+  gameBoard.innerHTML = '';
+}
+
+// ── UI Updates ─────────────────────────────────────────────────────────────
+function updateTurnUI() {
+  if (numPlayers === 1) return;
+  if (currentPlayer === 1) {
+    turnIndicator.textContent = "Player 1's Turn";
+    turnIndicator.style.color = "var(--p1-color)";
+    box1.classList.add('active-p1');
+    box2.classList.remove('active-p2');
+  } else {
+    turnIndicator.textContent = "Player 2's Turn";
+    turnIndicator.style.color = "var(--p2-color)";
+    box2.classList.add('active-p2');
+    box1.classList.remove('active-p1');
+  }
+}
+
+function updateStats() {
+  if (numPlayers === 1) {
+    val1.textContent = moves;
+    val2.textContent = Math.max(score, 0);
+  } else {
+    val1.textContent = p1Score;
+    val2.textContent = p2Score;
+  }
+}
+
+// ── Start game ─────────────────────────────────────────────────────────────
+function startGame() {
+  stopGame();
+  showGame();
+
+  numPlayers = parseInt(modeSelect.value);
+  seconds = 0; matchCount = 0; streak = 0;
+  flippedCards = []; isProcessing = false; isPeeking = false;
+  streakEl.textContent = '';
+  timerEl.textContent = '00:00';
+
+  if (numPlayers === 1) {
+    moves = 0; score = 1000;
+    label1.textContent = "Moves"; label2.textContent = "Score";
+    turnIndicator.textContent = "";
+    box1.classList.remove('active-p1'); box2.classList.remove('active-p2');
+  } else {
+    p1Score = 0; p2Score = 0; currentPlayer = 1;
+    label1.textContent = "Player 1"; label2.textContent = "Player 2";
+    updateTurnUI();
+  }
+
+  updateStats();
+  refreshBestDisplayGame();
+
+  const size   = parseInt(diffSelect.value);
+  const cols   = size === 8 ? 8 : size;
+  const rows   = size === 8 ? 6 : 4;
+  const pairs  = (cols * rows) / 2;
+  const emSize = size === 8 ? '1.9rem' : size === 6 ? '2.6rem' : '3rem';
+
+  gameBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+  const src  = themes[document.getElementById('theme').value];
+  cards = shuffle([...src.slice(0, pairs), ...src.slice(0, pairs)]);
+
+  const frag = document.createDocumentFragment();
+  const allCardEls = [];
+
+  cards.forEach(icon => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.icon = icon;
+    card.innerHTML = `<div class="back">?</div><div class="front" style="font-size:${emSize}">${icon}</div>`;
+    card.addEventListener('click', flipCard);
+    frag.appendChild(card);
+    allCardEls.push(card);
+  });
+
+  gameBoard.appendChild(frag);
+  if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+  setTimeout(() => startPeek(allCardEls), 80);
+}
+
+// ── Flip ───────────────────────────────────────────────────────────────────
+function flipCard() {
+  if (isProcessing || this.classList.contains('flip') || this.classList.contains('match')) return;
+  this.classList.add('flip');
+  flippedCards.push(this);
+  beep(350, 0.07);
+
+  if (flippedCards.length === 2) {
+    isProcessing = true;
+    if (numPlayers === 1) {
+      moves++;
+      score = Math.max(0, score - 5);
+    }
+    updateStats();
+    setTimeout(checkMatch, 850);
+  }
+}
+
+// ── Match check ────────────────────────────────────────────────────────────
+function checkMatch() {
+  const [a, b] = flippedCards;
+  flippedCards = [];
+
+  if (a.dataset.icon === b.dataset.icon) {
+    a.classList.add('match');
+    b.classList.add('match');
+    matchCount++;
+    streak++;
+
+    const bonus = Math.min(60 + (streak - 1) * 25, 180);
+    
+    if (numPlayers === 1) {
+      score = Math.max(0, score + bonus);
+    } else {
+      if (currentPlayer === 1) p1Score += bonus;
+      else p2Score += bonus;
+    }
+    updateStats();
+
+    beep(620, 0.08);
+    setTimeout(() => beep(940, 0.11), 85);
+
+    if (streak >= 2) showStreak(streak);
+    isProcessing = false;
+    checkWin();
+  } else {
+    streak = 0;
+    streakEl.textContent = '';
+    
+    setTimeout(() => {
+      a.classList.remove('flip');
+      b.classList.remove('flip');
+      beep(190, 0.13);
+
+      if (numPlayers === 2) {
+        currentPlayer = currentPlayer === 1 ? 2 : 1;
+        updateTurnUI();
+      }
+      isProcessing = false;
+    }, 650);
+  }
+}
+
+// ── Streak banner ──────────────────────────────────────────────────────────
+const streakLabels = ['','','🔥 2× Combo!','🔥🔥 3× Combo!','⚡ 4× Hot!','⚡⚡ 5× Blazing!','🌟 MEGA COMBO!'];
+let streakClearTimer = null;
+
+function showStreak(n) {
+  streakEl.textContent = n < streakLabels.length ? streakLabels[n] : `🌟 ${n}× ULTRA!!`;
+  beep(1050, 0.07);
+  clearTimeout(streakClearTimer);
+  streakClearTimer = setTimeout(() => { streakEl.textContent = ''; }, 2200);
+}
+
+// ── Win ────────────────────────────────────────────────────────────────────
+// ── SCORE REPORTING TO APP ──
+function sendScoreToApp(score, isNewRecord) {
+  if (window.ReactNativeWebView) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'SEND_SCORE',
+      score: score,
+      game: 'Epic Memory Game',
+      isNewRecord: isNewRecord,
+    }));
+  }
+}
+
+function checkWin() {
+  if (matchCount !== cards.length / 2) return;
+  clearInterval(timerID);
+  timerID = null;
+
+  const winDetails = document.getElementById('winDetails');
+  const title = document.getElementById('winTitle');
+  const bestMsg = document.getElementById('newBestMsg');
+  
+  if (numPlayers === 1) {
+    const final = Math.max(score, 0);
+    const isNew = saveBest(final);
+    sendScoreToApp(final, isNew);
+    title.textContent = "VICTORY! ★";
+    winDetails.innerHTML = `
+      <p>Time: <strong>${timerEl.textContent}</strong></p>
+      <p>Moves: <strong>${moves}</strong></p>
+      <p>Final Score: <strong>${final}</strong></p>
+    `;
+    bestMsg.textContent = isNew ? '🏆 New Best Score!' : '';
+  } else {
+    bestMsg.textContent = '';
+    if (p1Score > p2Score) {
+      title.textContent = "Player 1 Wins!";
+      title.style.color = "var(--p1-color)";
+    } else if (p2Score > p1Score) {
+      title.textContent = "Player 2 Wins!";
+      title.style.color = "var(--p2-color)";
+    } else {
+      title.textContent = "It's a Tie!";
+      title.style.color = "var(--gold)";
+    }
+    
+    winDetails.innerHTML = `
+      <p style="color:var(--p1-color); font-weight:bold;">Player 1 Score: ${p1Score}</p>
+      <p style="color:var(--p2-color); font-weight:bold;">Player 2 Score: ${p2Score}</p>
+      <p>Time: <strong>${timerEl.textContent}</strong></p>
+    `;
+  }
+
+  winModal.classList.add('show');
+  setTimeout(launchConfetti, 380);
+  [500, 620, 780, 940].forEach((f, i) => setTimeout(() => beep(f, 0.12), i * 90));
+}
+
+// ── Timer ──────────────────────────────────────────────────────────────────
+function startTimer() {
+  if (timerID) return;
+  timerID = setInterval(() => {
+    seconds++;
+    timerEl.textContent =
+      String(Math.floor(seconds / 60)).padStart(2, '0') + ':' +
+      String(seconds % 60).padStart(2, '0');
+      
+    // Point drain only in 1P mode
+    if (seconds % 15 === 0 && numPlayers === 1) { 
+      score = Math.max(0, score - 3); 
+      updateStats(); 
+    }
+  }, 1000);
+}
+
+// ── Listeners ─────────────────────────────────────────────────────────────
+document.getElementById('startBtn').addEventListener('click', startGame);
+document.getElementById('backToMenuBtn').addEventListener('click', showMenu);
+document.getElementById('modalMenuBtn').addEventListener('click', showMenu);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Hand Duel – Greek Games Studios</title>
+
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Greek Games Studios">
+  <meta name="description" content="Play Hand Duel, a Rock Paper Scissors mini game by Greek Games Studios. Best-of-5 matches, streaks, taunts. Play free in your browser.">
+  <meta property="og:title" content="Hand Duel – Rock Paper Scissors | Greek Games Studios">
+  <meta property="og:description" content="Rock Paper Scissors reimagined as a card duel. Best-of-5. Free, no download.">
+  <meta property="og:image" content="https://greekgamesstudios.com/images/WebUltimatePongLogo.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Greek Games Studios">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Hand Duel",
+    "description": "A free browser Rock Paper Scissors card duel mini game by Greek Games Studios.",
+    "author": { "@type": "Organization", "name": "Greek Games Studios", "url": "https://greekgamesstudios.com" },
+    "genre": ["Casual", "Mini Game"],
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="png" href="/images/WebHand-Duel.png">
+
+  <style>
+    :root {
+      --felt:       #1b2e24;
+      --felt-light: #223829;
+      --felt-rim:   #162219;
+      --card-face:  #f0e8d5;
+      --card-back:  #8b2635;
+      --card-back2: #6e1e2a;
+      --ink:        #1c1410;
+      --ink-soft:   #4a3728;
+      --gold:       #c9a84c;
+      --gold-dim:   #7a6330;
+      --cream:      #f0e8d5;
+      --cream-dim:  #c8bca8;
+      --red:        #8b2635;
+      --blue:       #2c5282;
+      --amber:      #b07d2a;
+      --muted:      #4d6b58;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; min-height: 100%;
+      background: var(--felt);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      padding: 20px 16px 36px;
+    }
+
+    /* subtle felt texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 3px,
+          rgba(0,0,0,0.04) 3px,
+          rgba(0,0,0,0.04) 4px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 3px,
+          rgba(0,0,0,0.04) 3px,
+          rgba(0,0,0,0.04) 4px
+        );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* table rim */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      border: 14px solid var(--felt-rim);
+      box-shadow:
+        inset 0 0 0 2px rgba(201,168,76,0.18),
+        inset 0 0 40px rgba(0,0,0,0.4);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* everything sits above the decorative layers */
+    .header, .match-row, .arena, .result-banner,
+    .taunt, .streak, .choices, .kb-hint, .footer {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(2.2rem, 7vw, 3.6rem);
+      color: var(--gold);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .header .sub {
+      font-size: clamp(0.58rem, 1.8vw, 0.7rem);
+      color: var(--muted);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-top: 5px;
+      font-weight: 500;
+    }
+    .header-rule {
+      width: 120px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+      margin: 8px auto 0;
+    }
+
+    /* ── MATCH PIPS ── */
+    .match-row {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      margin-bottom: 22px;
+    }
+    .pip-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+    }
+    .pip-group {
+      display: flex;
+      gap: 9px;
+    }
+    .pip {
+      width: 13px; height: 13px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: background 0.35s, transform 0.35s, border-color 0.35s;
+    }
+    .pip.win  {
+      background: var(--gold);
+      border-color: var(--gold);
+      transform: scale(1.2);
+      box-shadow: 0 0 6px rgba(201,168,76,0.4);
+    }
+    .pip.lose {
+      background: var(--red);
+      border-color: var(--red);
+      transform: scale(1.2);
+    }
+    .pip-label {
+      font-size: 0.56rem;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .match-divider {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.85rem;
+      color: var(--gold-dim);
+    }
+
+    /* ── ARENA ── */
+    .arena {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(16px, 5vw, 52px);
+      margin-bottom: 20px;
+    }
+
+    /* ── CARD ── */
+    .card-wrap {
+      perspective: 800px;
+      width: clamp(112px, 29vw, 154px);
+      height: clamp(156px, 40vw, 214px);
+    }
+    .card {
+      width: 100%; height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(.4,0,.2,1);
+      border-radius: 10px;
+    }
+    .card.flipped { transform: rotateY(180deg); }
+
+    .card-face, .card-back {
+      position: absolute; inset: 0;
+      border-radius: 10px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    /* FACE — playing card aesthetic */
+    .card-face {
+      background: var(--card-face);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      gap: 4px;
+    }
+
+    /* corner indices */
+    .card-face::before,
+    .card-face::after {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+      font-weight: 700;
+      color: var(--ink-soft);
+      position: absolute;
+      line-height: 1;
+    }
+    .card-face::before {
+      top: 7px; left: 9px;
+      content: attr(data-corner);
+    }
+    .card-face::after {
+      bottom: 7px; right: 9px;
+      content: attr(data-corner);
+      transform: rotate(180deg);
+    }
+
+    .card-face .choice-emoji {
+      font-size: clamp(2.8rem, 11vw, 4.8rem);
+      line-height: 1;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
+    }
+    .card-face .choice-label {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(0.46rem, 1.5vw, 0.6rem);
+      font-weight: 700;
+      color: var(--ink-soft);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    /* BACK — classic diamond pattern */
+    .card-back {
+      background: var(--card-back);
+      transform: rotateY(180deg);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+    .card-back-inner {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image:
+        repeating-linear-gradient(
+          45deg,
+          rgba(0,0,0,0.12) 0px,
+          rgba(0,0,0,0.12) 2px,
+          transparent 2px,
+          transparent 12px
+        ),
+        repeating-linear-gradient(
+          -45deg,
+          rgba(0,0,0,0.12) 0px,
+          rgba(0,0,0,0.12) 2px,
+          transparent 2px,
+          transparent 12px
+        );
+    }
+    .card-back-inner::after {
+      content: '♦';
+      font-size: clamp(1.8rem, 7vw, 3rem);
+      color: rgba(255,255,255,0.15);
+    }
+    /* card back border frame */
+    .card-back-inner::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      pointer-events: none;
+    }
+
+    /* result rings */
+    .card-wrap.result-win  .card-face { box-shadow: 0 0 0 3px var(--gold),   0 4px 20px rgba(0,0,0,0.5); }
+    .card-wrap.result-lose .card-face { box-shadow: 0 0 0 3px var(--red),    0 4px 20px rgba(0,0,0,0.5); }
+    .card-wrap.result-draw .card-face { box-shadow: 0 0 0 3px var(--amber),  0 4px 20px rgba(0,0,0,0.5); }
+
+    /* AI card thinking pulse (subtle) */
+    @keyframes pulse-back {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.7; }
+    }
+    .card.thinking .card-back { animation: pulse-back 0.5s ease-in-out 2; }
+
+    /* ── VS ── */
+    .vs {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+      color: var(--gold-dim);
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      font-style: italic;
+    }
+
+    /* ── PLAYER LABELS ── */
+    .player-labels {
+      display: flex;
+      align-items: center;
+      gap: clamp(16px, 5vw, 52px);
+      margin-bottom: 8px;
+    }
+    .player-label-text {
+      width: clamp(112px, 29vw, 154px);
+      text-align: center;
+      font-size: 0.56rem;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .player-labels .vs-spacer {
+      width: clamp(1.1rem, 3.5vw, 1.6rem);
+      visibility: hidden;
+    }
+
+    /* ── RESULT BANNER ── */
+    .result-banner {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+    .result-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.2rem, 4vw, 1.7rem);
+      font-weight: 700;
+      font-style: italic;
+      letter-spacing: 0.06em;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .result-text.show { opacity: 1; transform: translateY(0); }
+    .result-text.win  { color: var(--gold); }
+    .result-text.lose { color: var(--cream-dim); }
+    .result-text.draw { color: var(--amber); }
+
+    /* ── TAUNT ── */
+    .taunt {
+      height: 26px;
+      font-size: clamp(0.6rem, 1.9vw, 0.72rem);
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.45s;
+      margin-bottom: 14px;
+      padding: 0 16px;
+    }
+    .taunt.show { opacity: 1; }
+
+    /* ── STREAK ── */
+    .streak {
+      height: 24px;
+      font-size: clamp(0.6rem, 2vw, 0.72rem);
+      font-weight: 700;
+      color: var(--gold);
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+      margin-bottom: 16px;
+      letter-spacing: 0.06em;
+    }
+    .streak.show { opacity: 1; }
+
+    /* ── CHOICE BUTTONS ── */
+    .choices {
+      display: flex;
+      gap: clamp(8px, 2.5vw, 18px);
+      margin-bottom: 10px;
+    }
+    .choice-btn {
+      background: var(--felt-light);
+      border: 1px solid rgba(201,168,76,0.18);
+      border-radius: 10px;
+      width: clamp(80px, 22vw, 108px);
+      height: clamp(82px, 22vw, 110px);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: border-color 0.15s, transform 0.12s, background 0.15s, box-shadow 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .choice-btn .btn-emoji {
+      font-size: clamp(1.7rem, 7vw, 2.6rem);
+      line-height: 1;
+    }
+    .choice-btn .btn-label {
+      font-size: clamp(0.4rem, 1.3vw, 0.52rem);
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .choice-btn:hover, .choice-btn:focus-visible {
+      background: #2a4035;
+      border-color: rgba(201,168,76,0.45);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+      outline: none;
+    }
+    .choice-btn:active { transform: scale(0.92); }
+    .choice-btn.selected {
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.1);
+    }
+    .choice-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── KEYBOARD HINT ── */
+    .kb-hint {
+      font-size: 0.54rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+      opacity: 0.45;
+    }
+    @media (pointer: coarse) { .kb-hint { display: none; } }
+
+    /* ── MATCH OVER OVERLAY ── */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(18,26,20,0.93);
+      z-index: 20;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    .overlay.show { display: flex; }
+
+    .overlay-suit {
+      font-size: clamp(2rem, 8vw, 3.2rem);
+      margin-bottom: 8px;
+      opacity: 0.7;
+    }
+    .overlay-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 9vw, 5rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+    .overlay-title.win  { color: var(--gold); }
+    .overlay-title.lose { color: var(--cream-dim); }
+
+    .overlay-divider {
+      width: 80px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+      margin: 14px auto;
+    }
+
+    .overlay-sub {
+      font-size: clamp(0.65rem, 2.2vw, 0.82rem);
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.06em;
+      font-style: italic;
+      max-width: 280px;
+    }
+    .overlay-score {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 2.8rem);
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 30px;
+      letter-spacing: 0.1em;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--ink);
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: clamp(0.72rem, 2.3vw, 0.85rem);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 13px 34px;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.12s;
+      margin: 5px;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-2px); }
+    .btn-primary.secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* ── CONFETTI (card suits instead of squares) ── */
+    .confetti-wrap {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 19;
+      overflow: hidden;
+    }
+    .confetti-piece {
+      position: absolute;
+      top: -30px;
+      font-size: 16px;
+      animation: fall linear forwards;
+      opacity: 0.85;
+    }
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      font-size: 0.5rem;
+      color: var(--muted);
+      opacity: 0.3;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-top: 8px;
+      position: relative;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>Hand Duel</h1>
+  <div class="header-rule"></div>
+  <div class="sub">Rock · Paper · Scissors — Best of 5</div>
+</div>
+
+<!-- MATCH PIPS -->
+<div class="match-row">
+  <div class="pip-col">
+    <div class="pip-group" id="playerPips">
+      <div class="pip" id="pp0"></div>
+      <div class="pip" id="pp1"></div>
+      <div class="pip" id="pp2"></div>
+    </div>
+    <div class="pip-label">You</div>
+  </div>
+  <div class="match-divider">♦</div>
+  <div class="pip-col">
+    <div class="pip-group" id="aiPips">
+      <div class="pip" id="ap0"></div>
+      <div class="pip" id="ap1"></div>
+      <div class="pip" id="ap2"></div>
+    </div>
+    <div class="pip-label">CPU</div>
+  </div>
+</div>
+
+<!-- PLAYER LABELS -->
+<div class="player-labels">
+  <div class="player-label-text">Your Hand</div>
+  <div class="vs-spacer"></div>
+  <div class="player-label-text">CPU Hand</div>
+</div>
+
+<!-- ARENA -->
+<div class="arena">
+  <div class="card-wrap" id="playerCardWrap">
+    <div class="card" id="playerCard">
+      <div class="card-face" id="playerFace" data-corner="?">
+        <span class="choice-emoji" id="playerEmoji">🤜</span>
+        <span class="choice-label" id="playerLabel"></span>
+      </div>
+      <div class="card-back"><div class="card-back-inner"></div></div>
+    </div>
+  </div>
+
+  <div class="vs">vs</div>
+
+  <div class="card-wrap" id="aiCardWrap">
+    <div class="card flipped" id="aiCard">
+      <div class="card-face" id="aiFace" data-corner="?">
+        <span class="choice-emoji" id="aiEmoji">🤜</span>
+        <span class="choice-label" id="aiLabel"></span>
+      </div>
+      <div class="card-back"><div class="card-back-inner"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT + TAUNT -->
+<div class="result-banner">
+  <div class="result-text" id="resultText"></div>
+</div>
+<div class="taunt" id="taunt"></div>
+<div class="streak" id="streak"></div>
+
+<!-- CHOICE BUTTONS -->
+<div class="choices">
+  <button class="choice-btn" id="btnRock" data-choice="rock">
+    <span class="btn-emoji">🪨</span>
+    <span class="btn-label">Rock [R]</span>
+  </button>
+  <button class="choice-btn" id="btnPaper" data-choice="paper">
+    <span class="btn-emoji">📄</span>
+    <span class="btn-label">Paper [P]</span>
+  </button>
+  <button class="choice-btn" id="btnScissors" data-choice="scissors">
+    <span class="btn-emoji">✂️</span>
+    <span class="btn-label">Scissors [S]</span>
+  </button>
+</div>
+<div class="kb-hint">Keyboard: R · P · S &nbsp;|&nbsp; Space to play again</div>
+
+<!-- MATCH OVER OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="overlay-suit" id="overlaySuit">♠</div>
+  <div class="overlay-title" id="overlayTitle">YOU WIN</div>
+  <div class="overlay-divider"></div>
+  <div class="overlay-sub" id="overlaySub">Match complete</div>
+  <div class="overlay-score" id="overlayScore">3 – 1</div>
+  <button class="btn-primary" id="btnRematch">Rematch</button>
+  <button class="btn-primary secondary" id="btnMenu" style="display:none">← Menu</button>
+</div>
+
+<div class="footer">Powered by Greek Games Studios</div>
+
+<script>
+'use strict';
+
+const CHOICES = ['rock', 'paper', 'scissors'];
+const EMOJI   = { rock: '🪨', paper: '📄', scissors: '✂️' };
+const LABEL   = { rock: 'Rock',  paper: 'Paper', scissors: 'Scissors' };
+const CORNER  = { rock: 'R',  paper: 'P', scissors: 'S' };
+const BEATS   = { rock: 'scissors', paper: 'rock', scissors: 'paper' };
+
+const TAUNTS = {
+  win:  [
+    "Is that all you've got?",
+    "Too easy. Almost sad.",
+    "I saw that coming a mile away.",
+    "Pure calculation, zero effort.",
+    "Did you even try?",
+    "My algorithm thanks you.",
+    "Predictable. Very predictable.",
+    "Error 404: Your strategy not found."
+  ],
+  lose: [
+    "Lucky shot. Won't happen again.",
+    "Glitch in the matrix. Moving on.",
+    "That was statistically improbable.",
+    "I let you win. For science.",
+    "Enjoy it. The data is updating.",
+    "Interesting. I'll remember this.",
+    "One point. Congratulations.",
+    "Fine. You got me. This time."
+  ],
+  draw: [
+    "A draw? We think alike. Unsettling.",
+    "Synchronised. Spooky.",
+    "Even minds, even hands.",
+    "The universe demands a rematch.",
+    "Mirror match. I'm not impressed.",
+    "We're the same. Disturbing.",
+    "No winner. No loser. No fun.",
+    "Stalemate. How boring for both of us."
+  ]
+};
+
+const WINS_NEEDED = 3;
+
+let playerWins = 0;
+let aiWins     = 0;
+let streak     = 0;
+let locked     = false;
+let matchOver  = false;
+
+const playerCard     = document.getElementById('playerCard');
+const aiCard         = document.getElementById('aiCard');
+const playerCardWrap = document.getElementById('playerCardWrap');
+const aiCardWrap     = document.getElementById('aiCardWrap');
+const playerFace     = document.getElementById('playerFace');
+const aiFace         = document.getElementById('aiFace');
+const playerEmoji    = document.getElementById('playerEmoji');
+const playerLabel    = document.getElementById('playerLabel');
+const aiEmoji        = document.getElementById('aiEmoji');
+const aiLabel        = document.getElementById('aiLabel');
+const resultText     = document.getElementById('resultText');
+const tauntEl        = document.getElementById('taunt');
+const streakEl       = document.getElementById('streak');
+const overlay        = document.getElementById('overlay');
+const overlayTitle   = document.getElementById('overlayTitle');
+const overlaySuit    = document.getElementById('overlaySuit');
+const overlaySub     = document.getElementById('overlaySub');
+const overlayScore   = document.getElementById('overlayScore');
+const btnRematch     = document.getElementById('btnRematch');
+const confettiWrap   = document.getElementById('confettiWrap');
+
+/* ─── SCORE REPORTING TO MOBILE APP ──────────────── */
+function sendScoreToApp(score, isNewRecord) {
+  if (window.ReactNativeWebView) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'SEND_SCORE',
+      score: score,
+      game: 'Hand Duel',
+      isNewRecord: isNewRecord,
+    }));
+  }
+}
+
+function updatePips() {
+  for (let i = 0; i < WINS_NEEDED; i++) {
+    const pp = document.getElementById(`pp${i}`);
+    const ap = document.getElementById(`ap${i}`);
+    pp.className = 'pip' + (i < playerWins ? ' win' : '');
+    ap.className = 'pip' + (i < aiWins     ? ' lose' : '');
+  }
+}
+
+function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function launchConfetti() {
+  const suits = ['♠','♥','♦','♣','★'];
+  const colors = ['#c9a84c','#f0e8d5','#8b2635','#c9a84c','#ffffff'];
+  confettiWrap.innerHTML = '';
+  for (let i = 0; i < 55; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const idx = Math.floor(Math.random() * suits.length);
+    el.textContent = suits[idx];
+    el.style.cssText = `
+      left: ${Math.random()*100}%;
+      color: ${colors[idx]};
+      font-size: ${12 + Math.random() * 14}px;
+      animation-duration: ${1.5 + Math.random() * 1.5}s;
+      animation-delay: ${Math.random() * 0.7}s;
+      transform: rotate(${Math.random()*360}deg);
+    `;
+    confettiWrap.appendChild(el);
+  }
+  setTimeout(() => confettiWrap.innerHTML = '', 3500);
+}
+
+function play(playerChoice) {
+  if (locked || matchOver) return;
+  locked = true;
+
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.choice === playerChoice);
+    b.disabled = true;
+  });
+
+  resultText.classList.remove('show','win','lose','draw');
+  tauntEl.classList.remove('show');
+  streakEl.classList.remove('show');
+  playerCardWrap.className = 'card-wrap';
+  aiCardWrap.className     = 'card-wrap';
+
+  // Set player card face
+  playerEmoji.textContent = EMOJI[playerChoice];
+  playerLabel.textContent = LABEL[playerChoice];
+  playerFace.setAttribute('data-corner', CORNER[playerChoice]);
+
+  // Flip player card face-down, keep AI face-down
+  playerCard.classList.add('flipped');
+  aiCard.classList.add('thinking');
+  setTimeout(() => aiCard.classList.remove('thinking'), 500);
+
+  setTimeout(() => {
+    const aiChoice = rand(CHOICES);
+    aiEmoji.textContent = EMOJI[aiChoice];
+    aiLabel.textContent = LABEL[aiChoice];
+    aiFace.setAttribute('data-corner', CORNER[aiChoice]);
+
+    let outcome;
+    if (playerChoice === aiChoice) {
+      outcome = 'draw';
+    } else if (BEATS[playerChoice] === aiChoice) {
+      outcome = 'win';
+    } else {
+      outcome = 'lose';
+    }
+
+    // Flip both cards face-up
+    playerCard.classList.remove('flipped');
+    aiCard.classList.remove('flipped');
+
+    if (outcome === 'win') {
+      playerCardWrap.classList.add('result-win');
+      aiCardWrap.classList.add('result-lose');
+    } else if (outcome === 'lose') {
+      playerCardWrap.classList.add('result-lose');
+      aiCardWrap.classList.add('result-win');
+    } else {
+      playerCardWrap.classList.add('result-draw');
+      aiCardWrap.classList.add('result-draw');
+    }
+
+    setTimeout(() => {
+      const msgs = {
+        win:  'Victory',
+        lose: 'Defeated',
+        draw: 'Draw'
+      };
+      resultText.textContent = msgs[outcome];
+      resultText.className = `result-text show ${outcome}`;
+
+      tauntEl.textContent = rand(TAUNTS[outcome]);
+      tauntEl.classList.add('show');
+
+      if (outcome === 'win') {
+        playerWins++;
+        streak++;
+        if (streak >= 2) {
+          streakEl.textContent = `${streak}× Win Streak`;
+          streakEl.classList.add('show');
+        }
+      } else if (outcome === 'lose') {
+        aiWins++;
+        streak = 0;
+      }
+
+      updatePips();
+
+      if (playerWins >= WINS_NEEDED || aiWins >= WINS_NEEDED) {
+        matchOver = true;
+        setTimeout(() => showMatchOver(), 900);
+      } else {
+        setTimeout(() => {
+          document.querySelectorAll('.choice-btn').forEach(b => {
+            b.disabled = false;
+            b.classList.remove('selected');
+          });
+          locked = false;
+        }, 700);
+      }
+    }, 120);
+
+  }, 750);
+}
+
+function showMatchOver() {
+  const playerWon = playerWins >= WINS_NEEDED;
+
+  // Send score to app — score = player wins (0-3)
+  sendScoreToApp(playerWins, false);
+
+  overlaySuit.textContent  = playerWon ? '♠' : '♦';
+  overlayTitle.textContent = playerWon ? 'Victory' : 'Defeated';
+  overlayTitle.className   = `overlay-title ${playerWon ? 'win' : 'lose'}`;
+  overlaySub.textContent   = playerWon
+    ? 'The CPU didn\'t stand a chance.'
+    : 'The CPU wins this round. Rematch?';
+  overlayScore.textContent = `${playerWins} – ${aiWins}`;
+
+  overlay.classList.add('show');
+  if (playerWon) launchConfetti();
+}
+
+function rematch() {
+  playerWins = 0;
+  aiWins     = 0;
+  streak     = 0;
+  locked     = false;
+  matchOver  = false;
+
+  overlay.classList.remove('show');
+  confettiWrap.innerHTML = '';
+
+  playerCard.classList.add('flipped');
+  aiCard.classList.add('flipped');
+  playerCardWrap.className = 'card-wrap';
+  aiCardWrap.className     = 'card-wrap';
+
+  playerEmoji.textContent = '🤜';
+  playerLabel.textContent = '';
+  aiEmoji.textContent     = '🤜';
+  aiLabel.textContent     = '';
+  playerFace.setAttribute('data-corner', '?');
+  aiFace.setAttribute('data-corner', '?');
+
+  resultText.className = 'result-text';
+  tauntEl.classList.remove('show');
+  streakEl.classList.remove('show');
+
+  updatePips();
+
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    b.disabled = false;
+    b.classList.remove('selected');
+  });
+
+  setTimeout(() => playerCard.classList.remove('flipped'), 80);
+}
+
+// Initial state: player card face-up (empty), AI card face-down
+playerCard.classList.remove('flipped');
+updatePips();
+
+document.querySelectorAll('.choice-btn').forEach(btn => {
+  btn.addEventListener('click', () => play(btn.dataset.choice));
+});
+
+btnRematch.addEventListener('click', rematch);
+
+window.addEventListener('keydown', e => {
+  if (overlay.classList.contains('show')) {
+    if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); rematch(); }
+    return;
+  }
+  if (e.key.toLowerCase() === 'r') play('rock');
+  if (e.key.toLowerCase() === 'p') play('paper');
+  if (e.key.toLowerCase() === 's') play('scissors');
+  if (e.code === 'Space') { e.preventDefault(); }
+});
+</script>
+</body>
+</html>

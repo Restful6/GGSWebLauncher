@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze-of-Echoes</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Greek Games Studios">
+  <link rel="canonical" href="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Maze-of-Echoes/Main.html">
+  
+  <meta name="description" content="Play Maze-of-Echoes, a free browser mini game by Greek Games Studios. Navigate the maze and collect echoes. Play instantly, no download required.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Maze-of-Echoes - Free Browser Mini Game | Greek Games Studios">
+  <meta property="og:description" content="Play Maze-of-Echoes instantly in your browser. Classic arcade action with modern visuals. No download needed.">
+  <meta property="og:image" content="https://greekgamesstudios.com/images/WebMaze-of-EchoesLogo.png">
+  <meta property="og:url" content="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Maze-of-Echoes/Main.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Greek Games Studios">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Maze-of-Echoes - Free Browser Mini Game">
+  <meta name="twitter:description" content="Play Maze-of-Echoes instantly in your browser. No download needed.">
+  <meta name="twitter:image" content="https://greekgamesstudios.com/images/WebMaze-of-EchoesLogo.png">
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Maze-of-Echoes",
+    "description": "A free browser-based mini game. Navigate the maze and collect echoes.",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "url": "https://greekgamesstudios.com"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "genre": ["Arcade", "Classic", "Mini Game"],
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any",
+    "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Maze-of-Echoes/Main.html"
+  }
+  </script>
+
+    <link rel="icon" type="png" href="/images/WebMaze-of-EchoesLogo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Register animatable CSS custom property for fog (fixes broken animation bug) -->
+    <style>
+        @property --fog-r {
+            syntax: '<length>';
+            inherits: false;
+            initial-value: 110px;
+        }
+    </style>
+
+    <style>
+        /* ========================= */
+        /* === RESET & ROOT ======== */
+        /* ========================= */
+        :root {
+            --color-bg:        #060212;
+            --color-wall:      #1a0f30;
+            --color-path:      #0d0820;
+            --color-p1:        #52d8e8;   /* Softer cyan  — less eye-searing */
+            --color-p1-glow:   rgba(82, 216, 232, 0.45);
+            --color-p2:        #e852c8;   /* Softer magenta */
+            --color-p2-glow:   rgba(232, 82, 200, 0.45);
+            --color-goal:      #f0b429;   /* Warm gold — not neon yellow */
+            --color-goal-glow: rgba(240, 180, 41, 0.45);
+            --color-text:      #c0c0d0;
+            --cell-size:       35px;      /* Updated dynamically by JS */
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--color-bg);
+            color: var(--color-text);
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ========================= */
+        /* === MAIN MENU =========== */
+        /* ========================= */
+        #main-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 22px;
+            text-align: center;
+            padding: 40px;
+        }
+
+        #main-menu h1 {
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            color: var(--color-p1);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            animation: flicker 5s infinite alternate;
+        }
+
+        #main-menu .subtitle {
+            font-size: 0.78rem;
+            color: #666;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .controls-hint {
+            font-size: 0.75rem;
+            color: #555;
+            letter-spacing: 1px;
+            margin-top: -8px;
+        }
+
+        .menu-button {
+            font-family: 'Orbitron', sans-serif;
+            background: transparent;
+            border: 2px solid var(--color-p1);
+            color: var(--color-p1);
+            padding: 14px 32px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            outline: none;
+        }
+
+        .menu-button:hover {
+            background: var(--color-p1);
+            color: var(--color-bg);
+            transform: translateY(-1px);
+        }
+
+        .menu-button:active {
+            transform: translateY(0);
+        }
+
+        /* ========================= */
+        /* === GAME CONTAINER ====== */
+        /* ========================= */
+        #game-container {
+            display: none;
+            width: 100%;
+            height: 100vh;
+        }
+
+        #split-screen-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 1P: full width */
+        #player1-view.single-player {
+            width: 100% !important;
+            flex-basis: 100% !important;
+        }
+
+        #player1-view, #player2-view {
+            flex-basis: 50%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #player2-view {
+            border-left: 2px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* ========================= */
+        /* === GAME UI OVERLAY ===== */
+        /* ========================= */
+        .game-ui-overlay {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            font-size: 0.85rem;
+            pointer-events: none;
+            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 14px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+
+        #p1-ui { color: var(--color-p1); }
+        #p2-ui { color: var(--color-p2); }
+
+        /* ========================= */
+        /* === MESSAGE SCREEN ====== */
+        /* ========================= */
+        #message-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 200;
+            text-align: center;
+            padding: 30px;
+        }
+
+        #message-screen h2 {
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        #message-text {
+            font-size: 0.95rem;
+            color: #bbb;
+            letter-spacing: 1px;
+        }
+
+        #message-stats {
+            font-size: 0.8rem;
+            color: #777;
+            letter-spacing: 2px;
+        }
+
+        #message-screen .menu-button {
+            border-color: var(--color-goal);
+            color: var(--color-goal);
+        }
+
+        #message-screen .menu-button:hover {
+            background: var(--color-goal);
+            color: var(--color-bg);
+        }
+
+        /* ========================= */
+        /* === GAME WRAPPER ======== */
+        /* ========================= */
+        .game-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-bg);
+            position: relative;
+        }
+
+        /* ========================= */
+        /* === GRID ================ */
+        /* ========================= */
+        .grid-container {
+            position: relative;
+            display: grid;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            /* NO 3D transform — it misaligns the fog layer */
+        }
+
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            background: var(--color-path);
+        }
+
+        .wall {
+            background: var(--color-wall);
+            /* Subtle inner edge for 3D feel without expensive shadows */
+            box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.04),
+                        inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .goal {
+            background: var(--color-path);
+            position: relative;
+        }
+
+        /* Goal orb */
+        .goal::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 52%;
+            height: 52%;
+            background: var(--color-goal);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--color-goal-glow),
+                        0 0 22px var(--color-goal-glow);
+            animation: pulse-goal 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse-goal {
+            from { transform: translate(-50%, -50%) scale(0.82); opacity: 0.7; }
+            to   { transform: translate(-50%, -50%) scale(1.10); opacity: 1;   }
+        }
+
+        /* ========================= */
+        /* === FOG OF WAR ========== */
+        /* ========================= */
+        .fog-of-war {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 10;
+
+            /* JS sets these directly on the element */
+            --light-x: 50%;
+            --light-y: 50%;
+
+            /* Use registered @property so the radius can animate */
+            --fog-r: 110px;
+
+            background: radial-gradient(
+                circle at var(--light-x) var(--light-y),
+                transparent 0%,
+                transparent var(--fog-r),
+                rgba(6, 2, 18, 0.97) calc(var(--fog-r) + 65px),
+                var(--color-bg) calc(var(--fog-r) + 120px)
+            );
+
+            /* Subtle breathing — works now because @property is registered */
+            animation: fog-breathe 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes fog-breathe {
+            from { --fog-r: 110px; }
+            to   { --fog-r: 120px; }
+        }
+
+        /* ========================= */
+        /* === PLAYER ============== */
+        /* ========================= */
+        .player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: var(--cell-size);
+            height: var(--cell-size);
+            /* Smooth movement */
+            transition: transform 0.09s linear;
+            z-index: 5;
+            will-change: transform;     /* GPU-composited layer */
+        }
+
+        .player-avatar {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 56%;
+            height: 56%;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #player1 .player-avatar {
+            background: var(--color-p1);
+            box-shadow: 0 0 8px var(--color-p1-glow), 0 0 18px var(--color-p1-glow);
+        }
+
+        #player2 .player-avatar {
+            background: var(--color-p2);
+            box-shadow: 0 0 8px var(--color-p2-glow), 0 0 18px var(--color-p2-glow);
+        }
+
+        /* ========================= */
+        /* === PARTICLES =========== */
+        /* ========================= */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 11;
+        }
+
+        /* Step dust */
+        .step-particle {
+            width: 4px;
+            height: 4px;
+            animation: p-move 0.5s ease-out forwards;
+        }
+
+        @keyframes p-move {
+            0%   { transform: translate(-50%, -50%); opacity: 0.9; }
+            100% { transform: translate(calc(var(--dx, 0) * 1px - 50%), calc(var(--dy, 0) * 1px - 50%)) scale(0); opacity: 0; }
+        }
+
+        /* Glow trail */
+        .glow-trail {
+            width: 7px;
+            height: 7px;
+            opacity: 0.35;
+            animation: p-fade 0.65s linear forwards;
+        }
+
+        @keyframes p-fade {
+            to { opacity: 0; transform: scale(0.2); }
+        }
+
+        /* Collision spark */
+        .spark-particle {
+            width: 3px;
+            height: 7px;
+            border-radius: 2px;
+            animation: p-spark 0.35s ease-out forwards;
+        }
+
+        @keyframes p-spark {
+            0%   { transform: translate(-50%, -50%); opacity: 1; }
+            100% { transform: translate(calc(var(--dx, 0) * 1px - 50%), calc(var(--dy, 0) * 1px - 50%)) scale(0.1); opacity: 0; }
+        }
+
+        /* ========================= */
+        /* === SCREEN SHAKE ======== */
+        /* ========================= */
+        @keyframes shake {
+            0%   { transform: translate(0, 0);    }
+            20%  { transform: translate(-4px, 2px); }
+            40%  { transform: translate(4px, -2px); }
+            60%  { transform: translate(-3px, 2px); }
+            80%  { transform: translate(2px, -1px); }
+            100% { transform: translate(0, 0);    }
+        }
+
+        .is-shaking { animation: shake 0.22s ease-out; }
+
+        /* ========================= */
+        /* === TITLE FLICKER ======= */
+        /* ========================= */
+        @keyframes flicker {
+            0%, 17%, 19%, 21%, 50%, 56%, 100% {
+                text-shadow: 0 0 6px var(--color-p1-glow), 0 0 16px var(--color-p1-glow);
+                opacity: 1;
+            }
+            18%, 20%, 53% {
+                text-shadow: none;
+                opacity: 0.82;
+            }
+        }
+
+        /* ========================= */
+        /* === RESPONSIVE ========== */
+        /* ========================= */
+        @media (max-width: 800px) {
+            #split-screen-container {
+                flex-direction: column;
+            }
+            #player1-view, #player2-view {
+                flex-basis: 50%;
+                height: 50%;
+            }
+            :root { --cell-size: 25px; }
+            .game-ui-overlay { font-size: 0.75rem; top: 8px; }
+            #main-menu h1 { font-size: 2rem; }
+            .menu-button { padding: 10px 22px; font-size: 0.9rem; }
+        }
+
+        /* ========================= */
+        /* === MOBILE BLOCK ======== */
+        /* ========================= */
+        #mobile-unsupported-message {
+            position: fixed;
+            inset: 0;
+            background: var(--color-bg);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 18px;
+            z-index: 300;
+            text-align: center;
+            padding: 30px;
+        }
+
+        #mobile-unsupported-message h2 {
+            font-size: 1.8rem;
+            color: var(--color-p2);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        #mobile-unsupported-message p {
+            font-size: 1rem;
+            color: var(--color-text);
+        }
+        /* ========================= */
+        /* === MOBILE D-PAD ======== */
+        /* ========================= */
+        #mobile-dpad {
+            display: none;
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 150;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #mobile-dpad.visible {
+            display: flex;
+        }
+
+        .dpad-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .dpad-center {
+            width: 52px;
+            height: 52px;
+        }
+
+        .dpad-btn {
+            width: 52px;
+            height: 52px;
+            background: rgba(82, 216, 232, 0.12);
+            border: 2px solid rgba(82, 216, 232, 0.45);
+            color: var(--color-p1);
+            font-size: 1.3rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.1s, transform 0.08s;
+            outline: none;
+            font-family: sans-serif;
+        }
+
+        .dpad-btn:active,
+        .dpad-btn.pressed {
+            background: rgba(82, 216, 232, 0.32);
+            transform: scale(0.92);
+        }
+    </style>
+<body>
+
+    <!-- MAIN MENU -->
+    <div id="main-menu">
+        <h1>Maze of Echoes</h1>
+        <p class="controls-hint">WASD - Player 1 &nbsp;|&nbsp; Arrow Keys - Player 2</p>
+        <button id="start-1p" class="menu-button">1 Player</button>
+        <button id="start-2p" class="menu-button">2 Players (Split-Screen)</button>
+        <p class="subtitle">Powered by Greek Games Studios</p>
+    </div>
+
+    <!-- GAME -->
+    <div id="game-container">
+        <div id="split-screen-container">
+            <div id="player1-view" class="game-wrapper">
+                <div id="p1-ui" class="game-ui-overlay">Level: 1</div>
+            </div>
+            <div id="player2-view" class="game-wrapper">
+                <div id="p2-ui" class="game-ui-overlay">Race!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WIN / LEVEL SCREEN -->
+    <div id="message-screen">
+        <h2 id="message-title">LEVEL CLEAR!</h2>
+        <p id="message-text">You completed the maze!</p>
+        <p id="message-stats"></p>
+        <button id="next-level-button" class="menu-button">Next Level</button>
+        <button id="play-again-button" class="menu-button">Play Again</button>
+        <button id="main-menu-button" class="menu-button">Main Menu</button>
+    </div>
+
+    <!-- MOBILE BLOCK (2P only) -->
+    <div id="mobile-unsupported-message">
+        <h2>2 Players Not Supported on Mobile</h2>
+        <p>Split-screen multiplayer requires a keyboard.</p>
+        <p style="font-size:0.8em;margin-top:8px;color:#666;">Play 1 Player instead, it works great on mobile!</p>
+        <button id="mobile-1p-button" class="menu-button" style="margin-top:12px;">1 Player</button>
+        <button id="mobile-menu-button" class="menu-button" style="margin-top:4px;border-color:#555;color:#555;">Back to Menu</button>
+    </div>
+
+    <!-- MOBILE D-PAD (1P only) -->
+    <div id="mobile-dpad">
+        <button class="dpad-btn" id="dpad-up">▲</button>
+        <div class="dpad-row">
+            <button class="dpad-btn" id="dpad-left">◀</button>
+            <div class="dpad-center"></div>
+            <button class="dpad-btn" id="dpad-right">▶</button>
+        </div>
+        <button class="dpad-btn" id="dpad-down">▼</button>
+    </div>
+
+    <script>
+    // ================================================================ //
+    // === MAZE DATA — 30 levels (0=path, 1=wall, 2=start, 3=goal) === //
+    // ================================================================ //
+    const MAZE_DATA = [
+        // Level 1
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,1,0,0,0,1,0,0,0,0,0,1],[1,0,1,0,1,0,1,0,1,0,1,1,1,0,1],[1,0,1,0,0,0,1,0,0,0,1,0,0,0,1],[1,0,1,1,1,1,1,1,1,0,1,0,1,1,1],[1,0,0,0,0,0,0,0,1,0,0,0,1,0,1],[1,1,1,1,1,0,1,0,1,1,1,1,1,0,1],[1,0,0,0,1,0,1,0,0,0,0,0,1,0,1],[1,0,1,0,1,0,1,1,1,1,1,0,1,0,1],[1,0,1,0,0,0,0,0,1,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 2
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,1,0,0,0,1,0,0,0,1,0,0,0,1],[1,0,0,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,0,0,1,0,1,0,1,0,1],[1,0,0,0,1,1,1,1,1,0,1,1,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,0,1,1,1,1,1,0,1],[1,0,1,0,0,0,1,0,1,0,0,0,1,0,1],[1,0,1,0,1,0,1,0,0,0,1,0,1,1,1],[1,0,0,0,1,0,0,0,1,0,1,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 3
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,3,0,1,0,0,0,1,0,0,0,1,0,0,1],[1,1,0,1,0,1,0,1,0,1,0,1,0,1,1],[1,0,0,0,0,1,0,0,0,1,0,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,1,1,1,1,1,1,0,1,1,1,0,1,0,1],[1,0,0,0,0,0,1,0,1,0,1,0,1,0,1],[1,0,1,1,1,0,1,0,1,0,1,0,1,0,1],[1,0,0,0,1,0,0,0,1,0,0,0,1,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 4
+        [[1,2,0,0,0,0,1,0,0,0,0,0,0,0,1],[1,1,1,1,1,0,1,0,1,1,1,1,1,0,1],[1,0,0,0,1,0,1,0,1,0,0,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,0,0,0,0,1,0,1,0,0,0,1],[1,0,1,1,1,1,1,1,1,0,1,1,1,1,1],[1,0,0,0,0,0,1,0,0,0,1,0,0,0,1],[1,1,1,1,1,0,1,0,1,1,1,0,1,0,1],[1,0,0,0,1,0,0,0,0,0,0,0,1,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 5
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,1,0,0,0,1,0,3,0,1],[1,0,1,1,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,0,0,1,0,1,0,1,0,1],[1,0,1,0,1,1,1,1,1,0,1,1,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,0,0,0,1,0,0,0,1,0,1,0,1],[1,2,0,0,1,0,1,0,1,0,1,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 6
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 7
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,1,0,0,0,1,0,1,0,0,0,0,1],[1,0,1,1,0,1,0,1,0,1,1,1,1,0,1],[1,0,0,0,0,1,0,1,0,0,0,0,1,0,1],[1,1,1,1,1,1,0,1,1,1,1,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,1,0,1,0,1],[1,0,1,1,1,1,1,1,1,0,1,0,1,0,1],[1,0,0,0,0,0,0,0,1,0,0,0,1,0,1],[1,1,1,1,1,1,1,0,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 8
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,1,1,0,0,0,1,0,1,0,3,1],[1,0,1,0,0,0,0,1,0,0,0,0,1,0,1],[1,1,1,1,1,0,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,1,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 9
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,0,1,0,1],[1,0,1,0,0,0,0,0,0,0,1,0,0,0,1],[1,0,1,0,1,1,1,1,1,0,1,0,1,0,1],[1,0,1,0,1,0,0,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,3,0,0,0,0,1,0,0,0,0,0,1,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 10
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,1,1,1,1,1,1,1,1,1,1,0,1],[1,1,0,1,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,1],[1,0,1,1,0,1,0,0,0,0,1,0,1,0,1],[1,0,1,0,0,1,0,1,1,0,1,0,1,0,1],[1,0,1,0,1,1,0,1,0,0,1,0,1,0,1],[1,0,1,0,1,0,0,1,0,1,1,0,1,0,1],[1,0,1,0,1,0,1,1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,1,1,1,1,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 11
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,1,0,0,0,0,0,0,0,1],[1,1,1,1,1,0,1,0,1,1,1,1,1,0,1],[1,0,0,0,1,0,1,0,0,0,0,0,1,0,1],[1,0,1,0,1,0,0,0,1,0,1,0,1,0,1],[1,0,1,0,1,1,1,0,1,0,1,0,1,0,1],[1,0,1,0,0,0,0,0,1,0,0,0,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,0,1,0,1],[1,0,0,0,0,0,1,0,0,0,1,0,0,0,1],[1,1,1,1,1,0,1,0,1,0,1,0,1,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 12
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,0,0,0,0,1,0,0,3,1],[1,0,1,1,1,1,1,0,1,1,1,1,1,0,1],[1,0,1,0,0,0,0,0,0,0,1,0,0,0,1],[1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],[1,0,1,0,1,0,0,0,0,0,1,0,1,1,1],[1,0,1,0,1,0,1,1,1,1,1,0,1,0,1],[1,0,1,0,1,0,1,0,0,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,1,1,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 13
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,0,0,0,0,0,0,0,1,1],[1,0,1,0,1,1,1,1,1,0,1,1,1,0,1],[1,0,1,0,0,0,1,0,0,0,0,0,1,0,1],[1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],[1,1,1,0,1,0,0,0,0,0,1,0,0,0,1],[1,0,1,0,1,0,1,1,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,0,0,0,0,1,0,1],[1,0,1,0,1,0,1,0,1,1,1,0,1,0,1],[1,0,0,0,0,0,0,0,0,1,0,0,1,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 14
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,1,0,0,0,1,0,0,0,1,1],[1,0,0,1,0,1,0,1,0,1,0,1,0,0,1],[1,1,0,1,0,0,0,1,0,0,0,1,1,0,1],[1,0,0,0,0,1,0,1,0,1,0,0,0,0,1],[1,0,1,1,1,1,0,1,1,1,1,1,1,1,1],[1,0,0,1,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 15
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,0,1,0,0,0,0,0,0,1],[1,1,1,1,1,1,0,1,0,1,1,1,1,0,1],[1,0,0,0,0,0,0,1,0,1,0,0,0,0,1],[1,0,1,1,1,1,1,1,0,1,0,1,1,1,1],[1,0,0,0,0,0,0,0,0,1,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 16
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,0,1,0,0,0,0,0,0,1],[1,1,1,1,1,1,0,1,0,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],[1,0,0,0,0,1,0,1,0,0,0,0,0,0,1],[1,0,1,1,0,1,0,1,0,1,1,1,1,1,1],[1,0,0,0,0,1,0,0,0,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 17
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,0,0,0,1,0,0,0,0,1],[1,1,1,1,1,0,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,0,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,0,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 18
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 19
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,1,1,0,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,0,1,0,1],[1,0,1,0,0,0,0,0,0,0,1,0,1,0,1],[1,0,1,0,1,1,1,1,1,0,1,0,1,0,1],[1,0,1,0,1,0,0,0,1,0,1,0,0,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,0,0,1,0,0,0,0,0,1,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 20
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,1,0,0,1,0,0,0,1,0,0,1],[1,1,1,0,1,0,1,1,1,0,1,1,0,1,1],[1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,0,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,1,1,1,1,1,1,0,1,1,1,0,1,0,1],[1,0,0,0,0,0,1,0,1,0,1,0,1,0,1],[1,0,1,1,1,0,1,0,1,0,1,0,1,0,1],[1,0,0,0,1,0,0,0,1,0,0,0,1,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 21
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,3,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,2,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 22
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,1,0,0,0,0,0,0,0,1],[1,1,1,1,1,0,1,0,1,1,1,1,1,0,1],[1,0,0,0,1,0,1,0,1,0,0,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,0,0,0,0,1,0,1,0,0,0,1],[1,0,1,1,1,1,1,1,1,0,1,1,1,1,1],[1,0,0,0,0,0,1,0,0,0,1,0,0,0,1],[1,1,1,1,1,0,1,0,1,1,1,0,1,0,1],[1,0,0,0,1,0,0,0,0,0,0,0,1,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 23
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,0,0,0,0,0,0,0,1,1],[1,0,1,1,1,1,1,1,1,1,1,0,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],[1,0,1,0,1,0,0,0,0,0,1,0,1,0,1],[1,0,1,0,1,0,1,1,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,0,0,1,1,1,0,1],[1,0,1,0,1,0,1,0,1,1,1,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 24
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,1,1,1,0,0,0,0,0,1,1,1,0,1],[1,0,0,0,1,0,1,1,1,0,1,0,1,0,1],[1,1,1,0,1,0,1,0,1,0,1,0,0,0,1],[1,0,0,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,1,1,0,1,0,1,0,1,0,1,0,1],[1,0,0,0,0,0,1,0,1,0,0,0,1,1,1],[1,1,1,1,1,1,1,0,1,1,0,1,1,0,1],[1,0,0,0,1,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 25
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,1,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,1,0,1,1,1,1,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],[1,0,1,0,1,0,0,0,0,0,1,1,1,0,1],[1,0,1,0,1,0,1,1,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,0,0,0,0,1,0,1],[1,0,1,0,1,0,1,0,1,1,1,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,1,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 26
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,0,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,1,1,1,1,0,1,1,1,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,1,0,1,0,1],[1,1,1,1,1,1,1,0,1,0,1,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 27
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,1,0,1,0,1,0,1,0,0,1],[1,0,0,1,0,1,0,1,0,1,0,1,1,0,1],[1,0,1,1,0,0,0,1,0,1,0,0,0,0,1],[1,0,0,0,0,1,0,1,0,1,1,1,1,1,1],[1,0,1,1,1,1,0,1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,1,1,1,1,1,1,0,1],[1,1,1,1,1,1,0,1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,0,0,1,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 28
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,1,0,0,0,1,0,0,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,0,0,1,0,1,0,1,0,1,0,1],[1,0,1,1,1,1,1,1,1,0,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,1,0,0,0,1,0,0,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,0,0,1,0,0,0,1,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 29
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0,1,1,1,0,1,1,1],[1,0,0,0,0,0,0,0,1,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],
+        // Level 30 — Grand Finale
+        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,0,1,0,0,0,0,0,1,0,0,0,0,1],[1,1,0,1,0,1,1,1,0,1,0,1,1,0,1],[1,0,0,1,0,1,0,0,0,1,0,0,1,0,1],[1,0,1,1,0,1,0,1,1,1,1,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,1,0,1,0,1],[1,0,1,1,1,1,1,0,1,0,1,0,1,0,1],[1,0,0,0,0,0,0,0,1,0,1,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+    ];
+
+    // ================================================================ //
+    // === GAME STATE ================================================= //
+    // ================================================================ //
+    const gameState = {
+        mode:               'menu',  // 'menu' | '1p' | '2p' | 'unsupported'
+        gameActive:         false,
+        cellSize:           35,
+        singlePlayerLevel:  0,
+
+        p1: {
+            x: 1, y: 1,
+            el:        null,
+            fogEl:     null,
+            viewEl:    document.getElementById('player1-view'),
+            uiEl:      document.getElementById('p1-ui'),
+            mazeData:  null,
+            color:     '#52d8e8',
+            glow:      'rgba(82,216,232,0.45)',
+            moves:     0,
+            startTime: 0,
+            // Cached grid offset — recomputed on setup/resize, used on every move
+            gridOX:    0,
+            gridOY:    0,
+        },
+        p2: {
+            x: 1, y: 1,
+            el:        null,
+            fogEl:     null,
+            viewEl:    document.getElementById('player2-view'),
+            uiEl:      document.getElementById('p2-ui'),
+            mazeData:  null,
+            color:     '#e852c8',
+            glow:      'rgba(232,82,200,0.45)',
+            moves:     0,
+            startTime: 0,
+            gridOX:    0,
+            gridOY:    0,
+        }
+    };
+
+    // DOM refs
+    const mainMenu       = document.getElementById('main-menu');
+    const gameContainer  = document.getElementById('game-container');
+    const messageScreen  = document.getElementById('message-screen');
+
+    // Particle limiter
+    let activeParticles = 0;
+    const MAX_PARTICLES = 28;
+
+    // ================================================================ //
+    // === INIT & SETUP =============================================== //
+    // ================================================================ //
+
+    function initGame(mode) {
+        gameState.mode       = mode;
+        gameState.gameActive = true;
+
+        mainMenu.style.display      = 'none';
+        gameContainer.style.display = 'block';
+        messageScreen.style.display = 'none';
+
+        // --- Responsive cell size (BUG FIX: was calculated but never applied) ---
+        const refMaze = MAZE_DATA[0];
+        const mW = refMaze[0].length;   // 15
+        const mH = refMaze.length;      // 11
+        const PAD = 2;
+
+        let cellSize;
+        if (mode === '1p') {
+            const cW = Math.floor(window.innerWidth  / (mW + PAD));
+            const cH = Math.floor(window.innerHeight / (mH + PAD));
+            cellSize = Math.min(cW, cH);
+            gameState.p1.viewEl.classList.add('single-player');
+            gameState.p2.viewEl.style.display = 'none';
+        } else {
+            const vW = Math.floor(window.innerWidth  / 2);
+            const vH = window.innerHeight;
+            const cW = Math.floor(vW / (mW + PAD));
+            const cH = Math.floor(vH / (mH + PAD));
+            cellSize = Math.min(cW, cH);
+            gameState.p1.viewEl.classList.remove('single-player');
+            gameState.p2.viewEl.style.display = 'flex';
+        }
+
+        cellSize = Math.max(cellSize, 18); // floor at 18px
+        gameState.cellSize = cellSize;
+        document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
+
+        // --- Player 1 ---
+        const p1Idx = (mode === '1p') ? gameState.singlePlayerLevel
+                                      : Math.floor(Math.random() * MAZE_DATA.length);
+        gameState.p1.mazeData  = MAZE_DATA[p1Idx];
+        gameState.p1.moves     = 0;
+        gameState.p1.startTime = Date.now();
+        setupPlayerView('p1', gameState.p1.mazeData, p1Idx + 1);
+
+        // --- Player 2 (2P only, different maze) ---
+        if (mode === '2p') {
+            let p2Idx;
+            do { p2Idx = Math.floor(Math.random() * MAZE_DATA.length); }
+            while (p2Idx === p1Idx && MAZE_DATA.length > 1);
+
+            gameState.p2.mazeData  = MAZE_DATA[p2Idx];
+            gameState.p2.moves     = 0;
+            gameState.p2.startTime = Date.now();
+            setupPlayerView('p2', gameState.p2.mazeData, p2Idx + 1);
+        }
+    }
+
+    function setupPlayerView(playerId, mazeData, levelIndex) {
+        const player = gameState[playerId];
+        player.viewEl.innerHTML = '';  // clear previous contents
+
+        // 1. UI label
+        player.uiEl = document.createElement('div');
+        player.uiEl.className = 'game-ui-overlay';
+        player.uiEl.style.color = player.color;
+        refreshUI(playerId, levelIndex);
+        player.viewEl.appendChild(player.uiEl);
+
+        // 2. Grid — built with DocumentFragment for one-shot DOM insert (perf)
+        const grid = document.createElement('div');
+        grid.className = 'grid-container';
+        grid.style.gridTemplateColumns = `repeat(${mazeData[0].length}, 1fr)`;
+
+        let startPos = { x: 1, y: 1 };
+        const frag = document.createDocumentFragment();
+
+        mazeData.forEach((row, y) => {
+            row.forEach((cellType, x) => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if      (cellType === 1) { cell.classList.add('wall'); }
+                else if (cellType === 2) { cell.classList.add('start'); startPos = { x, y }; }
+                else if (cellType === 3) { cell.classList.add('goal'); }
+                frag.appendChild(cell);
+            });
+        });
+        grid.appendChild(frag);
+        player.viewEl.appendChild(grid);
+
+        // 3. Player element
+        player.el = document.createElement('div');
+        player.el.id        = `player${playerId === 'p1' ? '1' : '2'}`;
+        player.el.className = 'player';
+        const avatar = document.createElement('div');
+        avatar.className = 'player-avatar';
+        player.el.appendChild(avatar);
+        grid.appendChild(player.el);
+
+        // 4. Fog of War (child of viewEl so absolute position matches viewEl)
+        player.fogEl = document.createElement('div');
+        player.fogEl.className = 'fog-of-war';
+        player.viewEl.appendChild(player.fogEl);
+
+        // 5. Set initial position — cache grid offset after layout settles
+        player.x = startPos.x;
+        player.y = startPos.y;
+
+        requestAnimationFrame(() => {
+            cacheGridOffset(playerId);
+            updatePlayerPosition(playerId, startPos.x, startPos.y, true);
+        });
+    }
+
+    /** Cache grid→view offset once (not on every keypress). */
+    function cacheGridOffset(playerId) {
+        const player = gameState[playerId];
+        if (!player.el?.parentElement) return;
+        const gRect = player.el.parentElement.getBoundingClientRect();
+        const vRect = player.viewEl.getBoundingClientRect();
+        player.gridOX = gRect.left - vRect.left;
+        player.gridOY = gRect.top  - vRect.top;
+    }
+
+    function refreshUI(playerId, levelIndex) {
+        const player = gameState[playerId];
+        if (!player.uiEl) return;
+        const lvlPart = (gameState.mode === '1p')
+            ? `Level ${levelIndex ?? gameState.singlePlayerLevel + 1} / ${MAZE_DATA.length}`
+            : 'Race!';
+        player.uiEl.textContent = `${lvlPart}  —  Moves: ${player.moves}`;
+    }
+
+    // ================================================================ //
+    // === MOVEMENT & LOGIC =========================================== //
+    // ================================================================ //
+
+    function handleKeyDown(e) {
+        if (!gameState.gameActive) return;
+
+        const p1Keys    = ['KeyW', 'KeyA', 'KeyS', 'KeyD'];
+        const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+        if ([...p1Keys, ...arrowKeys].includes(e.code)) e.preventDefault();
+
+        if (gameState.mode === '1p') {
+            if      (e.code === 'KeyW'     || e.code === 'ArrowUp')    movePlayer('p1',  0, -1);
+            else if (e.code === 'KeyS'     || e.code === 'ArrowDown')  movePlayer('p1',  0,  1);
+            else if (e.code === 'KeyA'     || e.code === 'ArrowLeft')  movePlayer('p1', -1,  0);
+            else if (e.code === 'KeyD'     || e.code === 'ArrowRight') movePlayer('p1',  1,  0);
+        }
+
+        if (gameState.mode === '2p') {
+            // P1 — WASD (e.code ignores keyboard language)
+            if      (e.code === 'KeyW') movePlayer('p1',  0, -1);
+            else if (e.code === 'KeyS') movePlayer('p1',  0,  1);
+            else if (e.code === 'KeyA') movePlayer('p1', -1,  0);
+            else if (e.code === 'KeyD') movePlayer('p1',  1,  0);
+
+            // P2 — Arrows
+            if      (e.code === 'ArrowUp')    movePlayer('p2',  0, -1);
+            else if (e.code === 'ArrowDown')  movePlayer('p2',  0,  1);
+            else if (e.code === 'ArrowLeft')  movePlayer('p2', -1,  0);
+            else if (e.code === 'ArrowRight') movePlayer('p2',  1,  0);
+        }
+    }
+
+    function movePlayer(playerId, dx, dy) {
+        const player = gameState[playerId];
+        if (!player.mazeData) return;
+
+        const newX = player.x + dx;
+        const newY = player.y + dy;
+
+        // Boundary check
+        if (newY < 0 || newY >= player.mazeData.length ||
+            newX < 0 || newX >= player.mazeData[0].length) return;
+
+        const cell = player.mazeData[newY][newX];
+
+        if (cell === 1) {
+            // Wall hit — sparks + screen shake
+            playSparkVFX(playerId, dx, dy);
+            shakeView(playerId);
+            return;
+        }
+
+        // Valid move
+        player.moves++;
+        updatePlayerPosition(playerId, newX, newY);
+        playStepVFX(playerId);
+        leaveGlowTrail(playerId);
+        refreshUI(playerId);
+
+        if (cell === 3) handleWin(playerId);
+    }
+
+    function updatePlayerPosition(playerId, newX, newY, force = false) {
+        const player = gameState[playerId];
+        if (!force && player.x === newX && player.y === newY) return;
+
+        player.x = newX;
+        player.y = newY;
+
+        const px = newX * gameState.cellSize;
+        const py = newY * gameState.cellSize;
+
+        // Move player (GPU-composited via will-change: transform)
+        player.el.style.transform = `translate(${px}px, ${py}px)`;
+
+        // Update fog: set CSS vars directly on the fog element (faster than :root)
+        const lx = player.gridOX + px + gameState.cellSize * 0.5;
+        const ly = player.gridOY + py + gameState.cellSize * 0.5;
+        player.fogEl.style.setProperty('--light-x', `${lx}px`);
+        player.fogEl.style.setProperty('--light-y', `${ly}px`);
+    }
+
+    // ================================================================ //
+    // === VISUAL EFFECTS ============================================= //
+    // ================================================================ //
+
+    function createParticle(container, x, y, className, color, glow) {
+        if (activeParticles >= MAX_PARTICLES) return null;
+        activeParticles++;
+
+        const p = document.createElement('div');
+        p.className    = `particle ${className}`;
+        p.style.cssText = `left:${x}px;top:${y}px;background:${color};box-shadow:0 0 4px ${glow}`;
+        container.appendChild(p);
+
+        p.addEventListener('animationend', () => {
+            p.remove();
+            activeParticles--;
+        }, { once: true });
+
+        return p;
+    }
+
+    /** Get player's center in view-relative coordinates using cached offset. */
+    function playerCenter(playerId) {
+        const player = gameState[playerId];
+        const half   = gameState.cellSize * 0.5;
+        return {
+            x: player.gridOX + player.x * gameState.cellSize + half,
+            y: player.gridOY + player.y * gameState.cellSize + half,
+        };
+    }
+
+    function playStepVFX(playerId) {
+        const { x, y } = playerCenter(playerId);
+        const player    = gameState[playerId];
+        for (let i = 0; i < 2; i++) {
+            const p = createParticle(player.viewEl, x, y, 'step-particle', player.color, player.glow);
+            if (p) {
+                p.style.setProperty('--dx', (Math.random() - 0.5) * 28);
+                p.style.setProperty('--dy', (Math.random() - 0.5) * 28);
+            }
+        }
+    }
+
+    function leaveGlowTrail(playerId) {
+        const { x, y } = playerCenter(playerId);
+        const player    = gameState[playerId];
+        createParticle(player.viewEl, x - 3, y - 3, 'glow-trail', player.color, player.glow);
+    }
+
+    function playSparkVFX(playerId, dx, dy) {
+        const { x, y } = playerCenter(playerId);
+        const player    = gameState[playerId];
+        const cs        = gameState.cellSize;
+        const sx        = x + dx * cs * 0.48;
+        const sy        = y + dy * cs * 0.48;
+        for (let i = 0; i < 4; i++) {
+            const p = createParticle(player.viewEl, sx, sy, 'spark-particle', '#f0b429', 'rgba(240,180,41,0.55)');
+            if (p) {
+                p.style.setProperty('--dx', (Math.random() - 0.5) * 36 - dx * 14);
+                p.style.setProperty('--dy', (Math.random() - 0.5) * 36 - dy * 14);
+            }
+        }
+    }
+
+    function shakeView(playerId) {
+        const el = gameState[playerId].viewEl;
+        el.classList.remove('is-shaking');
+        void el.offsetWidth;  // force reflow to restart animation
+        el.classList.add('is-shaking');
+        el.addEventListener('animationend', () => el.classList.remove('is-shaking'), { once: true });
+    }
+
+    // ================================================================ //
+    // === GAME FLOW ================================================== //
+    // ================================================================ //
+
+    // ── SCORE REPORTING TO APP ──
+function sendScoreToApp(score, isNewRecord) {
+  if (window.ReactNativeWebView) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'SEND_SCORE',
+      score: score,
+      game: 'Maze of Echoes',
+      isNewRecord: isNewRecord,
+    }));
+  }
+}
+
+function handleWin(winnerId) {
+        gameState.gameActive = false;
+        const winner  = gameState[winnerId];
+        const elapsed = Math.round((Date.now() - winner.startTime) / 1000);
+
+        const msgTitle = document.getElementById('message-title');
+        const msgText  = document.getElementById('message-text');
+        const msgStats = document.getElementById('message-stats');
+        const nextBtn  = document.getElementById('next-level-button');
+        const againBtn = document.getElementById('play-again-button');
+
+        msgStats.textContent = `Moves: ${winner.moves}  ·  Time: ${elapsed}s`;
+
+        if (gameState.mode === '1p') {
+            gameState.singlePlayerLevel++;
+
+            if (gameState.singlePlayerLevel >= MAZE_DATA.length) {
+                msgTitle.textContent    = 'GAME MASTER!';
+                msgTitle.style.color   = 'var(--color-goal)';
+                msgText.textContent    = `You finished all ${MAZE_DATA.length} mazes. Legendary.`;
+                nextBtn.style.display  = 'none';
+            } else {
+                msgTitle.textContent   = 'LEVEL CLEAR!';
+                msgTitle.style.color   = 'var(--color-p1)';
+                msgText.textContent    = `Level ${gameState.singlePlayerLevel + 1} awaits...`;
+                nextBtn.style.display  = 'block';
+            }
+            againBtn.style.display = 'none';
+
+        } else {
+            const name = (winnerId === 'p1') ? 'Player 1 (Cyan)' : 'Player 2 (Magenta)';
+            msgTitle.textContent   = 'WINNER!';
+            msgTitle.style.color   = winner.color;
+            msgText.textContent    = `${name} wins the race!`;
+            nextBtn.style.display  = 'none';
+            againBtn.style.display = 'block';
+        }
+
+        messageScreen.style.display = 'flex';
+    }
+
+    function resetToMenu() {
+        gameState.mode              = 'menu';
+        gameState.gameActive        = false;
+        gameState.singlePlayerLevel = 0;
+
+        mainMenu.style.display      = 'flex';
+        gameContainer.style.display = 'none';
+        messageScreen.style.display = 'none';
+
+        // Clear views
+        gameState.p1.viewEl.innerHTML = '';
+        gameState.p2.viewEl.innerHTML = '';
+    }
+
+    // ================================================================ //
+    // === EVENT LISTENERS ============================================ //
+    // ================================================================ //
+
+    document.getElementById('start-1p').addEventListener('click', () => {
+        gameState.singlePlayerLevel = 0;
+        initGame('1p');
+    });
+    document.getElementById('start-2p').addEventListener('click', () => {
+        if (isSmallScreen() && isTouchDevice()) return; // handled by capture listener below
+        initGame('2p');
+    });
+
+    document.getElementById('next-level-button').addEventListener('click', () => initGame('1p'));
+    document.getElementById('play-again-button').addEventListener('click', () => initGame('2p'));
+    document.getElementById('main-menu-button').addEventListener('click', resetToMenu);
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Resize — debounced; only reinit when actively playing (BUG FIX: was firing on message screen)
+    let _resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(_resizeTimer);
+        _resizeTimer = setTimeout(() => {
+            // gameActive is false after a win, so we never accidentally restart from message screen
+            if (gameState.gameActive) {
+                initGame(gameState.mode);  // BUG FIX: no longer decrements singlePlayerLevel
+            }
+        }, 160);
+    });
+
+    // ================================================================ //
+    // === MOBILE SUPPORT ============================================= //
+    // ================================================================ //
+
+    const dpad = document.getElementById('mobile-dpad');
+
+    function isTouchDevice() {
+        return ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    }
+
+    function isSmallScreen() {
+        return window.matchMedia('(max-width: 800px)').matches;
+    }
+
+    function showDpad() {
+        dpad.classList.add('visible');
+    }
+
+    function hideDpad() {
+        dpad.classList.remove('visible');
+    }
+
+    // D-pad buttons — support both touch and mouse, with repeat on hold
+    const dpadMap = {
+        'dpad-up':    () => movePlayer('p1',  0, -1),
+        'dpad-down':  () => movePlayer('p1',  0,  1),
+        'dpad-left':  () => movePlayer('p1', -1,  0),
+        'dpad-right': () => movePlayer('p1',  1,  0),
+    };
+
+    let dpadInterval = null;
+    let dpadTimeout  = null;
+
+    function dpadStart(btnId) {
+        if (!gameState.gameActive || gameState.mode !== '1p') return;
+        const action = dpadMap[btnId];
+        if (!action) return;
+        document.getElementById(btnId).classList.add('pressed');
+        action(); // immediate first move
+        dpadTimeout = setTimeout(() => {
+            dpadInterval = setInterval(action, 140); // repeat while held
+        }, 280);
+    }
+
+    function dpadStop(btnId) {
+        clearTimeout(dpadTimeout);
+        clearInterval(dpadInterval);
+        dpadTimeout = null;
+        dpadInterval = null;
+        const el = document.getElementById(btnId);
+        if (el) el.classList.remove('pressed');
+    }
+
+    Object.keys(dpadMap).forEach(btnId => {
+        const el = document.getElementById(btnId);
+        // Touch
+        el.addEventListener('touchstart', e => { e.preventDefault(); dpadStart(btnId); }, { passive: false });
+        el.addEventListener('touchend',   e => { e.preventDefault(); dpadStop(btnId);  }, { passive: false });
+        el.addEventListener('touchcancel',e => { e.preventDefault(); dpadStop(btnId);  }, { passive: false });
+        // Mouse fallback (desktop testing)
+        el.addEventListener('mousedown', () => dpadStart(btnId));
+        el.addEventListener('mouseup',   () => dpadStop(btnId));
+        el.addEventListener('mouseleave',() => dpadStop(btnId));
+    });
+
+    // Intercept start-2p on mobile (capture phase — fires before the bubble listener above)
+    document.getElementById('start-2p').addEventListener('click', () => {
+        if (isSmallScreen() && isTouchDevice()) {
+            mainMenu.style.display = 'none';
+            document.getElementById('mobile-unsupported-message').style.display = 'flex';
+        }
+    }, true);
+
+    // Mobile overlay buttons
+    document.getElementById('mobile-1p-button').addEventListener('click', () => {
+        document.getElementById('mobile-unsupported-message').style.display = 'none';
+        gameState.singlePlayerLevel = 0;
+        initGame('1p');
+        if (isTouchDevice()) showDpad();
+    });
+
+    document.getElementById('mobile-menu-button').addEventListener('click', () => {
+        document.getElementById('mobile-unsupported-message').style.display = 'none';
+        mainMenu.style.display = 'flex';
+    });
+
+    // Show D-pad when 1P starts on touch device
+    document.getElementById('start-1p').addEventListener('click', () => {
+        if (isTouchDevice()) showDpad();
+    });
+
+    // Also show after Next Level
+    document.getElementById('next-level-button').addEventListener('click', () => {
+        if (isTouchDevice()) showDpad();
+    });
+
+    // Hide D-pad on return to menu
+    document.getElementById('main-menu-button').addEventListener('click', hideDpad);
+    </script>
+</body>
+</html>

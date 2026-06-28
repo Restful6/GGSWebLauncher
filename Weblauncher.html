@@ -1,0 +1,727 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Play &amp; Demos - Greek Games Studios</title>
+  <meta name="description" content="Play free browser mini games and try exclusive demos from Greek Games Studios. Cyberpunk, puzzle, action and more — no download required.">
+  <meta name="author" content="Greek Games Studios">
+  <link rel="canonical" href="https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/WebLauncher.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play &amp; Demos - Greek Games Studios">
+  <meta name="twitter:description" content="Play free browser mini games and try exclusive demos from Greek Games Studios. No download required.">
+  <meta name="twitter:image" content="https://www.greekgamesstudios.com/images/ggs-logo.png">
+  <meta name="twitter:site" content="@greekgamestudio">
+  <meta name="twitter:creator" content="@greekgamestudio">
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/images/favicon-192x192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <meta property="og:title" content="Play &amp; Demos - Greek Games Studios" />
+  <meta property="og:description" content="Play free browser mini games and try exclusive demos from Greek Games Studios. No download required." />
+  <meta property="og:image" content="https://www.greekgamesstudios.com/images/ggs-logo.png" />
+  <meta property="og:url" content="https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/WebLauncher.html" />
+  <meta property="og:site_name" content="Greek Games Studios" />
+  <meta property="og:type" content="website" />
+  <meta name="keywords" content="Greek Games Studios, play games, browser games, mini games, game demos, free games online, cyberpunk games, indie games web">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <meta name="theme-color" content="#000000">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #000000; --bg-secondary: #0a0a0a; --bg-card: #111111; --bg-card-hover: #1a1a1a;
+      --greek-blue: #0D5EAF; --greek-blue-bright: #1478D9; --cyan: #00D4FF; --cyan-dim: rgba(0, 212, 255, 0.15);
+      --text-primary: #FFFFFF; --text-secondary: #A0A0A0; --text-muted: #666666;
+      --border-subtle: rgba(255, 255, 255, 0.08); --border-accent: rgba(0, 212, 255, 0.3);
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+    .lenis.lenis-stopped { overflow: hidden; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); overflow-x: hidden; line-height: 1.7; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ========== PAGE TRANSITION ========== */
+    .page-transition-overlay { position: fixed; inset: 0; background: var(--bg-primary); z-index: 9999; pointer-events: none; transform: translateY(100%); }
+    .page-transition-overlay.animating { animation: slideUp 0.5s cubic-bezier(0.77, 0, 0.175, 1) forwards; }
+    .page-transition-overlay.revealing { animation: slideDown 0.6s cubic-bezier(0.77, 0, 0.175, 1) forwards; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes slideDown { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+
+    /* ========== NAVBAR ========== */
+    .navbar { position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 1000; background: rgba(0,0,0,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.06); transition: background 0.3s ease; }
+    .navbar.scrolled { background: rgba(0,0,0,0.95); }
+    .navbar-container { max-width: 1280px; margin: 0 auto; padding: 0 48px; height: 100%; display: flex; align-items: center; justify-content: space-between; }
+    .navbar-logo { flex-shrink: 0; display: flex; align-items: center; }
+    .navbar-logo img { height: 36px; width: auto; display: block; }
+    .navbar-links { display: flex; align-items: center; gap: 40px; margin-left: auto; }
+    .navbar-link { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); transition: color 0.2s ease; position: relative; }
+    .navbar-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 100%; height: 2px; background: var(--cyan); transform: scaleX(0); transition: transform 0.2s ease; }
+    .navbar-link:hover { color: var(--text-primary); }
+    .navbar-link:hover::after { transform: scaleX(1); }
+    .navbar-link.active { color: var(--text-primary); }
+    .navbar-link.active::after { transform: scaleX(1); }
+    .hamburger { display: none; flex-direction: column; justify-content: center; align-items: center; width: 40px; height: 40px; cursor: pointer; padding: 0; position: relative; z-index: 1001; background: none; border: none; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: white; border-radius: 2px; position: absolute; transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6); }
+    .hamburger span:nth-child(1) { top: 11px; }
+    .hamburger span:nth-child(2) { top: 19px; }
+    .hamburger span:nth-child(3) { top: 27px; }
+    .hamburger.active span:nth-child(1) { top: 19px; transform: rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; transform: translateX(-10px); }
+    .hamburger.active span:nth-child(3) { top: 19px; transform: rotate(-45deg); }
+    .mobile-menu { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.98); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; transform: translateY(-100%); transition: transform 0.3s ease; }
+    .mobile-menu.active { transform: translateY(0); }
+    .mobile-menu a { font-size: 20px; font-weight: 700; color: var(--text-secondary); transition: color 0.2s ease; text-transform: uppercase; letter-spacing: 0.1em; padding: 12px 32px; border-radius: 100px; min-width: 220px; text-align: center; }
+    .mobile-menu a:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+
+    /* ========== HERO ========== */
+    .launcher-hero { position: relative; width: 100%; padding: 140px 48px 80px; overflow: hidden; }
+    .launcher-hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 60% 0%, rgba(13, 94, 175, 0.18) 0%, transparent 70%); z-index: 0; }
+    .launcher-hero-particles { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .launcher-hero-particles .particle { position: absolute; width: 2px; height: 2px; background: var(--cyan); border-radius: 50%; opacity: 0.25; animation: floatP 10s ease-in-out infinite; }
+    @keyframes floatP { 0%, 100% { transform: translateY(0) translateX(0); } 33% { transform: translateY(-22px) translateX(12px); } 66% { transform: translateY(-8px) translateX(-8px); } }
+    .launcher-hero-inner { position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; align-items: flex-end; gap: 48px; }
+    .launcher-hero-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; color: var(--cyan); margin-bottom: 16px; }
+    .launcher-hero-title { font-size: clamp(38px, 5vw, 60px); font-weight: 800; color: white; line-height: 1.05; margin-bottom: 16px; }
+    .launcher-hero-title span { background: linear-gradient(135deg, var(--greek-blue-bright), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .launcher-hero-sub { font-size: 17px; color: var(--text-secondary); max-width: 520px; line-height: 1.65; }
+    .launcher-hero-stats { display: flex; align-items: center; gap: 8px; margin-top: 28px; }
+    .launcher-hero-stat { display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 100px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); }
+    .launcher-hero-stat-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .launcher-hero-stat-num { font-size: 14px; font-weight: 700; color: white; }
+    .launcher-hero-stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+    .launcher-hero-stat-sep { width: 1px; height: 28px; background: var(--border-subtle); }
+
+    /* ========== TAB BAR ========== */
+    .launcher-tabs-wrap { position: sticky; top: 64px; z-index: 100; background: rgba(0,0,0,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); }
+    .launcher-tabs { max-width: 1280px; margin: 0 auto; padding: 0 48px; display: flex; align-items: center; gap: 4px; }
+    .launcher-tab { position: relative; padding: 18px 24px 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); cursor: pointer; border: none; border-bottom: 2px solid transparent; background: none; transition: color 0.2s ease, border-color 0.25s var(--ease-out); display: flex; align-items: center; gap: 8px; margin-bottom: -1px; }
+    .launcher-tab.active { color: white; border-bottom-color: var(--cyan); }
+    .launcher-tab:hover { color: var(--text-secondary); }
+    .launcher-tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 100px; background: rgba(0, 212, 255, 0.12); border: 1px solid rgba(0, 212, 255, 0.2); color: var(--cyan); font-size: 11px; font-weight: 700; }
+
+    /* ========== SECTION PANEL ========== */
+    .launcher-panel { display: none; padding: 56px 48px 80px; max-width: 1280px; margin: 0 auto; }
+    .launcher-panel.active { display: block; }
+    .launcher-panel-header { margin-bottom: 40px; }
+    .launcher-panel-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; color: var(--cyan); margin-bottom: 10px; }
+    .launcher-panel-title { font-size: 28px; font-weight: 800; color: white; line-height: 1.2; }
+    .launcher-panel-line { width: 40px; height: 3px; background: var(--greek-blue); margin-top: 14px; }
+
+    /* ========== GAME GRID ========== */
+    .game-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+    /* ========== GAME CARD ========== */
+    .game-card { position: relative; background: var(--bg-card); border-radius: 14px; border: 1px solid var(--border-subtle); overflow: hidden; display: flex; flex-direction: column; transition: transform 0.35s var(--ease-out), box-shadow 0.35s ease, border-color 0.25s ease; }
+    .game-card:hover { transform: translateY(-5px); box-shadow: 0 28px 60px rgba(0,0,0,0.6); border-color: rgba(0, 212, 255, 0.18); }
+    .game-card-thumb { position: relative; aspect-ratio: 16 / 9; overflow: hidden; flex-shrink: 0; }
+    .game-card-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease-out); display: block; }
+    .game-card:hover .game-card-thumb img { transform: scale(1.07); }
+    .game-card-thumb-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%); }
+
+    /* play button overlay on thumb */
+    .game-card-play-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s ease; z-index: 2; }
+    .game-card:hover .game-card-play-hint { opacity: 1; }
+    .game-card-play-hint-circle { width: 44px; height: 44px; border-radius: 50%; background: rgba(0,212,255,0.9); display: flex; align-items: center; justify-content: center; }
+    .game-card-play-hint-circle svg { width: 18px; height: 18px; fill: #000; margin-left: 2px; }
+
+    .game-card-tag { position: absolute; top: 10px; left: 10px; z-index: 3; padding: 4px 10px; border-radius: 100px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .game-card-tag.mini { background: rgba(13, 94, 175, 0.85); color: #fff; border: 1px solid rgba(0, 212, 255, 0.3); }
+    .game-card-tag.demo { background: rgba(245, 158, 11, 0.85); color: #000; border: 1px solid rgba(245, 158, 11, 0.4); }
+
+    .game-card-body { padding: 18px 18px 20px; display: flex; flex-direction: column; flex: 1; position: relative; z-index: 1; }
+    .game-card-title { font-size: 15px; font-weight: 700; color: white; margin-bottom: 6px; line-height: 1.3; }
+    .game-card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .game-card-footer { margin-top: 16px; display: flex; }
+    .game-card-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 100px; background: linear-gradient(135deg, var(--greek-blue), var(--cyan)); color: white; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border: none; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; text-decoration: none; }
+    .game-card-btn:hover { transform: scale(1.04); box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+    .game-card-btn svg { width: 13px; height: 13px; fill: white; flex-shrink: 0; }
+
+    /* ========== DEMO GRID (full-width cards) ========== */
+    .demo-grid { display: flex; flex-direction: column; gap: 28px; }
+    .demo-card { position: relative; background: var(--bg-card); border-radius: 18px; border: 1px solid var(--border-subtle); overflow: hidden; display: grid; grid-template-columns: 400px 1fr; min-height: 260px; transition: transform 0.35s var(--ease-out), box-shadow 0.35s ease, border-color 0.25s ease; }
+    .demo-card:hover { transform: translateY(-4px); box-shadow: 0 32px 72px rgba(0,0,0,0.65); border-color: rgba(245, 158, 11, 0.2); }
+    .demo-card-img { position: relative; overflow: hidden; }
+    .demo-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease-out); }
+    .demo-card:hover .demo-card-img img { transform: scale(1.06); }
+    .demo-card-img-overlay { position: absolute; inset: 0; background: linear-gradient(to right, transparent 60%, rgba(17,17,17,1) 100%); }
+    .demo-card-body { padding: 40px 36px; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 1; }
+    .demo-card-tag { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 14px; }
+    .demo-card-tag .dot { width: 5px; height: 5px; border-radius: 50%; background: #f59e0b; animation: pulse 2s ease-in-out infinite; }
+    .demo-card-title { font-size: 24px; font-weight: 800; color: white; line-height: 1.2; margin-bottom: 12px; }
+    .demo-card-desc { font-size: 15px; color: var(--text-secondary); line-height: 1.7; max-width: 520px; }
+    .demo-card-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; padding: 11px 26px; border-radius: 100px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; transition: all 0.2s ease; text-decoration: none; width: fit-content; }
+    .demo-card-btn:hover { background: rgba(245, 158, 11, 0.18); transform: translateX(4px); }
+    .demo-card-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ========== EMPTY STATE ========== */
+    .empty-state { text-align: center; padding: 80px 24px; color: var(--text-muted); }
+    .empty-state-icon { width: 56px; height: 56px; margin: 0 auto 20px; opacity: 0.3; }
+    .empty-state p { font-size: 15px; }
+
+    /* ========== FOOTER ========== */
+    .footer { background: #050505; border-top: 1px solid rgba(255,255,255,0.06); }
+    .footer-top { max-width: 1280px; margin: 0 auto; padding: 64px 48px; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr; gap: 32px; }
+    .footer-brand-logo img { height: 40px; width: auto; display: block; margin-bottom: 12px; }
+    .footer-brand-name { font-size: 16px; font-weight: 600; color: white; margin-bottom: 8px; }
+    .footer-heading { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 16px; }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .footer-links a { font-size: 14px; color: var(--text-secondary); transition: color 0.2s ease; }
+    .footer-links a:hover { color: white; }
+    .footer-socials { display: flex; gap: 12px; }
+    .footer-socials a { color: var(--text-secondary); transition: color 0.2s ease, transform 0.2s ease; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--border-subtle); }
+    .footer-socials a:hover { color: var(--cyan); transform: translateY(-2px); border-color: var(--border-accent); }
+    .footer-socials svg { width: 18px; height: 18px; }
+    .footer-handle { font-size: 14px; color: var(--text-muted); margin-top: 12px; }
+    .footer-bottom { max-width: 1280px; margin: 0 auto; padding: 24px 48px; display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); }
+    .footer-copyright { font-size: 13px; color: var(--text-muted); text-align: center; }
+
+    /* ========== BACK TO TOP ========== */
+    .back-to-top { position: fixed; bottom: 32px; right: 32px; width: 44px; height: 44px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 200; opacity: 0; transform: translateY(20px); pointer-events: none; transition: all 0.3s ease; }
+    .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
+    .back-to-top:hover { background: var(--cyan); color: var(--bg-primary); border-color: var(--cyan); }
+    .back-to-top svg { width: 18px; height: 18px; }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1200px) {
+      .game-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 1024px) {
+      .game-grid { grid-template-columns: repeat(2, 1fr); }
+      .demo-card { grid-template-columns: 1fr; min-height: auto; }
+      .demo-card-img { aspect-ratio: 16 / 9; }
+      .demo-card-img-overlay { background: linear-gradient(to top, rgba(17,17,17,1) 0%, transparent 60%); }
+      .footer-top { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .navbar-links { display: none; }
+      .hamburger { display: flex; }
+      .launcher-hero { padding: 110px 24px 60px; }
+      .launcher-hero-inner { grid-template-columns: 1fr; gap: 24px; }
+      .launcher-hero-stats { flex-wrap: wrap; gap: 8px; }
+      .launcher-hero-stat-sep { display: none; }
+      .launcher-tabs { padding: 0 24px; gap: 0; overflow-x: auto; }
+      .launcher-tab { padding: 16px 18px; white-space: nowrap; }
+      .launcher-panel { padding: 40px 24px 64px; }
+      .game-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+      .demo-card-body { padding: 24px 20px; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; padding: 48px 24px; }
+      .footer-bottom { padding: 24px; }
+    }
+    @media (max-width: 480px) {
+      .game-grid { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Play & Demos - Greek Games Studios",
+    "description": "Play free browser mini games and try exclusive demos from Greek Games Studios. No download required.",
+    "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/WebLauncher.html",
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.greekgamesstudios.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Play & Demos", "item": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/WebLauncher.html" }
+      ]
+    },
+    "publisher": { "@type": "Organization", "name": "Greek Games Studios", "logo": { "@type": "ImageObject", "url": "https://www.greekgamesstudios.com/images/ggs-logo.png" } }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SiteNavigationElement",
+    "name": "Main Navigation",
+    "hasPart": [
+      { "@type": "SiteNavigationElement", "name": "Home", "url": "https://www.greekgamesstudios.com/" },
+      { "@type": "SiteNavigationElement", "name": "Games", "url": "https://www.greekgamesstudios.com/games.html" },
+      { "@type": "SiteNavigationElement", "name": "News", "url": "https://www.greekgamesstudios.com/news.html" },
+      { "@type": "SiteNavigationElement", "name": "About", "url": "https://www.greekgamesstudios.com/#about" },
+      { "@type": "SiteNavigationElement", "name": "Support", "url": "https://www.greekgamesstudios.com/support.html" }
+    ]
+  }
+  </script>
+
+  <base target="_blank">
+</head>
+<body>
+
+  <!-- Page Transition Overlay -->
+  <div class="page-transition-overlay" id="transitionOverlay"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-container">
+      <a href="/index.html" class="navbar-logo" target="_self">
+        <img src="/images/ggs-logo.png" alt="GGS - Greek Games Studios">
+      </a>
+      <div class="navbar-links">
+        <a href="/index.html" class="navbar-link" target="_self">Home</a>
+        <a href="/games.html" class="navbar-link" target="_self">Games</a>
+        <a href="/news.html" class="navbar-link" target="_self">News</a>
+        <a href="/about-us.html" class="navbar-link" target="_self">About</a>
+        <a href="/contact-us.html" class="navbar-link" target="_self">Contact</a>
+        <a href="/support.html" class="navbar-link" target="_self">Support</a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="/index.html" class="mobile-link" target="_self">Home</a>
+    <a href="/games.html" class="mobile-link" target="_self">Games</a>
+    <a href="/news.html" class="mobile-link" target="_self">News</a>
+    <a href="/about-us.html" class="mobile-link" target="_self">About</a>
+    <a href="/contact-us.html" class="mobile-link" target="_self">Contact</a>
+    <a href="/support.html" class="mobile-link" target="_self">Support</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="launcher-hero" id="launcherHero">
+    <div class="launcher-hero-bg"></div>
+    <div class="launcher-hero-particles" id="heroParticles"></div>
+    <div class="launcher-hero-inner">
+      <div>
+        <div class="launcher-hero-label" id="heroLabel">Greek Games Studios</div>
+        <h1 class="launcher-hero-title" id="heroTitle">Play &amp; <span>Demos</span></h1>
+        <p class="launcher-hero-sub" id="heroSub">Browser games and exclusive demos play instantly, no download needed.</p>
+        <div class="launcher-hero-stats" id="heroStats">
+          <div class="launcher-hero-stat">
+            <span class="launcher-hero-stat-dot"></span>
+            <span class="launcher-hero-stat-num" id="statMiniGames">—</span>
+            <span class="launcher-hero-stat-label">Mini Games</span>
+          </div>
+          <div class="launcher-hero-stat-sep"></div>
+          <div class="launcher-hero-stat">
+            <span class="launcher-hero-stat-dot"></span>
+            <span class="launcher-hero-stat-num" id="statDemos">—</span>
+            <span class="launcher-hero-stat-label">Demos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB BAR -->
+  <div class="launcher-tabs-wrap" id="tabsWrap">
+    <div class="launcher-tabs">
+      <button class="launcher-tab active" id="tabMiniGames" onclick="switchTab('mini_games')" aria-selected="true" role="tab">
+        Mini Games
+        <span class="launcher-tab-count" id="countMiniGames">0</span>
+      </button>
+      <button class="launcher-tab" id="tabDemos" onclick="switchTab('demos')" aria-selected="false" role="tab">
+        Demos
+        <span class="launcher-tab-count" id="countDemos">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PANELS -->
+  <main>
+    <!-- MINI GAMES PANEL -->
+    <div class="launcher-panel active" id="panelMiniGames" role="tabpanel">
+      <div class="launcher-panel-header">
+        <div class="launcher-panel-label">Play Now</div>
+        <h2 class="launcher-panel-title">Mini Games</h2>
+        <div class="launcher-panel-line"></div>
+      </div>
+      <div class="game-grid" id="miniGamesGrid"></div>
+    </div>
+
+    <!-- DEMOS PANEL -->
+    <div class="launcher-panel" id="panelDemos" role="tabpanel">
+      <div class="launcher-panel-header">
+        <div class="launcher-panel-label">Exclusive Access</div>
+        <h2 class="launcher-panel-title">Demos</h2>
+        <div class="launcher-panel-line"></div>
+      </div>
+      <div class="demo-grid" id="demosGrid"></div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer" id="contact">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-brand-logo">
+          <img src="/images/ggs-logo.png" alt="GGS - Greek Games Studios">
+        </div>
+        <div class="footer-brand-name">Greek Games Studios</div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">Games</div>
+        <ul class="footer-links" id="footerGames"></ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">More</div>
+        <ul class="footer-links">
+          <li><a href="/additionalHTMLS/WebLauncher/WebLauncher.html" target="_self">Play &amp; Demos</a></li>
+          <li><a href="/about-us.html" target="_self">About Us</a></li>
+          <li><a href="/support.html" target="_self">Support</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">Connect</div>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/greekgamesstudios" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+          </a>
+          <a href="https://www.youtube.com/@greekgamesstudios" target="_blank" rel="noopener" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.13c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
+          </a>
+          <a href="https://www.tiktok.com/@greekgamesstudios" target="_blank" rel="noopener" aria-label="TikTok">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
+          </a>
+          <a href="https://x.com/greekgamestudio" target="_blank" rel="noopener" aria-label="X (Twitter)">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a href="https://threads.net/@greekgamesstudios" target="_blank" rel="noopener" aria-label="Threads">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.804 1.157 8.554 0 12.14 0h.044c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.59 12c.025 3.086.718 5.496 2.057 7.164 1.432 1.781 3.632 2.695 6.54 2.717 1.986-.013 3.758-.47 5.268-1.36 1.633-.979 2.832-2.438 3.565-4.338h-5.97v-2.112h8.362c.08 1.29-.026 2.525-.317 3.669-.729 2.91-2.325 5.27-4.742 7.028-2.326 1.691-5.094 2.58-8.168 2.232z"/></svg>
+          </a>
+          <a href="https://discord.com/invite/UUQcQQQKBY" target="_blank" rel="noopener" aria-label="Discord">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/></svg>
+          </a>
+        </div>
+        <div class="footer-handle">@greekgamesstudios</div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">Legal</div>
+        <ul class="footer-links">
+          <li><a href="/privacy-policy.html#privacy-policy" target="_self">Privacy Policy</a></li>
+          <li><a href="/privacy-policy.html#terms-of-services" target="_self">Terms of Services</a></li>
+          <li><a href="/privacy-policy.html#community-guidelines" target="_self">Community Guidelines</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copyright" id="footerCopyright">&copy; 2026 Greek Games Studios. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+  </button>
+
+  <script>
+  // =====================
+  // LENIS SMOOTH SCROLL
+  // =====================
+  const lenis = new Lenis({ lerp: 0.1, duration: 1.2 });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+  gsap.ticker.lagSmoothing(0);
+
+  // =====================
+  // NAVBAR SCROLL
+  // =====================
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 100);
+  }, { passive: true });
+
+  // =====================
+  // MOBILE MENU
+  // =====================
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  document.querySelectorAll('.mobile-link').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.remove('active');
+      hamburger.classList.remove('active');
+      hamburger.setAttribute('aria-expanded', 'false');
+      lenis.start();
+    });
+  });
+  hamburger.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.contains('active');
+    if (isOpen) { mobileMenu.classList.remove('active'); hamburger.classList.remove('active'); hamburger.setAttribute('aria-expanded', 'false'); lenis.start(); }
+    else { mobileMenu.classList.add('active'); hamburger.classList.add('active'); hamburger.setAttribute('aria-expanded', 'true'); lenis.stop(); }
+  });
+
+  // =====================
+  // HERO PARTICLES
+  // =====================
+  (function() {
+    const container = document.getElementById('heroParticles');
+    if (!container) return;
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top = Math.random() * 100 + '%';
+      p.style.animationDelay = (Math.random() * 10) + 's';
+      p.style.animationDuration = (7 + Math.random() * 7) + 's';
+      const s = 1.5 + Math.random() * 2.5;
+      p.style.width = s + 'px'; p.style.height = s + 'px';
+      container.appendChild(p);
+    }
+  })();
+
+  // =====================
+  // UTILS
+  // =====================
+  function esc(str) {
+    if (!str) return '';
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // =====================
+  // TAB SWITCHING
+  // =====================
+  let currentTab = 'mini_games';
+  window.switchTab = function(tab) {
+    if (tab === currentTab) return;
+    currentTab = tab;
+
+    document.querySelectorAll('.launcher-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+    document.querySelectorAll('.launcher-panel').forEach(p => p.classList.remove('active'));
+
+    if (tab === 'mini_games') {
+      document.getElementById('tabMiniGames').classList.add('active');
+      document.getElementById('tabMiniGames').setAttribute('aria-selected', 'true');
+      document.getElementById('panelMiniGames').classList.add('active');
+    } else {
+      document.getElementById('tabDemos').classList.add('active');
+      document.getElementById('tabDemos').setAttribute('aria-selected', 'true');
+      document.getElementById('panelDemos').classList.add('active');
+    }
+
+    // Animate in the cards
+    const activePanel = document.querySelector('.launcher-panel.active');
+    const cards = activePanel.querySelectorAll('.game-card, .demo-card');
+    gsap.from(cards, { opacity: 0, y: 24, duration: 0.5, stagger: 0.06, ease: 'power3.out', clearProps: 'all' });
+  };
+
+  // =====================
+  // RENDER MINI GAMES
+  // =====================
+  function renderMiniGames(games) {
+    const grid = document.getElementById('miniGamesGrid');
+    if (!games || games.length === 0) {
+      grid.innerHTML = '<div class="empty-state"><p>No mini games available right now.</p></div>';
+      return;
+    }
+    grid.innerHTML = games.map(g => `
+      <article class="game-card" aria-label="${esc(g.title)}">
+        <div class="game-card-thumb">
+          <img src="${esc(g.image)}" alt="${esc(g.title)}" loading="lazy" width="400" height="225">
+          <div class="game-card-thumb-overlay"></div>
+          <div class="game-card-play-hint">
+            <div class="game-card-play-hint-circle">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+          </div>
+          <span class="game-card-tag mini">${esc(g.tag || 'Mini Game')}</span>
+        </div>
+        <div class="game-card-body">
+          <div class="game-card-title">${esc(g.title)}</div>
+          <div class="game-card-desc">${esc(g.desc)}</div>
+          <div class="game-card-footer">
+            <a href="${esc(g.url)}" class="game-card-btn" target="_blank" rel="noopener" aria-label="Play ${esc(g.title)}">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Play
+            </a>
+          </div>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  // =====================
+  // RENDER DEMOS
+  // =====================
+  function renderDemos(demos) {
+    const grid = document.getElementById('demosGrid');
+    if (!demos || demos.length === 0) {
+      grid.innerHTML = '<div class="empty-state"><p>No demos available right now.</p></div>';
+      return;
+    }
+    grid.innerHTML = demos.map(d => `
+      <article class="demo-card" aria-label="${esc(d.title)}">
+        <div class="demo-card-img">
+          <img src="${esc(d.image)}" alt="${esc(d.title)}" loading="lazy" width="400" height="260">
+          <div class="demo-card-img-overlay"></div>
+        </div>
+        <div class="demo-card-body">
+          <div class="demo-card-tag"><span class="dot"></span>${esc(d.tag || 'Demo')}</div>
+          <div class="demo-card-title">${esc(d.title)}</div>
+          <div class="demo-card-desc">${esc(d.desc)}</div>
+          ${d.url ? `<a href="${esc(d.url)}" class="demo-card-btn" target="_blank" rel="noopener" aria-label="Try ${esc(d.title)}">
+            Try Demo
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>` : ''}
+        </div>
+      </article>
+    `).join('');
+  }
+
+  // =====================
+  // RENDER FOOTER GAMES
+  // =====================
+  function renderFooterGames(games) {
+    const container = document.getElementById('footerGames');
+    if (!container || !games) return;
+    const footerGames = games.filter(g => g.footer);
+    container.innerHTML = footerGames.map(game => {
+      const url = game.url || '/additionalHTMLS/Infos/' + game.id + '-info.html';
+      return '<li><a href="' + esc(url) + '" target="_self">' + esc(game.title) + '</a></li>';
+    }).join('');
+  }
+
+  // =====================
+  // GSAP ANIMATIONS
+  // =====================
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initAnimations() {
+    gsap.from('#heroLabel', { opacity: 0, y: 20, duration: 0.6, delay: 0.15, ease: 'power3.out' });
+    gsap.from('#heroTitle', { opacity: 0, y: 30, duration: 0.65, delay: 0.25, ease: 'power3.out' });
+    gsap.from('#heroSub', { opacity: 0, y: 20, duration: 0.6, delay: 0.35, ease: 'power3.out' });
+    gsap.from('#heroStats', { opacity: 0, y: 16, duration: 0.6, delay: 0.45, ease: 'power3.out' });
+    gsap.from('#tabsWrap', { opacity: 0, duration: 0.5, delay: 0.55, ease: 'power3.out' });
+
+    // Initial mini game cards
+    const initCards = document.querySelectorAll('#miniGamesGrid .game-card');
+    if (initCards.length) {
+      gsap.from(initCards, {
+        scrollTrigger: { trigger: '#miniGamesGrid', start: 'top 85%', toggleActions: 'play none none none' },
+        opacity: 0, y: 36, duration: 0.6, stagger: 0.07, ease: 'power3.out'
+      });
+    }
+
+    gsap.from('.footer-top > div', {
+      scrollTrigger: { trigger: '.footer', start: 'top 90%', toggleActions: 'play none none none' },
+      y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out'
+    });
+  }
+
+  // =====================
+  // BACK TO TOP
+  // =====================
+  const backToTop = document.getElementById('backToTop');
+  window.addEventListener('scroll', () => {
+    backToTop.classList.toggle('visible', window.scrollY > 600);
+  }, { passive: true });
+  backToTop.addEventListener('click', () => { lenis.scrollTo(0, { duration: 1.2 }); });
+
+  // =====================
+  // COPYRIGHT YEAR
+  // =====================
+  const copyrightEl = document.getElementById('footerCopyright');
+  if (copyrightEl) copyrightEl.innerHTML = '&copy; ' + new Date().getFullYear() + ' Greek Games Studios. All rights reserved.';
+
+// =====================
+// CROSS-DOCUMENT TRANSITIONS – Universal with MutationObserver
+// =====================
+(function initTransitions() {
+  const overlay = document.getElementById('transitionOverlay');
+  if (!overlay) return;
+
+  const NAV_KEY = 'fromAnyPage';
+
+  // ─── ΑΦΙΞΗ ──────────────────────────────────────────────
+  if (sessionStorage.getItem(NAV_KEY) === 'true') {
+    sessionStorage.removeItem(NAV_KEY);
+    overlay.classList.add('revealing');
+    setTimeout(() => overlay.classList.remove('revealing'), 700);
+  }
+
+  // ─── ΣΥΝΑΡΤΗΣΗ ΠΟΥ ΠΡΟΣΘΕΤΕΙ LISTENERS ────────────────
+  function attachTransitionListeners() {
+    const path = window.location.pathname;
+    document.querySelectorAll('a[href^="/"]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#')) return;
+      if (href === path || href === path.replace('.html', '')) return;
+      if (href.includes('#') && href.split('#')[0] === path) return;
+
+      // Αφαιρούμε παλιό listener (για να μη διπλασιάζεται)
+      link.removeEventListener('click', transitionHandler);
+      link.addEventListener('click', transitionHandler);
+    });
+  }
+
+  function transitionHandler(e) {
+    e.preventDefault();
+    const overlay = document.getElementById('transitionOverlay');
+    overlay.classList.add('animating');
+    sessionStorage.setItem('fromAnyPage', 'true');
+    setTimeout(() => window.location.href = this.getAttribute('href'), 500);
+  }
+
+  // ─── ΑΡΧΙΚΗ ΠΡΟΣΘΗΚΗ ──────────────────────────────────
+  attachTransitionListeners();
+
+  // ─── MUTATION OBSERVER ΓΙΑ ΝΕΟΥΣ ΣΥΝΔΕΣΜΟΥΣ ──────────
+  const observer = new MutationObserver(() => {
+    attachTransitionListeners();
+  });
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+})();
+
+  // =====================
+  // INIT: LOAD DATA
+  // =====================
+  async function init() {
+    try {
+      const [demosRes, gamesRes] = await Promise.all([
+        fetch('/demos.json'),
+        fetch('/games.json')
+      ]);
+      const demosData = await demosRes.json();
+      const gamesData = await gamesRes.json();
+
+      const miniGames = demosData.mini_games || [];
+      const demos = demosData.demos || [];
+
+      // Update counters
+      document.getElementById('statMiniGames').textContent = miniGames.length;
+      document.getElementById('statDemos').textContent = demos.length;
+      document.getElementById('countMiniGames').textContent = miniGames.length;
+      document.getElementById('countDemos').textContent = demos.length;
+
+      renderMiniGames(miniGames);
+      renderDemos(demos);
+      renderFooterGames(gamesData);
+      initAnimations();
+
+    } catch (err) {
+      console.error('Failed to load data:', err);
+      document.getElementById('miniGamesGrid').innerHTML = '<div class="empty-state"><p>Could not load games. Please try again later.</p></div>';
+      document.getElementById('demosGrid').innerHTML = '<div class="empty-state"><p>Could not load demos. Please try again later.</p></div>';
+    }
+  }
+
+  gsap.from('.navbar', { opacity: 0, duration: 0.4, ease: 'power3.out' });
+  init();
+  </script>
+
+</body>
+</html>

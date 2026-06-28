@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Try Not To Rage - Platformer Prototype</title>
+    <link rel="icon" type="png" href="/images/TNTR.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* ── Mobile Warning ── */
+        #mobile-warning {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+            display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 1000; text-align: center; padding: 20px;
+        }
+        .mobile-warning-content {
+            max-width: 480px;
+            background: rgba(26,26,26,0.9);
+            padding: 40px; border-radius: 12px;
+            border: 3px solid rgba(34,211,238,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,.5);
+        }
+        #mobile-warning h2 { font-size: 2.4rem; margin-bottom: 18px; color: #ef4444; }
+        #mobile-warning p  { font-size: 1.05rem; line-height: 1.6; margin-bottom: 24px; color: #ccc; }
+        #back-to-demos {
+            background: linear-gradient(135deg, #0D5EAF, #06b6d4); /* Greek blue → cyan */
+            color: #fff; border: none;
+            padding: 14px 38px; border-radius: 30px;
+            font-size: 1.15rem; font-weight: 600;
+            cursor: pointer; text-decoration: none; display: inline-block;
+        }
+
+        /* ── Game Container ── */
+        #game-container {
+            position: relative;
+            width: 900px; max-width: 95vw;
+            margin: 20px auto;
+        }
+
+        #game-canvas {
+            display: block; width: 100%; height: 500px;
+            background: #0a0a0a; border-radius: 12px;
+            border: 3px solid rgba(34,211,238,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,.5);
+        }
+
+        /* ── HUD ── */
+        #game-ui {
+            position: absolute; top: 16px; left: 16px; right: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            pointer-events: none; z-index: 10;
+        }
+        #game-ui > * { pointer-events: auto; }
+
+        .level-info {
+            background: rgba(15,15,15,0.88);
+            padding: 9px 18px; border-radius: 25px;
+            font-size: 1.05rem; font-weight: 600;
+            border: 2px solid rgba(34,211,238,0.35);
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+        }
+        .level-info .type   { color: #22d3ee; }
+        .level-info .number { color: #fff; font-size: 1.25rem; }
+
+        .badge {
+            font-size: 0.82rem; padding: 2px 9px; border-radius: 10px;
+            font-weight: 600;
+        }
+        .badge-death  { color: #ef4444; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); }
+        .badge-timer  { color: #a3e635; background: rgba(163,230,53,.1); border: 1px solid rgba(163,230,53,.3); font-family: monospace; }
+
+        .controls { display: flex; gap: 8px; }
+
+        .control-btn {
+            background: rgba(15,15,15,0.88); color: #fff;
+            border: 2px solid rgba(34,211,238,0.4);
+            padding: 9px 18px; border-radius: 25px;
+            font-size: 0.95rem; font-weight: 600; cursor: pointer;
+            transition: background .15s, border-color .15s, transform .1s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .control-btn:hover  { background: rgba(34,211,238,.12); border-color: rgba(34,211,238,.9); transform: translateY(-2px); }
+        .control-btn:active { transform: translateY(0); }
+        .control-btn.restart { border-color: rgba(239,68,68,.4); }
+        .control-btn.restart:hover { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.9); }
+
+        /* ── Overlays ── */
+        .overlay {
+            position: absolute; inset: 0;
+            background: rgba(8,8,8,0.94);
+            display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            border-radius: 12px; text-align: center; padding: 30px;
+        }
+        #level-complete { z-index: 20; }
+        #game-over      { z-index: 25; }
+        #pause-overlay  { z-index: 15; background: rgba(8,8,8,0.88); }
+
+        /* Greek flag gradient for headings (blue‑white‑blue) */
+        .gradient-text {
+            background: linear-gradient(90deg, #0D5EAF, #FFFFFF, #0D5EAF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        #level-complete h2 {
+            font-size: 2.8rem; margin-bottom: 18px;
+            /* uses .gradient-text now */
+        }
+        #game-over h2 {
+            font-size: 3.8rem; margin-bottom: 8px;
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        #pause-overlay h2 { font-size: 3rem; color: #22d3ee; margin-bottom: 16px; }
+
+        .overlay p { font-size: 1.15rem; color: #ccc; margin-bottom: 12px; max-width: 78%; line-height: 1.6; }
+        #death-message { font-size: 1.45rem; color: #ef4444; font-weight: 700; margin-bottom: 4px; }
+        #rage-message  { font-size: 1rem;   color: #fbbf24; font-style: italic; margin-bottom: 4px; }
+        #death-tip     { font-size: 0.83rem; color: #555;   margin-bottom: 22px; }
+        #level-stats   { font-size: 1.05rem; color: #aaa; margin-bottom: 6px; }
+        #best-time     { font-size: 0.9rem;  color: #a3e635; margin-bottom: 22px; }
+
+        /* Next Level button: Greek blue → cyan, no purple */
+        #next-level {
+            background: linear-gradient(135deg, #0D5EAF, #06b6d4);
+            color: #fff; border: none;
+            padding: 14px 38px; border-radius: 30px;
+            font-size: 1.15rem; font-weight: 600; cursor: pointer;
+            transition: transform .15s, box-shadow .15s; margin-top: 8px;
+        }
+        #next-level:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(13,94,175,.45); }
+
+        /* ── Instructions ── */
+        .instructions {
+            position: absolute; bottom: -96px; left: 16px; right: 16px;
+            background: rgba(15,15,15,0.85);
+            padding: 13px; border-radius: 14px;
+            border: 2px solid rgba(34,211,238,0.25);
+            display: flex; justify-content: space-around; align-items: center;
+        }
+        .key {
+            background: rgba(255,255,255,0.07); padding: 7px 13px;
+            border-radius: 7px; border: 1px solid rgba(255,255,255,0.15);
+            font-size: 0.85rem; display: flex; align-items: center; gap: 4px;
+        }
+        .key kbd {
+            background: rgba(255,255,255,0.13); padding: 1px 7px;
+            border-radius: 4px; font-family: monospace; font-weight: 700;
+        }
+
+        /* ── Loading ── */
+        #loading-screen {
+            position: absolute; inset: 0;
+            background: rgba(8,8,8,0.96);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            border-radius: 12px; z-index: 30;
+        }
+        .spinner {
+            width: 48px; height: 48px;
+            border: 5px solid rgba(34,211,238,0.25);
+            border-top-color: #22d3ee;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin-bottom: 18px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            #game-canvas { height: 400px; }
+            .controls { flex-direction: column; gap: 5px; }
+            .control-btn { padding: 7px 13px; font-size: 0.88rem; }
+            .instructions { flex-direction: column; gap: 8px; }
+            #level-complete h2, #pause-overlay h2 { font-size: 2rem; }
+            #game-over h2 { font-size: 2.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Warning -->
+    <div id="mobile-warning">
+        <div class="mobile-warning-content">
+            <h2>🖥️ Desktop Only</h2>
+            <p>This game requires a keyboard. Please play on a desktop or laptop computer.</p>
+            <a href="/additionalHTMLS/WebLauncher/WebLauncher.html" id="back-to-demos">← Back to Play &amp; Demos</a>
+        </div>
+    </div>
+
+    <!-- Game -->
+    <div id="game-container">
+        <canvas id="game-canvas" width="900" height="500"></canvas>
+
+        <!-- Loading -->
+        <div id="loading-screen">
+            <div class="spinner"></div>
+            <p>Loading Game Assets…</p>
+        </div>
+
+        <!-- HUD -->
+        <div id="game-ui">
+            <div class="level-info">
+                <span class="type" id="level-type">Forest</span>
+                <span>–</span>
+                Level <span class="number" id="level-number">1</span>/<span id="total-levels">15</span>
+                <span class="badge badge-death"  id="death-count">💀 0</span>
+                <span class="badge badge-timer"  id="timer-display">0:00</span>
+            </div>
+            <div class="controls">
+                <button id="pause-btn"   class="control-btn">⏸ Pause</button>
+                <button id="restart-btn" class="control-btn restart">↻ Restart</button>
+            </div>
+        </div>
+
+        <!-- Pause -->
+        <div id="pause-overlay" class="overlay">
+            <h2>PAUSED</h2>
+            <p>Press <kbd>P</kbd> or click Resume to continue.</p>
+            <button id="resume-btn" class="control-btn" style="margin-top:10px">▶ Resume</button>
+        </div>
+
+        <!-- Level Complete -->
+        <div id="level-complete" class="overlay">
+            <h2 class="gradient-text">LEVEL COMPLETE!</h2>  <!-- Greek flag gradient -->
+            <p id="completion-message">You reached the portal!</p>
+            <p id="level-stats">Deaths: 0 | Time: 0:00</p>
+            <p id="best-time"></p>
+            <button id="next-level">Next Level →</button>
+        </div>
+
+        <!-- Game Over -->
+        <div id="game-over" class="overlay">
+            <h2>YOU DIED!</h2>
+            <p id="death-message">Fell to your doom</p>
+            <p id="rage-message"></p>
+            <p id="death-tip"></p>
+            <button id="restart-level-btn" class="control-btn restart">↻ Try Again</button>
+        </div>
+
+        <!-- Controls Legend -->
+        <div class="instructions">
+            <div class="key"><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> Move</div>
+            <div class="key"><kbd>Space</kbd> / <kbd>W</kbd> Jump</div>
+            <div class="key"><kbd>P</kbd> Pause</div>
+            <div class="key"><kbd>R</kbd> Restart</div>
+        </div>
+    </div>
+
+<script>
+'use strict';
+
+// ============================================================
+// MOBILE CHECK
+// ============================================================
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(navigator.userAgent);
+}
+
+// ============================================================
+// CONFIG  (all physics values are "per-frame @ 60 fps")
+// ============================================================
+const CONFIG = {
+    GRAVITY:            0.5,
+    JUMP_FORCE:        -12,
+    PLAYER_SPEED:       5,
+    PLAYER_FRICTION:    0.85,
+    PLAYER_W:           30,
+    PLAYER_H:           30,
+    PORTAL_SIZE:        50,
+    CW:                 900,   // canvas width
+    CH:                 500,   // canvas height
+    DEATH_Y:            560,   // y threshold for void-death
+    INVINCIBLE_FRAMES:  60,    // post-respawn invincibility
+    COYOTE_FRAMES:      8,     // late-jump grace period
+    JUMP_BUFFER_FRAMES: 8,     // early-jump buffer
+    MAX_PARTICLES:      220,
+    FIXED_MS:           1000 / 60,   // fixed physics step
+};
+
+// ============================================================
+// DEATH MESSAGES  (escalate with rage level)
+// ============================================================
+const MSGS_CALM = [
+    'Into the void!', 'Platform? What platform?',
+    'Gravity says no.', 'The floor said goodbye.',
+    'Missed the landing.', 'Clipped through reality.',
+];
+const MSGS_FRUSTRATED = [
+    'ARE YOU KIDDING ME', 'NOT AGAIN!!!', 'COME ONNN',
+    'BRUH 💀', 'Seriously?!', 'HOW', 'UNBELIEVABLE',
+];
+const MSGS_RAGING = [
+    'I QUIT', 'LITERALLY UNPLAYABLE', 'SKILL ISSUE',
+    'WHY GOD WHY', '💀💀💀', 'WHO MADE THIS GAME',
+    'DELETE THIS TRASH', 'AAAAAAAAAA',
+];
+const DEATH_TIPS = [
+    'Tip: The platform is the thing you land ON',
+    'Tip: Falling = bad, landing = good',
+    'Tip: The glowy circle is the goal',
+    'Tip: Have you considered NOT dying?',
+    'Tip: Maybe slow down a little?',
+    'Tip: You get coyote-time – try jumping after the edge!',
+    'Tip: Hold the direction key to accelerate',
+    'Tip: Press R to instantly restart',
+];
+
+function pickMsg(deaths) {
+    const pool = deaths <= 3 ? MSGS_CALM : deaths <= 9 ? MSGS_FRUSTRATED : MSGS_RAGING;
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+function pickTip() { return DEATH_TIPS[Math.floor(Math.random() * DEATH_TIPS.length)]; }
+function fmtTime(ms) {
+    const s = Math.floor(ms / 1000);
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+// ============================================================
+// CANVAS-BASED PARTICLE SYSTEM  (replaces slow DOM particles)
+// ============================================================
+class ParticleSystem {
+    constructor() { this.pool = []; }
+
+    emit(x, y, count, color, type = 'square') {
+        for (let i = 0; i < count; i++) {
+            if (this.pool.length >= CONFIG.MAX_PARTICLES) break;
+            let vx, vy, life, r;
+            switch (type) {
+                case 'land':
+                    r = 2 + Math.random() * 3;
+                    vx = (Math.random() - 0.5) * 4;
+                    vy = -(Math.random() * 3 + 1);
+                    life = 18 + Math.random() * 12;
+                    break;
+                case 'jump':
+                    r = 2 + Math.random() * 4;
+                    vx = (Math.random() - 0.5) * 6;
+                    vy = (Math.random() - 0.5) * 6 - 3;
+                    life = 20 + Math.random() * 16;
+                    break;
+                case 'death':
+                    r = 3 + Math.random() * 5;
+                    vx = (Math.random() - 0.5) * 9;
+                    vy = (Math.random() - 0.5) * 9 - 4;
+                    life = 38 + Math.random() * 28;
+                    break;
+                case 'portal':
+                    r = 3 + Math.random() * 4;
+                    vx = (Math.random() - 0.5) * 3.5;
+                    vy = (Math.random() - 0.5) * 3.5;
+                    life = 45 + Math.random() * 30;
+                    break;
+                default: // 'square'
+                    r = 2 + Math.random() * 3;
+                    vx = (Math.random() - 0.5) * 5;
+                    vy = (Math.random() - 0.5) * 5;
+                    life = 22 + Math.random() * 18;
+            }
+            this.pool.push({ x, y, vx, vy, r, life, maxLife: life, color, type });
+        }
+    }
+
+    update() {
+        for (let i = this.pool.length - 1; i >= 0; i--) {
+            const p = this.pool[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.type === 'death') p.vy += 0.22;  // gravity on death shards
+            p.vx *= 0.97;                            // air drag
+            p.life--;
+            if (p.life <= 0) this.pool.splice(i, 1);
+        }
+    }
+
+    draw(ctx) {
+        for (const p of this.pool) {
+            const alpha = p.life / p.maxLife;
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = p.color;
+            if (p.type === 'land' || p.type === 'portal') {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                const s = p.r * 2;
+                ctx.fillRect(p.x - p.r, p.y - p.r, s, s);
+            }
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    clear() { this.pool.length = 0; }
+}
+
+// ============================================================
+// ASSET LOADER
+// ============================================================
+class AssetLoader {
+    constructor() {
+        this.a = {};
+        this.paths = {
+            player:             '/additionalHTMLS/WebLauncher/TNTRGS/player.png',
+            forestBackground:   '/additionalHTMLS/WebLauncher/TNTRGS/background.png',
+            forestPlatformMain: '/additionalHTMLS/WebLauncher/TNTRGS/forest-platform-main.png',
+            forestPlatformMini: '/additionalHTMLS/WebLauncher/TNTRGS/forest-platform-mini.png',
+            skyBackground:      '/additionalHTMLS/WebLauncher/TNTRGS/sky-background.png',
+            skyPlatformMain:    '/additionalHTMLS/WebLauncher/TNTRGS/sky-platform-main.png',
+            skyPlatformMini:    '/additionalHTMLS/WebLauncher/TNTRGS/sky-platform-mini.png',
+            portal:             '/additionalHTMLS/WebLauncher/TNTRGS/portal.png',
+        };
+    }
+
+    _img(key, path) {
+        return new Promise(res => {
+            const img = new Image();
+            img.onload  = () => { this.a[key] = img; res(); };
+            img.onerror = () => { this.a[key] = null;  res(); };
+            img.src = path;
+        });
+    }
+
+    async load() {
+        await Promise.all(Object.entries(this.paths).map(([k, p]) => this._img(k, p)));
+        this._makeFallbacks();
+    }
+
+    _canvas(w, h, fn) {
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        fn(c.getContext('2d'));
+        return c;
+    }
+
+    _makeFallbacks() {
+        if (!this.a.player) {
+            this.a.player = this._canvas(30, 30, ctx => {
+                const g = ctx.createLinearGradient(0,0,0,30);
+                g.addColorStop(0, '#0D5EAF'); g.addColorStop(1, '#06b6d4'); // Greek blue
+                ctx.fillStyle = g; ctx.fillRect(0,0,30,30);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(7,8,4,4); ctx.fillRect(18,8,4,4);
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.fillRect(10,18,10,3);
+            });
+        }
+        if (!this.a.forestBackground) {
+            this.a.forestBackground = this._canvas(900, 500, ctx => {
+                const g = ctx.createLinearGradient(0,0,0,500);
+                g.addColorStop(0, '#1a2f1a'); g.addColorStop(1, '#0d1a0d');
+                ctx.fillStyle = g; ctx.fillRect(0,0,900,500);
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                for (let x = 0; x < 900; x += 110) {
+                    ctx.beginPath();
+                    ctx.moveTo(x+40, 480); ctx.lineTo(x+20,300); ctx.lineTo(x+60,300); ctx.closePath();
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.moveTo(x+40, 380); ctx.lineTo(x+10,260); ctx.lineTo(x+70,260); ctx.closePath();
+                    ctx.fill();
+                }
+            });
+        }
+        if (!this.a.skyBackground) {
+            this.a.skyBackground = this._canvas(900, 500, ctx => {
+                const g = ctx.createLinearGradient(0,0,0,500);
+                g.addColorStop(0, '#3b82f6'); g.addColorStop(0.5, '#93c5fd'); g.addColorStop(1, '#dbeafe');
+                ctx.fillStyle = g; ctx.fillRect(0,0,900,500);
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                [[120,80,60,25],[350,120,80,28],[650,60,70,22],[800,140,55,20]].forEach(([x,y,w,h]) => {
+                    ctx.beginPath();
+                    ctx.ellipse(x, y, w, h, 0, 0, Math.PI*2);
+                    ctx.fill();
+                });
+            });
+        }
+        [
+            ['forestPlatformMain', 100, 22, '#5a2d0a', '#7c4a1e'],
+            ['forestPlatformMini',  80, 14, '#2e4a12', '#4a6e1e'],
+            ['skyPlatformMain',    100, 22, 'rgba(200,220,255,0.93)', 'rgba(170,195,255,0.85)'],
+            ['skyPlatformMini',     80, 14, 'rgba(210,228,255,0.85)', 'rgba(185,210,255,0.75)'],
+        ].forEach(([key, w, h, c1, c2]) => {
+            if (!this.a[key]) {
+                this.a[key] = this._canvas(w, h, ctx => {
+                    const g = ctx.createLinearGradient(0,0,0,h);
+                    g.addColorStop(0, c1); g.addColorStop(1, c2);
+                    ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+                    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+                    ctx.fillRect(0,0,w,3);
+                });
+            }
+        });
+        if (!this.a.portal) {
+            this.a.portal = this._canvas(50, 50, ctx => {
+                const g = ctx.createRadialGradient(25,25,4,25,25,25);
+                g.addColorStop(0,   'rgba(34,211,238,1)');
+                g.addColorStop(0.5, 'rgba(13,94,175,0.8)'); // Greek blue instead of purple
+                g.addColorStop(1,   'transparent');
+                ctx.fillStyle = g; ctx.arc(25,25,25,0,Math.PI*2); ctx.fill();
+            });
+        }
+    }
+
+    get(key) { return this.a[key] || null; }
+}
+
+// ============================================================
+// AUDIO MANAGER  (single-oscillator helper)
+// ============================================================
+class AudioManager {
+    constructor() {
+        try { this._ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+        catch { this._ctx = null; }
+    }
+
+    _tone(hz, type, dur, vol, glide = []) {
+        if (!this._ctx) return;
+        try {
+            const now = this._ctx.currentTime;
+            const osc = this._ctx.createOscillator();
+            const gain = this._ctx.createGain();
+            osc.connect(gain); gain.connect(this._ctx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(hz, now);
+            glide.forEach(([f,t]) => osc.frequency.setValueAtTime(f, now + t));
+            gain.gain.setValueAtTime(vol, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+            osc.start(now); osc.stop(now + dur);
+        } catch {}
+    }
+
+    jump()   { this._tone(650, 'sine',     0.11, 0.15, [[900, 0.06]]); }
+    land()   { this._tone(300, 'sine',     0.13, 0.10); }
+    death()  { this._tone(220, 'sawtooth', 0.38, 0.28, [[130, 0.1],[60, 0.22]]); }
+    portal() { this._tone(280, 'sine',     0.38, 0.15, [[560, 0.1],[840, 0.2]]); }
+    win() {
+        [0, 110, 230].forEach((delay, i) => {
+            setTimeout(() => this._tone([523,659,784][i], 'sine', 0.3, 0.22), delay);
+        });
+    }
+}
+
+// ============================================================
+// LEVEL DATA  (15 levels – unchanged from original)
+// ============================================================
+const LEVELS = [
+    // ── Forest 1-8 ──────────────────────────────────────────
+    {
+        id:1, type:'forest', name:'Forest',
+        playerStart:{x:100,y:200}, portal:{x:790,y:150},
+        platforms:[
+            {x:0,   y:450, width:950, height:200, type:'main'},
+            {x:200, y:360, width:100, height:20,  type:'mini'},
+            {x:430, y:280, width:80,  height:20,  type:'mini'},
+            {x:650, y:250, width:100, height:20,  type:'mini'},
+        ]
+    },
+    {
+        id:2, type:'forest', name:'Forest',
+        playerStart:{x:100,y:350}, portal:{x:820,y:100},
+        platforms:[
+            {x:0,   y:400, width:300, height:100, type:'main'},
+            {x:350, y:400, width:200, height:100, type:'main'},
+            {x:600, y:400, width:300, height:100, type:'main'},
+            {x:200, y:310, width:80,  height:20,  type:'mini'},
+            {x:430, y:260, width:80,  height:20,  type:'mini'},
+            {x:670, y:210, width:80,  height:20,  type:'mini'},
+        ]
+    },
+    {
+        id:3, type:'forest', name:'Forest',
+        playerStart:{x:100,y:350}, portal:{x:780,y:200},
+        platforms:[
+            {x:0,   y:400, width:300, height:100, type:'main'},
+            {x:600, y:400, width:300, height:100, type:'main'},
+            {x:200, y:320, width:100, height:20,  type:'mini'},
+            {x:430, y:260, width:50,  height:20,  type:'mini'},
+            {x:600, y:200, width:100, height:20,  type:'mini'},
+        ]
+    },
+    {
+        id:4, type:'forest', name:'Forest',
+        playerStart:{x:100,y:350}, portal:{x:750,y:150},
+        platforms:[
+            {x:0,   y:400, width:300, height:100, type:'main'},
+            {x:250, y:320, width:60,  height:20,  type:'mini'},
+            {x:430, y:260, width:60,  height:20,  type:'mini'},
+            {x:600, y:200, width:60,  height:20,  type:'mini'},
+        ]
+    },
+    {
+        id:5, type:'forest', name:'Forest',
+        playerStart:{x:430,y:350}, portal:{x:100,y:150},
+        platforms:[
+            {x:350, y:400, width:200, height:100, type:'main'},
+            {x:600, y:320, width:80,  height:20,  type:'mini'},
+            {x:750, y:260, width:80,  height:20,  type:'mini'},
+            {x:500, y:170, width:120, height:20,  type:'mini'},
+            {x:300, y:230, width:80,  height:20,  type:'mini'},
+        ]
+    },
+    {
+        id:6, type:'forest', name:'Forest',
+        playerStart:{x:100,y:350}, portal:{x:800,y:350},
+        platforms:[
+            {x:0,   y:400, width:150, height:100, type:'main'},
+            {x:750, y:400, width:150, height:100, type:'main'},
+            {x:200, y:300, width:50,  height:20,  type:'mini'},
+            {x:350, y:250, width:60,  height:20,  type:'mini'},
+            {x:500, y:200, width:80,  height:20,  type:'mini'},
+        ]
+    },
+    {
+        id:7, type:'forest', name:'Forest',
+        playerStart:{x:100,y:350}, portal:{x:780,y:130},
+        platforms:[
+            {x:0,   y:400, width:150, height:100, type:'main'},
+            {x:200, y:340, width:50,  height:20,  type:'mini'},
+            {x:310, y:270, width:70,  height:20,  type:'mini'},
+            {x:520, y:210, width:60,  height:20,  type:'mini'},
+            {x:690, y:250, width:25,  height:20,  type:'mini'},
+        ]
+    },
+    {
+        id:8, type:'forest', name:'Forest',
+        playerStart:{x:780,y:350}, portal:{x:50,y:120},
+        platforms:[
+            {x:700, y:400, width:200, height:100, type:'main'},
+            {x:600, y:320, width:30,  height:20,  type:'mini'},
+            {x:430, y:250, width:30,  height:20,  type:'mini'},
+            {x:270, y:200, width:30,  height:20,  type:'mini'},
+            {x:35,  y:200, width:80,  height:20,  type:'mini'},
+        ]
+    },
+    // ── Sky 9-15 ─────────────────────────────────────────────
+    {
+        id:9, type:'sky', name:'Sky',
+        playerStart:{x:100,y:350}, portal:{x:750,y:200},
+        platforms:[
+            {x:0,   y:400, width:140, height:70, type:'main'},
+            {x:220, y:320, width:80,  height:40, type:'mini'},
+            {x:370, y:280, width:80,  height:40, type:'mini'},
+            {x:560, y:240, width:80,  height:40, type:'mini'},
+        ]
+    },
+    {
+        id:10, type:'sky', name:'Sky',
+        playerStart:{x:450,y:350}, portal:{x:750,y:150},
+        platforms:[
+            {x:400, y:400, width:140, height:70, type:'main'},
+            {x:200, y:350, width:80,  height:40, type:'mini'},
+            {x:400, y:230, width:80,  height:40, type:'mini'},
+            {x:600, y:180, width:80,  height:40, type:'mini'},
+        ]
+    },
+    {
+        id:11, type:'sky', name:'Sky',
+        playerStart:{x:100,y:350}, portal:{x:750,y:120},
+        platforms:[
+            {x:0,   y:400, width:140, height:70, type:'main'},
+            {x:700, y:400, width:140, height:70, type:'main'},
+            {x:200, y:350, width:80,  height:40, type:'mini'},
+            {x:410, y:250, width:80,  height:40, type:'mini'},
+            {x:640, y:180, width:80,  height:40, type:'mini'},
+        ]
+    },
+    {
+        id:12, type:'sky', name:'Sky',
+        playerStart:{x:750,y:350}, portal:{x:780,y:120},
+        platforms:[
+            {x:700, y:400, width:140, height:70, type:'main'},
+            {x:500, y:320, width:80,  height:40, type:'mini'},
+            {x:330, y:250, width:80,  height:40, type:'mini'},
+            {x:530, y:150, width:80,  height:40, type:'mini'},
+        ]
+    },
+    {
+        id:13, type:'sky', name:'Sky',
+        playerStart:{x:100,y:350}, portal:{x:750,y:120},
+        platforms:[
+            {x:0,   y:400, width:140, height:70, type:'main'},
+            {x:100, y:300, width:70,  height:35, type:'mini'},
+            {x:300, y:300, width:70,  height:35, type:'mini'},
+            {x:500, y:300, width:70,  height:35, type:'mini'},
+            {x:700, y:300, width:70,  height:35, type:'mini'},
+        ]
+    },
+    {
+        id:14, type:'sky', name:'Sky',
+        playerStart:{x:100,y:350}, portal:{x:750,y:100},
+        platforms:[
+            {x:0,   y:400, width:140, height:70, type:'main'},
+            {x:200, y:320, width:50,  height:25, type:'mini'},
+            {x:300, y:290, width:30,  height:15, type:'mini'},
+            {x:400, y:260, width:50,  height:25, type:'mini'},
+            {x:500, y:230, width:30,  height:15, type:'mini'},
+            {x:600, y:200, width:50,  height:25, type:'mini'},
+        ]
+    },
+    {
+        id:15, type:'sky', name:'Sky',
+        playerStart:{x:100,y:250}, portal:{x:750,y:80},
+        platforms:[
+            {x:170, y:400, width:140, height:70, type:'main'},
+            {x:390, y:320, width:50,  height:25, type:'mini'},
+            {x:450, y:230, width:50,  height:25, type:'mini'},
+            {x:650, y:170, width:50,  height:25, type:'mini'},
+        ]
+    },
+];
+
+// ============================================================
+// PLATFORMER GAME
+// ============================================================
+class PlatformerGame {
+    constructor() {
+        this.canvas = document.getElementById('game-canvas');
+        this.ctx    = this.canvas.getContext('2d');
+        this.canvas.width  = CONFIG.CW;
+        this.canvas.height = CONFIG.CH;
+
+        this.assets    = new AssetLoader();
+        this.audio     = new AudioManager();
+        this.particles = new ParticleSystem();
+
+        this.currentLevelIdx = 0;
+        this.gameState = 'loading';
+        this.rafId     = null;
+
+        // Fixed-step accumulator
+        this.lastRafTime = 0;
+        this.accumulator = 0;
+
+        // Input
+        this.keys    = Object.create(null);
+        this.justPressed = Object.create(null);
+
+        // Player
+        this.p = {
+            x: 0, y: 0,
+            vx: 0, vy: 0,
+            w: CONFIG.PLAYER_W,
+            h: CONFIG.PLAYER_H,
+            onGround:      false,
+            coyoteFrames:  0,
+            bufferFrames:  0,
+            invFrames:     0,
+            animTick:      0,
+            facing:        1,
+        };
+
+        // Stats
+        this.totalDeaths  = 0;
+        this.levelTime    = 0;
+        this._lastSecShown = -1;
+        this.level = null;
+
+        // Screen shake
+        this.shakeIntensity = 0;
+        this.shakeFrames    = 0;
+
+        this._init();
+    }
+
+    async _init() {
+        await this.assets.load();
+        this._setupKeys();
+        this._setupUI();
+        this._loadLevel(0);
+        document.getElementById('loading-screen').style.display = 'none';
+        this.gameState = 'playing';
+        this.rafId = requestAnimationFrame(t => this._loop(t));
+    }
+
+    _loadLevel(idx) {
+        if (idx >= LEVELS.length) { this._showAllClear(); return; }
+
+        this.level = LEVELS[idx];
+        const p = this.p;
+        p.x = this.level.playerStart.x;
+        p.y = this.level.playerStart.y;
+        p.vx = p.vy = 0;
+        p.onGround = false;
+        p.coyoteFrames = p.bufferFrames = 0;
+        p.invFrames = CONFIG.INVINCIBLE_FRAMES;
+        p.animTick  = 0;
+        p.facing    = 1;
+
+        this.levelTime     = 0;
+        this._lastSecShown = -1;
+        this.accumulator   = 0;
+        this.shakeFrames   = 0;
+        this.particles.clear();
+
+        document.getElementById('level-type').textContent =
+            this.level.type.charAt(0).toUpperCase() + this.level.type.slice(1);
+        document.getElementById('level-number').textContent  = this.level.id;
+        document.getElementById('total-levels').textContent  = LEVELS.length;
+        document.getElementById('death-count').textContent   = `💀 ${this.totalDeaths}`;
+        document.getElementById('timer-display').textContent = '0:00';
+
+        document.getElementById('level-complete').style.display = 'none';
+        document.getElementById('game-over').style.display      = 'none';
+        document.getElementById('pause-overlay').style.display  = 'none';
+        document.getElementById('next-level').style.display     = 'block';
+
+        this.gameState = 'playing';
+    }
+
+    _showAllClear() {
+        document.getElementById('completion-message').textContent =
+            'You beat all 15 levels!';
+        document.getElementById('level-stats').textContent =
+            `Total Deaths: ${this.totalDeaths}`;
+        document.getElementById('best-time').textContent = '';
+        document.getElementById('next-level').style.display = 'none';
+        document.getElementById('level-complete').style.display = 'flex';
+        this.gameState = 'levelComplete';
+    }
+
+    _setupKeys() {
+        window.addEventListener('keydown', e => {
+            const k = e.key.toLowerCase();
+            if (!this.keys[k]) {
+                this.justPressed[k] = true;
+                if (k === 'p') this._togglePause();
+                if (k === 'r') this._loadLevel(this.currentLevelIdx);
+                if (k === ' ' || k === 'arrowup' || k === 'w') {
+                    this.p.bufferFrames = CONFIG.JUMP_BUFFER_FRAMES;
+                }
+            }
+            this.keys[k] = true;
+            if (k === ' ') e.preventDefault();
+        });
+        window.addEventListener('keyup', e => {
+            this.keys[e.key.toLowerCase()] = false;
+        });
+    }
+
+    _setupUI() {
+        document.getElementById('pause-btn').addEventListener('click', () => this._togglePause());
+        document.getElementById('resume-btn').addEventListener('click', () => this._togglePause());
+        document.getElementById('restart-btn').addEventListener('click', () => this._loadLevel(this.currentLevelIdx));
+        document.getElementById('next-level').addEventListener('click', () => { this.currentLevelIdx++; this._loadLevel(this.currentLevelIdx); });
+        document.getElementById('restart-level-btn').addEventListener('click', () => this._loadLevel(this.currentLevelIdx));
+    }
+
+    _togglePause() {
+        if (this.gameState === 'playing') {
+            this.gameState = 'paused';
+            document.getElementById('pause-overlay').style.display = 'flex';
+        } else if (this.gameState === 'paused') {
+            this.gameState = 'playing';
+            document.getElementById('pause-overlay').style.display = 'none';
+            this.lastRafTime = performance.now();
+            this.accumulator = 0;
+        }
+    }
+
+    _handleInput() {
+        const p = this.p;
+        const left  = this.keys['arrowleft']  || this.keys['a'];
+        const right = this.keys['arrowright'] || this.keys['d'];
+
+        if (left) {
+            p.vx = -CONFIG.PLAYER_SPEED;
+            p.facing = -1;
+        } else if (right) {
+            p.vx = CONFIG.PLAYER_SPEED;
+            p.facing = 1;
+        } else {
+            p.vx *= CONFIG.PLAYER_FRICTION;
+            if (Math.abs(p.vx) < 0.08) p.vx = 0;
+        }
+
+        if (p.bufferFrames > 0 && (p.onGround || p.coyoteFrames > 0)) {
+            p.vy = CONFIG.JUMP_FORCE;
+            p.onGround = false;
+            p.coyoteFrames = 0;
+            p.bufferFrames = 0;
+            this.audio.jump();
+            this.particles.emit(
+                p.x + p.w / 2, p.y + p.h,
+                6, this.level.type === 'forest' ? '#4ade80' : '#bfdbfe', 'jump'
+            );
+        }
+
+        if (p.bufferFrames  > 0) p.bufferFrames--;
+        if (p.coyoteFrames  > 0) p.coyoteFrames--;
+    }
+
+    _updatePhysics() {
+        const p = this.p;
+        p.animTick++;
+        if (p.invFrames > 0) p.invFrames--;
+
+        p.vy += CONFIG.GRAVITY;
+
+        const nx = p.x + p.vx;
+        let rx = nx;
+
+        for (const pl of this.level.platforms) {
+            const pY  = p.y  + 2;
+            const pYb = p.y  + p.h - 2;
+            if (pYb <= pl.y || pY >= pl.y + pl.height) continue;
+
+            const futL = rx,  futR = rx + p.w;
+            const plL  = pl.x, plR = pl.x + pl.width;
+            if (futR > plL && futL < plR) {
+                rx = p.vx > 0 ? plL - p.w : plR;
+                p.vx = 0;
+            }
+        }
+        p.x = Math.max(0, Math.min(CONFIG.CW - p.w, rx));
+        if (rx <= 0 || rx + p.w >= CONFIG.CW) p.vx = 0;
+
+        const ny  = p.y + p.vy;
+        const wasOnGround = p.onGround;
+        p.onGround = false;
+        let ry = ny;
+
+        for (const pl of this.level.platforms) {
+            const plL = pl.x, plR = pl.x + pl.width;
+            const plT = pl.y, plB = pl.y + pl.h;
+
+            if (p.vy >= 0 &&
+                p.y + p.h <= plT &&
+                ry  + p.h >  plT &&
+                p.x + p.w >  plL &&
+                p.x        <  plR)
+            {
+                ry = plT - p.h;
+                p.vy = 0;
+                p.onGround = true;
+                break;
+            }
+
+            if (p.vy < 0 &&
+                p.y >= plB &&
+                ry   < plB &&
+                p.x + p.w > plL &&
+                p.x       < plR)
+            {
+                ry = plB;
+                p.vy = 0;
+            }
+        }
+        p.y = ry;
+
+        if (wasOnGround && !p.onGround && p.vy >= 0) {
+            p.coyoteFrames = CONFIG.COYOTE_FRAMES;
+        }
+
+        if (!wasOnGround && p.onGround) {
+            this.audio.land();
+            this.particles.emit(p.x + p.w/2, p.y + p.h,
+                4, this.level.type === 'forest' ? '#4ade80' : '#bfdbfe', 'land');
+        }
+
+        this._checkPortal();
+
+        if (p.y > CONFIG.DEATH_Y) this._die();
+
+        this.particles.update();
+        if (this.shakeFrames > 0) this.shakeFrames--;
+
+        this.levelTime += CONFIG.FIXED_MS;
+        const sec = Math.floor(this.levelTime / 1000);
+        if (sec !== this._lastSecShown) {
+            this._lastSecShown = sec;
+            document.getElementById('timer-display').textContent = fmtTime(this.levelTime);
+        }
+    }
+
+    _checkPortal() {
+        if (this.gameState !== 'playing') return;
+        const { portal } = this.level;
+        const ps = CONFIG.PORTAL_SIZE;
+        const pcx = portal.x + ps/2, pcy = portal.y + ps/2;
+        const pcx2 = this.p.x + this.p.w/2, pcy2 = this.p.y + this.p.h/2;
+        const dx = pcx2 - pcx, dy = pcy2 - pcy;
+        if (dx*dx + dy*dy < (ps/2 + this.p.w/3) ** 2) this._completeLevel();
+    }
+
+    _die() {
+        if (this.p.invFrames > 0) return;
+        this.totalDeaths++;
+        document.getElementById('death-count').textContent = `💀 ${this.totalDeaths}`;
+        this.audio.death();
+
+        const ex = Math.max(15, Math.min(CONFIG.CW - 15, this.p.x + this.p.w/2));
+        const ey = Math.max(15, Math.min(CONFIG.CH - 15, this.p.y + this.p.h/2));
+        this.particles.emit(ex, ey, 22, '#ef4444', 'death');
+        this.particles.emit(ex, ey, 10, '#fbbf24', 'jump');
+
+        this.shakeIntensity = 8;
+        this.shakeFrames    = 22;
+
+        document.getElementById('death-message').textContent = pickMsg(this.totalDeaths);
+        document.getElementById('rage-message').textContent  =
+            this.totalDeaths >= 5 ? `Death #${this.totalDeaths} on Level ${this.level.id}` : '';
+        document.getElementById('death-tip').textContent =
+            this.totalDeaths >= 3 ? pickTip() : '';
+
+        document.getElementById('game-over').style.display = 'flex';
+        this.gameState = 'gameOver';
+    }
+
+    _completeLevel() {
+        if (this.gameState !== 'playing') return;
+        this.gameState = 'levelComplete';
+        this.audio.win();
+        setTimeout(() => this.audio.portal(), 180);
+
+        const cx = this.level.portal.x + CONFIG.PORTAL_SIZE/2;
+        const cy = this.level.portal.y + CONFIG.PORTAL_SIZE/2;
+        this.particles.emit(cx, cy, 28, '#0D5EAF', 'portal'); // Greek blue instead of purple
+        this.particles.emit(cx, cy, 16, '#22d3ee', 'jump');
+
+        const key = `tntr_best_${this.level.id}`;
+        const secs = Math.floor(this.levelTime / 1000);
+        const prev = localStorage.getItem(key);
+        let bestTxt = '';
+        if (prev === null || secs < parseInt(prev, 10)) {
+            localStorage.setItem(key, secs);
+            bestTxt = prev === null
+                ? `First clear!`
+                : `New best! (was ${fmtTime(parseInt(prev,10)*1000)})`;
+        } else {
+            bestTxt = `Best: ${fmtTime(parseInt(prev,10)*1000)}`;
+        }
+
+        document.getElementById('completion-message').textContent =
+            `${this.level.name} Level ${this.level.id} cleared!`;
+        document.getElementById('level-stats').textContent =
+            `Deaths this level: ${this.totalDeaths} | Time: ${fmtTime(this.levelTime)}`;
+        document.getElementById('best-time').textContent = bestTxt;
+        document.getElementById('level-complete').style.display = 'flex';
+    }
+
+    _draw() {
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, CONFIG.CW, CONFIG.CH);
+
+        ctx.save();
+        if (this.shakeFrames > 0) {
+            const mag = (this.shakeFrames / 22) * this.shakeIntensity;
+            ctx.translate(
+                (Math.random() - 0.5) * mag * 2,
+                (Math.random() - 0.5) * mag * 2
+            );
+        }
+
+        const bg = this.assets.get(this.level.type === 'forest' ? 'forestBackground' : 'skyBackground');
+        if (bg) ctx.drawImage(bg, 0, 0, CONFIG.CW, CONFIG.CH);
+        else { ctx.fillStyle = this.level.type === 'forest' ? '#1a2f1a' : '#87ceeb'; ctx.fillRect(0,0,CONFIG.CW,CONFIG.CH); }
+
+        for (const pl of this.level.platforms) {
+            const isMain = pl.type === 'main';
+            const key = this.level.type === 'forest'
+                ? (isMain ? 'forestPlatformMain' : 'forestPlatformMini')
+                : (isMain ? 'skyPlatformMain'    : 'skyPlatformMini');
+            const img = this.assets.get(key);
+            if (img) {
+                ctx.drawImage(img, pl.x, pl.y, pl.width, pl.height);
+            } else {
+                ctx.fillStyle = this.level.type === 'forest'
+                    ? (isMain ? '#5a2d0a' : '#2e4a12')
+                    : (isMain ? 'rgba(200,220,255,0.92)' : 'rgba(210,228,255,0.8)');
+                ctx.fillRect(pl.x, pl.y, pl.width, pl.height);
+            }
+        }
+
+        this._drawPortal();
+        this.particles.draw(ctx);
+        this._drawPlayer();
+
+        ctx.restore();
+    }
+
+    _drawPortal() {
+        const ctx = this.ctx;
+        const { portal } = this.level;
+        const s  = CONFIG.PORTAL_SIZE;
+        const cx = portal.x + s/2, cy = portal.y + s/2;
+        const t  = this.p.animTick * 0.045;
+        const scale = 1 + Math.sin(t * 2) * 0.055;
+
+        const img = this.assets.get('portal');
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(scale, scale);
+        if (img) {
+            ctx.drawImage(img, -s/2, -s/2, s, s);
+        } else {
+            const pulse = 0.4 + Math.sin(t * 3) * 0.12;
+            const g = ctx.createRadialGradient(0, 0, s*0.15, 0, 0, s*0.5);
+            g.addColorStop(0,   `rgba(34,211,238,${pulse + 0.45})`);
+            g.addColorStop(0.55,`rgba(13,94,175,${pulse})`); // Greek blue
+            g.addColorStop(1,   'transparent');
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(0, 0, s * 0.52, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    _drawPlayer() {
+        const ctx  = this.ctx;
+        const p    = this.p;
+        const t    = p.animTick * 0.05;
+
+        if (p.invFrames > 0 && Math.floor(p.invFrames / 5) % 2 === 0) return;
+
+        const img    = this.assets.get('player');
+        const bounce = p.onGround ? Math.sin(t * 5) * 1.5 : 0;
+        const px     = p.x, py = p.y + bounce;
+
+        ctx.save();
+        if (img) {
+            if (p.facing === -1) {
+                ctx.scale(-1, 1);
+                ctx.drawImage(img, -(px + p.w), py, p.w, p.h);
+            } else {
+                ctx.drawImage(img, px, py, p.w, p.h);
+            }
+        } else {
+            ctx.fillStyle = 'rgba(0,0,0,0.22)';
+            ctx.fillRect(px+3, py+3, p.w, p.h);
+
+            const grad = ctx.createLinearGradient(px, py, px, py + p.h);
+            grad.addColorStop(0, '#0D5EAF'); // Greek blue
+            grad.addColorStop(1, '#06b6d4');
+            ctx.fillStyle = grad;
+            ctx.fillRect(px, py, p.w, p.h);
+
+            const blinkH = Math.sin(t * 1.2) > 0.94 ? 1 : 4;
+            ctx.fillStyle = '#fff';
+            const ex = p.facing === 1 ? [px+7, px+18] : [px+5, px+16];
+            ctx.fillRect(ex[0], py+8, 4, blinkH);
+            ctx.fillRect(ex[1], py+8, 4, blinkH);
+
+            if (Math.abs(p.vx) > 2.5) {
+                ctx.globalAlpha = 0.18;
+                ctx.fillStyle = '#0D5EAF';
+                for (let i = 1; i <= 3; i++) {
+                    const ox = -p.facing * i * 7;
+                    ctx.fillRect(px + ox, py + 4, p.w, p.h - 8);
+                }
+                ctx.globalAlpha = 1;
+            }
+        }
+        ctx.restore();
+    }
+
+    _loop(now) {
+        const rawDt = Math.min(now - this.lastRafTime, 50);
+        this.lastRafTime = now;
+        this.accumulator += rawDt;
+
+        if (this.gameState === 'playing') {
+            while (this.accumulator >= CONFIG.FIXED_MS) {
+                this._handleInput();
+                this._updatePhysics();
+                this.accumulator -= CONFIG.FIXED_MS;
+            }
+        } else {
+            if (this.shakeFrames > 0) {
+                this.particles.update();
+                if (this.shakeFrames > 0) this.shakeFrames--;
+            }
+            this.accumulator = 0;
+        }
+
+        this._draw();
+        this.rafId = requestAnimationFrame(t => this._loop(t));
+    }
+}
+
+// ============================================================
+// BOOTSTRAP
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+    if (isMobileDevice()) {
+        document.getElementById('mobile-warning').style.display = 'flex';
+        document.getElementById('game-container').style.display = 'none';
+        return;
+    }
+    window.game = new PlatformerGame();
+});
+
+window.addEventListener('error', e => {
+    console.error('Game error:', e.error);
+    const ls = document.getElementById('loading-screen');
+    if (ls) ls.style.display = 'none';
+});
+</script>
+</body>
+</html>

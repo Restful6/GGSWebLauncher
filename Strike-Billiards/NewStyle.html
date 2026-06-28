@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Strike-Billiards</title>
+
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Greek Games Studios">
+  <link rel="canonical" href="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Strike-Billiards/Main.html">
+  
+  <meta name="description" content="Play Strike-Billiards, a free browser mini game by Greek Games Studios. Classic billiards reimagined with modern graphics and AI opponents. Play instantly, no download required.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Strike-Billiards - Free Browser Mini Game | Greek Games Studios">
+  <meta property="og:description" content="Play Strike-Billiards instantly in your browser. Classic arcade action with modern visuals. No download needed.">
+  <meta property="og:image" content="https://greekgamesstudios.com/images/WebStrikeBilliardsLogo.png">
+  <meta property="og:url" content="https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Strike-Billiards/Main.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Greek Games Studios">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Strike-Billiards - Free Browser Mini Game">
+  <meta name="twitter:description" content="Play Strike-Billiards instantly in your browser. No download needed.">
+  <meta name="twitter:image" content="https://greekgamesstudios.com/images/WebStrikeBilliardsLogo.png">
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Strike-Billiards",
+    "description": "A free browser mini game by Greek Games Studios. Classic billiards reimagined with modern graphics and AI opponents.",
+    "author": {
+      "@type": "Organization",
+      "name": "Greek Games Studios",
+      "url": "https://greekgamesstudios.com"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Greek Games Studios"
+    },
+    "genre": ["Arcade", "Classic", "Mini Game"],
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any",
+    "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Strike-Billiards/Main.html"
+  }
+  </script>
+
+    <link rel="icon" type="png" href="/images/WebStrikeBilliardsLogo.png">
+    <style>
+        :root {
+            --bg:       #0c0a07;
+            --wood:     #2a1506;
+            --wood-mid: #3d1f08;
+            --wood-rim: #6b3a12;
+            --gold:     #b8924a;
+            --gold-lt:  #d4a85c;
+            --text:     #cfc9bc;
+            --muted:    #5a5248;
+            --felt-dk:  #0e3d20;
+            --felt-mid: #165c30;
+            --p1c: #4ab8d8;
+            --p2c: #d4aa40;
+            --p3c: #c84050;
+            --p4c: #44b870;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { overflow: hidden; height: 100%; }
+
+        body {
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 50% 0%, rgba(60,30,8,0.55) 0%, transparent 70%);
+            color: var(--text);
+            font-family: 'Georgia', 'Times New Roman', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 12px;
+            gap: 8px;
+            user-select: none;
+        }
+
+        h1 {
+            font-size: 1.9em;
+            letter-spacing: 6px;
+            color: var(--gold);
+            font-weight: normal;
+            text-transform: uppercase;
+            /* Engraved look */
+            text-shadow:
+                0 1px 0 rgba(255,255,255,0.08),
+                0 -1px 0 rgba(0,0,0,0.7),
+                0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        /* ── GAME WRAPPER ── */
+        #game-wrapper {
+            position: relative;
+            /* Wood frame — layered box-shadows + border */
+            border: 22px solid var(--wood);
+            border-radius: 10px;
+            box-shadow:
+                inset 0 0 0 3px var(--wood-rim),
+                inset 0 0 0 5px #1a0a02,
+                inset 0 0 18px rgba(0,0,0,0.7),
+                0 12px 60px rgba(0,0,0,0.9),
+                0 2px 4px rgba(0,0,0,0.6),
+                0 0 0 1px rgba(0,0,0,0.8);
+            /* Wood texture via gradient stripes */
+            background:
+                repeating-linear-gradient(
+                    92deg,
+                    transparent 0px, transparent 18px,
+                    rgba(0,0,0,0.06) 18px, rgba(0,0,0,0.06) 20px
+                ),
+                repeating-linear-gradient(
+                    88deg,
+                    transparent 0px, transparent 35px,
+                    rgba(255,255,255,0.015) 35px, rgba(255,255,255,0.015) 37px
+                ),
+                linear-gradient(180deg,
+                    #5c2a0a 0%, #3d1a05 20%, #2e1404 50%, #3d1a05 80%, #5c2a0a 100%
+                );
+            width: 1044px;
+            height: 544px;
+            flex-shrink: 0;
+        }
+
+        #pool-table {
+            display: block;
+            width:  1000px;
+            height: 500px;
+            cursor: crosshair;
+        }
+
+        /* ── OVERLAYS ── */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 1000px; height: 500px;
+            padding: 30px 40px;
+            /* Rich dark felt overlay */
+            background:
+                radial-gradient(ellipse at 50% 30%, rgba(20,55,30,0.97) 0%, rgba(8,18,10,0.98) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            z-index: 100;
+        }
+
+        /* Decorative corner marks on overlay */
+        .overlay::before, .overlay::after {
+            content: '';
+            position: absolute;
+            width: 40px; height: 40px;
+            border-color: var(--gold);
+            border-style: solid;
+            opacity: 0.35;
+        }
+        .overlay::before {
+            top: 18px; left: 18px;
+            border-width: 1px 0 0 1px;
+        }
+        .overlay::after {
+            bottom: 18px; right: 18px;
+            border-width: 0 1px 1px 0;
+        }
+
+        .ov-title {
+            font-size: 2em;
+            letter-spacing: 5px;
+            color: var(--gold);
+            font-weight: normal;
+            text-shadow:
+                0 1px 0 rgba(255,255,255,0.06),
+                0 2px 12px rgba(0,0,0,0.6);
+        }
+
+        .ov-divider {
+            width: 120px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.5;
+        }
+
+        .ov-sub {
+            font-family: 'Courier New', monospace;
+            font-size: 0.82em;
+            color: var(--muted);
+            max-width: 520px;
+            line-height: 1.8;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn {
+            background: transparent;
+            border: 1px solid rgba(184,146,74,0.5);
+            color: var(--gold-lt);
+            padding: 10px 32px;
+            font-size: 0.85em;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 2px;
+            min-width: 160px;
+            position: relative;
+            transition: border-color .2s, color .2s, background .2s;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1px solid rgba(184,146,74,0.12);
+            border-radius: 1px;
+            pointer-events: none;
+        }
+        .btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(184,146,74,0.07);
+        }
+
+        .pbtns { display: flex; gap: 16px; }
+
+        .pbtn {
+            width: 76px; height: 76px;
+            font-size: 2.2em;
+            font-family: 'Georgia', serif;
+            border-radius: 3px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.03);
+            color: var(--text);
+            transition: border-color .15s, background .15s, color .15s;
+        }
+        .pbtn:nth-child(1):hover { border-color: var(--p1c); color: var(--p1c); background: rgba(74,184,216,0.08); }
+        .pbtn:nth-child(2):hover { border-color: var(--p2c); color: var(--p2c); background: rgba(212,170,64,0.08); }
+        .pbtn:nth-child(3):hover { border-color: var(--p3c); color: var(--p3c); background: rgba(200,64,80,0.08); }
+        .pbtn:nth-child(4):hover { border-color: var(--p4c); color: var(--p4c); background: rgba(68,184,112,0.08); }
+
+        /* ── WIN SCREEN ── */
+        .win-rows { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 380px; }
+        .win-row  {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 18px;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 2px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            background: rgba(255,255,255,0.02);
+        }
+        .win-row.gold {
+            border-color: rgba(184,146,74,0.4);
+            background: rgba(184,146,74,0.06);
+        }
+
+        /* ── HUD ── */
+        #hud {
+            display: none;
+            gap: 8px;
+            justify-content: center;
+            align-items: stretch;
+            width: 1044px;
+        }
+
+        .pcard {
+            flex: 1;
+            max-width: 250px;
+            padding: 7px 14px;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 2px;
+            background: rgba(10,20,12,0.6);
+            transition: border-color .3s, background .3s;
+            position: relative;
+        }
+        .pcard.active {
+            border-color: rgba(184,146,74,0.35);
+            background: rgba(184,146,74,0.05);
+        }
+        .pcard.active::after {
+            content: '▸ SHOOT';
+            position: absolute;
+            top: 6px; right: 10px;
+            font-size: 0.58em;
+            font-family: 'Courier New', monospace;
+            color: var(--gold);
+            opacity: .7;
+            letter-spacing: 1.5px;
+        }
+        .pname  {
+            font-size: .72em;
+            font-family: 'Courier New', monospace;
+            color: var(--muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .pname span { /* colored dot */
+            display: inline-block;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .pscore {
+            font-size: 1.6em;
+            font-family: 'Georgia', serif;
+            color: var(--text);
+            font-weight: normal;
+            letter-spacing: 1px;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            font-size: .75em;
+            color: var(--muted);
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+        footer strong { color: var(--gold); font-weight: normal; }
+
+        /* ── MOBILE BLOCK ── */
+        #mobile-block { display: none; }
+
+        /* ── MOBILE SCALING ── */
+        body.is-mobile {
+            padding: 6px;
+            gap: 4px;
+            overflow: auto;
+        }
+
+        body.is-mobile h1 {
+            font-size: clamp(1em, 5vw, 1.6em);
+            letter-spacing: 3px;
+        }
+
+        body.is-mobile #game-wrapper {
+            width: calc(100vw - 8px);
+            height: calc((100vw - 8px) * 500 / 1000);
+            max-width: 1044px;
+            border-width: 14px;
+        }
+
+        body.is-mobile #pool-table {
+            width: 100%;
+            height: 100%;
+        }
+
+        body.is-mobile .overlay {
+            width: 100%;
+            height: 100%;
+            padding: 16px 20px;
+            gap: 10px;
+        }
+
+        body.is-mobile .ov-title {
+            font-size: clamp(1em, 4.5vw, 2em);
+        }
+
+        body.is-mobile .ov-sub {
+            font-size: clamp(0.65em, 2.2vw, 0.82em);
+        }
+
+        body.is-mobile .btn {
+            padding: 8px 18px;
+            font-size: clamp(0.68em, 2.8vw, 0.85em);
+            min-width: 100px;
+        }
+
+        body.is-mobile .pbtn {
+            width: clamp(44px, 14vw, 76px);
+            height: clamp(44px, 14vw, 76px);
+            font-size: clamp(1.3em, 5.5vw, 2.2em);
+        }
+
+        body.is-mobile #hud {
+            width: calc(100vw - 8px);
+            max-width: 1044px;
+            gap: 4px;
+        }
+
+        body.is-mobile .pcard {
+            padding: 5px 8px;
+        }
+
+        body.is-mobile .pname {
+            font-size: clamp(0.52em, 1.8vw, 0.72em);
+        }
+
+        body.is-mobile .pscore {
+            font-size: clamp(1em, 3.2vw, 1.6em);
+        }
+
+        body.is-mobile footer {
+            font-size: clamp(0.58em, 1.8vw, 0.75em);
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+<h1>Strike Billiards</h1>
+
+<div id="game-wrapper">
+
+    <!-- MAIN MENU -->
+    <div id="screen-menu" class="overlay">
+        <div class="ov-title">STRIKE BILLIARDS</div>
+        <div class="ov-divider"></div>
+        <p class="ov-sub">Classic pool with combos &amp; multi-player support.<br>Pot all balls before your opponents.</p>
+        <button class="btn" id="btn-start">Play Game</button>
+        <p class="ov-sub" style="font-size:.75em; margin-top:4px">
+            Drag the cue away from the ball — release to shoot.
+        </p>
+    </div>
+
+    <!-- PLAYER SELECT -->
+    <div id="screen-players" class="overlay" style="display:none">
+        <div class="ov-title">SELECT PLAYERS</div>
+        <div class="ov-divider"></div>
+        <p class="ov-sub">How many players?<br>More players adds more balls to the table.</p>
+        <div class="pbtns">
+            <button class="pbtn" data-n="1">1</button>
+            <button class="pbtn" data-n="2">2</button>
+            <button class="pbtn" data-n="3">3</button>
+            <button class="pbtn" data-n="4">4</button>
+        </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="screen-over" class="overlay" style="display:none">
+        <div class="ov-title" id="go-title">YOU WIN!</div>
+        <div class="ov-divider"></div>
+        <div class="win-rows" id="win-rows"></div>
+        <button class="btn" id="btn-again">Play Again</button>
+    </div>
+
+    <canvas id="pool-table" width="1000" height="500"></canvas>
+</div>
+
+<div id="hud"></div>
+
+<footer><strong>Greek Games Studios</strong></footer>
+
+<div id="mobile-block">
+    <h2>NOT SUPPORTED</h2>
+    <p>Please play on a PC or Desktop.</p>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════
+const FRICTION      = 0.983;
+const BALL_R        = 13;
+const POCKET_R      = 24;
+const CUE_MULT      = 0.13;
+const MAX_POWER     = 200;
+const CUE_LEN       = 185;
+const PULLBACK_MAX  = 22;
+const MIN_SPD_SQ    = 0.004;
+
+const P_COLORS = ['#4ab8d8','#d4aa40','#c84050','#44b870'];
+const P_NAMES  = ['Player 1','Player 2','Player 3','Player 4'];
+
+// 15 ball colors — richer, more saturated but natural
+const BALL_COL = [
+    '#d4a020','#1a4fa8','#cc1820','#6a2878',
+    '#d05800','#1e8a50','#7a1810','#181818',
+    '#d4a020','#1a4fa8','#cc1820','#6a2878',
+    '#d05800','#1e8a50','#7a1810'
+];
+
+// ═══════════════════════════════════════════════
+// DOM
+// ═══════════════════════════════════════════════
+const canvas  = document.getElementById('pool-table');
+const ctx     = canvas.getContext('2d', { alpha: false });
+const W = canvas.width, H = canvas.height;
+
+const scMenu    = document.getElementById('screen-menu');
+const scPlayers = document.getElementById('screen-players');
+const scOver    = document.getElementById('screen-over');
+const goTitle   = document.getElementById('go-title');
+const winRows   = document.getElementById('win-rows');
+const hud       = document.getElementById('hud');
+const btnStart  = document.getElementById('btn-start');
+const btnAgain  = document.getElementById('btn-again');
+
+// ═══════════════════════════════════════════════
+// AUDIO  (lazy init on first interaction)
+// ═══════════════════════════════════════════════
+let actx = null;
+const sndCD = {};
+
+function ensureAudio() {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+}
+
+function snd(type) {
+    if (!actx) return;
+    const t = actx.currentTime;
+    if ((sndCD[type] || 0) > t) return;
+
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    o.connect(g); g.connect(actx.destination);
+
+    switch (type) {
+        case 'hit':
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(340, t);
+            o.frequency.exponentialRampToValueAtTime(160, t + .18);
+            g.gain.setValueAtTime(.22, t);
+            g.gain.exponentialRampToValueAtTime(.001, t + .22);
+            o.start(t); o.stop(t + .22);
+            sndCD[type] = t + .25;
+            break;
+        case 'collide':
+            o.type = 'sine';
+            o.frequency.setValueAtTime(190 + Math.random() * 80, t);
+            g.gain.setValueAtTime(.15, t);
+            g.gain.exponentialRampToValueAtTime(.001, t + .07);
+            o.start(t); o.stop(t + .07);
+            sndCD[type] = t + .04;
+            break;
+        case 'cushion':
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(105, t);
+            g.gain.setValueAtTime(.09, t);
+            g.gain.exponentialRampToValueAtTime(.001, t + .1);
+            o.start(t); o.stop(t + .1);
+            sndCD[type] = t + .06;
+            break;
+        case 'pocket':
+            o.type = 'sine';
+            o.frequency.setValueAtTime(480, t);
+            o.frequency.linearRampToValueAtTime(700, t + .18);
+            g.gain.setValueAtTime(.28, t);
+            g.gain.exponentialRampToValueAtTime(.001, t + .3);
+            o.start(t); o.stop(t + .3);
+            sndCD[type] = t + .1;
+            break;
+        case 'combo':
+            o.type = 'sawtooth';
+            o.frequency.setValueAtTime(650, t);
+            o.frequency.linearRampToValueAtTime(1050, t + .28);
+            g.gain.setValueAtTime(.28, t);
+            g.gain.exponentialRampToValueAtTime(.001, t + .4);
+            o.start(t); o.stop(t + .4);
+            sndCD[type] = t + .5;
+            break;
+        case 'win':
+            [523,659,784,1047].forEach((f, i) => {
+                const o2 = actx.createOscillator(), g2 = actx.createGain();
+                o2.connect(g2); g2.connect(actx.destination);
+                o2.type = 'sine';
+                o2.frequency.setValueAtTime(f, t + i * .13);
+                g2.gain.setValueAtTime(.22, t + i * .13);
+                g2.gain.exponentialRampToValueAtTime(.001, t + i * .13 + .3);
+                o2.start(t + i * .13); o2.stop(t + i * .13 + .35);
+            });
+            return;
+    }
+}
+
+// ═══════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════
+let phase   = 'menu';
+let numP    = 1;
+let players = [];
+let curP    = 0;
+
+let balls   = [];
+let pockets = [];
+let moving  = false;
+let wasMove = false;
+let aiming  = false;
+let mx = W/2, my = H/2;
+let rafId   = null;
+
+let potted    = 0;
+let scratched = false;
+let comboTxt  = '';
+let comboT    = 0;
+
+// VFX arrays
+let sparks  = [];
+let trails  = [];
+let flashes = [];
+
+// Cached gradients
+let feltGrad   = null;
+let feltNoise  = null; // offscreen for felt texture
+
+// ═══════════════════════════════════════════════
+// FELT TEXTURE — build once into offscreen canvas
+// ═══════════════════════════════════════════════
+function buildFeltTexture() {
+    const oc  = document.createElement('canvas');
+    oc.width  = W; oc.height = H;
+    const octx = oc.getContext('2d');
+
+    // Base gradient
+    const g = octx.createRadialGradient(W/2, H/2, 0, W/2, H/2, 580);
+    g.addColorStop(0,   '#1c6438');
+    g.addColorStop(0.45,'#145230');
+    g.addColorStop(0.8, '#0f3d24');
+    g.addColorStop(1,   '#0a2c1a');
+    octx.fillStyle = g;
+    octx.fillRect(0,0,W,H);
+
+    // Felt weave: fine horizontal lines
+    for (let y=0; y<H; y+=2) {
+        octx.fillStyle = y%4===0
+            ? 'rgba(0,0,0,0.07)'
+            : 'rgba(255,255,255,0.018)';
+        octx.fillRect(0, y, W, 1);
+    }
+
+    // Very subtle vertical grain
+    for (let x=0; x<W; x+=3) {
+        octx.fillStyle = 'rgba(0,0,0,0.04)';
+        octx.fillRect(x, 0, 1, H);
+    }
+
+    // Slight vignette
+    const vig = octx.createRadialGradient(W/2,H/2,H*0.2, W/2,H/2,H*0.8);
+    vig.addColorStop(0,   'rgba(0,0,0,0)');
+    vig.addColorStop(1,   'rgba(0,0,0,0.38)');
+    octx.fillStyle = vig;
+    octx.fillRect(0,0,W,H);
+
+    return oc;
+}
+
+// ═══════════════════════════════════════════════
+// SETUP
+// ═══════════════════════════════════════════════
+function initPockets() {
+    const pr = POCKET_R;
+    pockets = [
+        {x: pr,   y: pr},
+        {x: W/2,  y: pr - 2},
+        {x: W-pr, y: pr},
+        {x: pr,   y: H-pr},
+        {x: W/2,  y: H-pr+2},
+        {x: W-pr, y: H-pr}
+    ];
+}
+
+function numRows(np) { return np === 1 ? 3 : np <= 3 ? 4 : 5; }
+
+function setupTable(np) {
+    numP = np;
+    curP = 0;
+    players = Array.from({length: np}, (_, i) => ({
+        name: P_NAMES[i], score: 0, color: P_COLORS[i]
+    }));
+
+    balls = [];
+
+    balls.push({
+        id:'cue', x: W*0.26, y: H/2,
+        vx:0, vy:0,
+        color:'#f5f5f5', isStripe:false, isPocketed:false
+    });
+
+    const rows = numRows(np);
+    const sx   = W * 0.64;
+    const sy   = H / 2;
+    const rStep = BALL_R * Math.sqrt(3) + 0.3;
+    const cStep = BALL_R * 2.05;
+
+    let id = 1;
+    for (let row = 0; row < rows; row++) {
+        const cx = sx + row * rStep;
+        for (let col = 0; col <= row; col++) {
+            const cy = sy - (row * cStep * 0.5) + col * cStep;
+            balls.push({
+                id, x: cx + (Math.random()-.5)*.3, y: cy + (Math.random()-.5)*.3,
+                vx:0, vy:0,
+                color: BALL_COL[id-1], isStripe: id > 8, isPocketed: false
+            });
+            id++;
+        }
+    }
+
+    moving = aiming = wasMove = scratched = false;
+    potted = comboT = 0; comboTxt = '';
+    sparks = []; trails = []; flashes = [];
+
+    initPockets();
+
+    // Build felt texture once
+    feltNoise = buildFeltTexture();
+
+    buildHUD();
+}
+
+// ═══════════════════════════════════════════════
+// HUD
+// ═══════════════════════════════════════════════
+function buildHUD() {
+    hud.innerHTML = '';
+    hud.style.display = 'flex';
+    players.forEach((p, i) => {
+        const c = document.createElement('div');
+        c.className = 'pcard' + (i===0?' active':'');
+        c.id = 'pc'+i;
+        c.innerHTML = `
+            <div class="pname"><span style="background:${p.color};width:6px;height:6px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:6px;"></span>${p.name}</div>
+            <div class="pscore" id="ps${i}">0</div>`;
+        hud.appendChild(c);
+    });
+}
+
+function refreshHUD() {
+    players.forEach((p, i) => {
+        const c = document.getElementById('pc'+i);
+        const s = document.getElementById('ps'+i);
+        if (!c||!s) return;
+        c.className = 'pcard'+(i===curP?' active':'');
+        s.textContent = p.score;
+    });
+}
+
+// ═══════════════════════════════════════════════
+// VFX
+// ═══════════════════════════════════════════════
+function mkSparks(x, y, ang, n=3) {
+    for (let i=0; i<n; i++) {
+        const sp = 1.5+Math.random()*2.5;
+        const a  = ang + (Math.random()-.5)*Math.PI*.8;
+        sparks.push({x,y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+            life:14+~~(Math.random()*14), col:Math.random()>.5?'#d4a020':'#e8e0d0'});
+    }
+}
+function mkTrail(x,y) {
+    if (Math.random()>.28) return;
+    trails.push({x,y,life:13,max:13,r:BALL_R*.38});
+}
+function mkFlash(x,y) {
+    flashes.push({x,y,r:POCKET_R,life:20,max:20});
+}
+
+// ═══════════════════════════════════════════════
+// DRAW TABLE SURFACE
+// ═══════════════════════════════════════════════
+function drawTable() {
+    // Felt texture (pre-built offscreen)
+    ctx.drawImage(feltNoise, 0, 0);
+
+    // Cushion bands — slightly lighter felt strip along all four edges
+    const cushW = 14;
+    ctx.fillStyle = 'rgba(30,100,55,0.45)';
+    ctx.fillRect(0,0,W,cushW);
+    ctx.fillRect(0,H-cushW,W,cushW);
+    ctx.fillRect(0,cushW,cushW,H-cushW*2);
+    ctx.fillRect(W-cushW,cushW,cushW,H-cushW*2);
+
+    // Cushion inner edge highlight
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(cushW+0.5, cushW+0.5, W-cushW*2-1, H-cushW*2-1);
+
+    // Center line (very subtle)
+    ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([6,10]);
+    ctx.beginPath(); ctx.moveTo(W/2, cushW); ctx.lineTo(W/2, H-cushW); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Head spot & foot spot
+    ctx.fillStyle = 'rgba(255,255,255,0.09)';
+    ctx.beginPath(); ctx.arc(W*0.25, H/2, 3.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(W*0.75, H/2, 2.5, 0, Math.PI*2); ctx.fill();
+
+    // Baulk line
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(W*0.25, cushW); ctx.lineTo(W*0.25, H-cushW); ctx.stroke();
+}
+
+// ═══════════════════════════════════════════════
+// DRAW POCKETS
+// ═══════════════════════════════════════════════
+function drawPockets() {
+    pockets.forEach(p => {
+        // Deep pocket void
+        ctx.beginPath(); ctx.arc(p.x, p.y, POCKET_R, 0, Math.PI*2);
+        ctx.fillStyle = '#030805'; ctx.fill();
+
+        // Leather pocket lip — outer ring
+        const lipG = ctx.createRadialGradient(p.x, p.y, POCKET_R-4, p.x, p.y, POCKET_R+5);
+        lipG.addColorStop(0, 'rgba(40,18,6,0.9)');
+        lipG.addColorStop(0.5,'rgba(60,28,8,0.7)');
+        lipG.addColorStop(1,'rgba(20,10,3,0)');
+        ctx.beginPath(); ctx.arc(p.x, p.y, POCKET_R+5, 0, Math.PI*2);
+        ctx.fillStyle = lipG; ctx.fill();
+
+        // Inner ring shadow
+        ctx.beginPath(); ctx.arc(p.x, p.y, POCKET_R, 0, Math.PI*2);
+        ctx.strokeStyle = 'rgba(80,40,10,0.8)';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Very subtle inner depth gradient
+        const depthG = ctx.createRadialGradient(p.x-4, p.y-4, 0, p.x, p.y, POCKET_R);
+        depthG.addColorStop(0, 'rgba(20,20,15,0.3)');
+        depthG.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.beginPath(); ctx.arc(p.x, p.y, POCKET_R, 0, Math.PI*2);
+        ctx.fillStyle = depthG; ctx.fill();
+    });
+}
+
+// ═══════════════════════════════════════════════
+// DRAW FULL FRAME
+// ═══════════════════════════════════════════════
+function draw() {
+    drawTable();
+    drawPockets();
+
+    // Trails
+    for (const t of trails) {
+        ctx.globalAlpha = (t.life/t.max)*.18;
+        ctx.fillStyle='rgba(245,245,240,1)';
+        ctx.beginPath(); ctx.arc(t.x,t.y,t.r*(t.life/t.max),0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+
+    // Pocket flashes — warm amber/gold instead of teal
+    for (const f of flashes) {
+        const prog = f.life/f.max;
+        ctx.globalAlpha = prog * 0.45;
+        ctx.fillStyle = 'rgba(200,165,50,1)';
+        ctx.beginPath(); ctx.arc(f.x,f.y,f.r+(1-prog)*20,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+
+    // Balls
+    for (const b of balls) {
+        if (!b.isPocketed) drawBall(b);
+    }
+
+    // Sparks
+    for (const s of sparks) {
+        ctx.globalAlpha = (s.life/28)*0.85;
+        ctx.fillStyle = s.col;
+        ctx.beginPath(); ctx.arc(s.x, s.y, 1.5, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+
+    // Cue stick
+    if (aiming && !moving) drawCue();
+
+    // Combo text — gold, no shadow glow
+    if (comboT > 0) {
+        const al = Math.min(1, comboT/25);
+        const yOff = (1 - comboT/55) * -12;
+        ctx.save();
+        ctx.globalAlpha = al;
+        ctx.translate(W/2, H/2 - 60 + yOff);
+        ctx.fillStyle = '#c8a840';
+        ctx.font = 'normal 32px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        // Subtle letter-shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillText(comboTxt, 1, 1);
+        ctx.fillStyle = '#d4aa45';
+        ctx.fillText(comboTxt, 0, 0);
+        ctx.restore();
+        comboT--;
+        if (comboT===0) comboTxt='';
+    }
+
+    // Turn banner
+    if (numP>1 && !moving && phase==='playing') {
+        const p = players[curP];
+        ctx.save();
+        ctx.globalAlpha = 0.65;
+        ctx.fillStyle = p.color;
+        ctx.font = '11px "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.letterSpacing = '2px';
+        ctx.fillText(p.name.toUpperCase() + "'S TURN", W/2, 10);
+        ctx.restore();
+    }
+}
+
+// ═══════════════════════════════════════════════
+// DRAW BALL — physically accurate shading
+// ═══════════════════════════════════════════════
+function drawBall(b) {
+    const {x, y, color, id, isStripe} = b;
+    const R = BALL_R;
+
+    // ── Cast shadow (soft ellipse) ──
+    const shG = ctx.createRadialGradient(x+3, y+6, 0, x+3, y+6, R+4);
+    shG.addColorStop(0, 'rgba(0,0,0,0.42)');
+    shG.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.ellipse(x+3, y+7, R+2, R*0.55, 0, 0, Math.PI*2);
+    ctx.fillStyle = shG;
+    ctx.fill();
+
+    // ── Ball body ──
+    ctx.beginPath();
+    ctx.arc(x, y, R, 0, Math.PI*2);
+
+    if (id === 'cue') {
+        // Cue ball — warm white with realistic shading
+        const cg = ctx.createRadialGradient(x-4, y-5, 0.5, x, y, R);
+        cg.addColorStop(0,   '#ffffff');
+        cg.addColorStop(0.35,'#f0ece4');
+        cg.addColorStop(0.75,'#d8d4cc');
+        cg.addColorStop(1,   '#b0aca4');
+        ctx.fillStyle = cg;
+        ctx.fill();
+
+    } else if (isStripe) {
+        // ── Stripe ball ──
+        // Ivory body
+        const bodyG = ctx.createRadialGradient(x-4, y-5, 0.5, x, y, R);
+        bodyG.addColorStop(0,   '#f5f0e5');
+        bodyG.addColorStop(0.6, '#e5e0d5');
+        bodyG.addColorStop(1,   '#c5c0b8');
+        ctx.fillStyle = bodyG;
+        ctx.fill();
+
+        // Colored stripe band (clipped)
+        ctx.save();
+        ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI*2); ctx.clip();
+        // Stripe gradient — slightly darker at sides
+        const sg = ctx.createLinearGradient(x-R, y, x+R, y);
+        sg.addColorStop(0,   adjustColor(color, -25));
+        sg.addColorStop(0.2, color);
+        sg.addColorStop(0.5, adjustColor(color, 15));
+        sg.addColorStop(0.8, color);
+        sg.addColorStop(1,   adjustColor(color, -25));
+        ctx.fillStyle = sg;
+        ctx.fillRect(x-R, y-R*.44, R*2, R*.88);
+        ctx.restore();
+
+        // Thin outline
+        ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI*2);
+        ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+
+    } else {
+        // ── Solid ball ──
+        const sg = ctx.createRadialGradient(x-4, y-5, 0.5, x, y, R);
+        sg.addColorStop(0,   adjustColor(color, 40));
+        sg.addColorStop(0.35, color);
+        sg.addColorStop(0.75, adjustColor(color, -20));
+        sg.addColorStop(1,   adjustColor(color, -45));
+        ctx.fillStyle = sg;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+    }
+
+    // ── Number circle (all except cue) ──
+    if (id !== 'cue') {
+        const nr = R * 0.44;
+        // White disk
+        ctx.beginPath(); ctx.arc(x, y, nr, 0, Math.PI*2);
+        ctx.fillStyle = isStripe ? 'rgba(245,240,230,0.98)' : 'rgba(240,235,220,0.92)';
+        ctx.fill();
+        // Number
+        ctx.fillStyle = '#1a1614';
+        ctx.font = `bold ${id >= 10 ? 8.5 : 10}px "Courier New", monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(id, x, y + 0.5);
+    }
+
+    // ── Primary specular highlight (bright spot) ──
+    const hl1 = ctx.createRadialGradient(x - R*.28, y - R*.32, 0, x - R*.22, y - R*.25, R*.55);
+    hl1.addColorStop(0, 'rgba(255,255,255,0.72)');
+    hl1.addColorStop(0.4,'rgba(255,255,255,0.22)');
+    hl1.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI*2);
+    ctx.fillStyle = hl1;
+    ctx.fill();
+
+    // ── Secondary rim light (subtle, from bottom-right) ──
+    const hl2 = ctx.createRadialGradient(x + R*.4, y + R*.4, 0, x + R*.35, y + R*.35, R*.5);
+    hl2.addColorStop(0, 'rgba(255,255,255,0.1)');
+    hl2.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI*2);
+    ctx.fillStyle = hl2;
+    ctx.fill();
+}
+
+// Helper: lighten/darken a hex color by an amount
+function adjustColor(hex, amount) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    const clamp = v => Math.max(0, Math.min(255, v+amount));
+    return `rgb(${clamp(r)},${clamp(g)},${clamp(b)})`;
+}
+
+// ═══════════════════════════════════════════════
+// DRAW CUE STICK
+// ═══════════════════════════════════════════════
+function drawCue() {
+    const cb = balls[0];
+    if (!cb || cb.isPocketed) return;
+
+    const dx = mx - cb.x, dy = my - cb.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    if (dist < 2) return;
+
+    const ux = dx/dist, uy = dy/dist;
+    const power    = Math.min(dist, MAX_POWER);
+    const pullback = (power/MAX_POWER) * PULLBACK_MAX;
+
+    const tipDist = BALL_R + 5 + pullback;
+    const tipX = cb.x + ux*tipDist,  tipY = cb.y + uy*tipDist;
+    const butX = tipX + ux*CUE_LEN,  butY = tipY + uy*CUE_LEN;
+
+    ctx.save();
+    ctx.lineCap = 'round';
+
+    // ── Cue shadow ──
+    ctx.beginPath(); ctx.moveTo(butX+2, butY+3); ctx.lineTo(tipX+2, tipY+3);
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+    ctx.lineWidth = 13;
+    ctx.stroke();
+
+    // ── Butt (thick end) — dark stained wood ──
+    // We draw in segments: butt → forearm → shaft → ferrule → tip
+    const segLen = CUE_LEN;
+
+    // Full shaft gradient
+    const wg = ctx.createLinearGradient(butX, butY, tipX, tipY);
+    wg.addColorStop(0,    '#0e0603');   // butt cap
+    wg.addColorStop(0.05, '#1e0b04');
+    wg.addColorStop(0.12, '#3a1608');
+    wg.addColorStop(0.22, '#5c2810');
+    wg.addColorStop(0.38, '#8a4820');
+    wg.addColorStop(0.55, '#b07030');
+    wg.addColorStop(0.72, '#c89050');
+    wg.addColorStop(0.85, '#d8b868');
+    wg.addColorStop(0.94, '#e0c870');
+    wg.addColorStop(0.97, '#2a6090');  // ferrule (metal)
+    wg.addColorStop(1,    '#1e4870');  // tip
+
+    ctx.beginPath(); ctx.moveTo(butX, butY); ctx.lineTo(tipX, tipY);
+    // Taper the cue: use lineWidth change trick via variable widths
+    ctx.strokeStyle = wg;
+    ctx.lineWidth = 10;
+    ctx.stroke();
+
+    // Thinner highlight on shaft
+    const hg = ctx.createLinearGradient(butX, butY, tipX, tipY);
+    hg.addColorStop(0,   'rgba(255,255,255,0)');
+    hg.addColorStop(0.3, 'rgba(255,255,255,0.06)');
+    hg.addColorStop(0.7, 'rgba(255,255,255,0.14)');
+    hg.addColorStop(1,   'rgba(255,255,255,0.04)');
+    ctx.beginPath(); ctx.moveTo(butX, butY); ctx.lineTo(tipX, tipY);
+    ctx.strokeStyle = hg;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Wrap rings (decorative bands near butt)
+    const ringPositions = [0.08, 0.14];
+    ringPositions.forEach(t => {
+        const rx = butX + (tipX-butX)*t;
+        const ry = butY + (tipY-butY)*t;
+        ctx.beginPath();
+        ctx.arc(rx, ry, 5, 0, Math.PI*2);
+        ctx.strokeStyle = 'rgba(200,160,60,0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    });
+
+    ctx.restore();
+
+    // ── Aim guide — thin, understated ──
+    const sx = -ux, sy = -uy;
+    const pr = power/MAX_POWER;
+    // Color shifts from pale white → warm amber → muted red as power increases
+    const aimAlpha = 0.25 + pr*0.2;
+    const aimR = Math.round(180 + pr*75);
+    const aimG = Math.round(185 - pr*130);
+    const aimB = Math.round(200 - pr*180);
+    ctx.save();
+    ctx.setLineDash([4, 9]);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = `rgba(${aimR},${aimG},${aimB},${aimAlpha})`;
+    ctx.beginPath();
+    ctx.moveTo(cb.x + sx*(BALL_R+4), cb.y + sy*(BALL_R+4));
+    ctx.lineTo(cb.x + sx*880, cb.y + sy*880);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // ── Power arc — thin arc around cue ball ──
+    const arcR = BALL_R + 11;
+    const arcCol = pr < 0.6
+        ? `rgba(180,155,80,0.7)`
+        : `rgba(190,80,70,0.8)`;
+    ctx.beginPath();
+    ctx.arc(cb.x, cb.y, arcR, -Math.PI/2, -Math.PI/2 + pr*Math.PI*2);
+    ctx.strokeStyle = arcCol;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+// ═══════════════════════════════════════════════
+// PHYSICS
+// ═══════════════════════════════════════════════
+function update() {
+    if (!moving) return;
+    moving = false;
+
+    for (const b of balls) {
+        if (b.isPocketed) continue;
+
+        b.vx *= FRICTION; b.vy *= FRICTION;
+        b.x  += b.vx;    b.y  += b.vy;
+
+        const spd2 = b.vx*b.vx + b.vy*b.vy;
+        if (spd2 > MIN_SPD_SQ) {
+            moving = true;
+        } else { b.vx=0; b.vy=0; }
+
+        if (b.id==='cue' && spd2>16) mkTrail(b.x-b.vx, b.y-b.vy);
+
+        for (const pk of pockets) {
+            const pdx=b.x-pk.x, pdy=b.y-pk.y;
+            if (pdx*pdx+pdy*pdy < POCKET_R*POCKET_R) { pocketBall(b,pk); break; }
+        }
+
+        if      (b.x+BALL_R > W) { b.x=W-BALL_R; b.vx*=-1; snd('cushion'); }
+        else if (b.x-BALL_R < 0) { b.x=BALL_R;   b.vx*=-1; snd('cushion'); }
+        if      (b.y+BALL_R > H) { b.y=H-BALL_R; b.vy*=-1; snd('cushion'); }
+        else if (b.y-BALL_R < 0) { b.y=BALL_R;   b.vy*=-1; snd('cushion'); }
+    }
+
+    for (let i=0; i<balls.length; i++) {
+        if (balls[i].isPocketed) continue;
+        for (let j=i+1; j<balls.length; j++) {
+            if (balls[j].isPocketed) continue;
+            collidePair(balls[i], balls[j]);
+        }
+    }
+}
+
+function collidePair(a, b) {
+    const dx=b.x-a.x, dy=b.y-a.y;
+    const d2=dx*dx+dy*dy;
+    const min=BALL_R*2;
+    if (d2 >= min*min) return;
+
+    const dist  = Math.sqrt(d2) || 0.0001;
+    const ang   = Math.atan2(dy,dx);
+    const sin   = Math.sin(ang), cos=Math.cos(ang);
+
+    let v1x =  a.vx*cos + a.vy*sin,  v1y = -a.vx*sin + a.vy*cos;
+    let v2x =  b.vx*cos + b.vy*sin,  v2y = -b.vx*sin + b.vy*cos;
+
+    const tmp=v1x; v1x=v2x; v2x=tmp;
+
+    const ov=(min-dist)/2;
+    a.x -= cos*ov; a.y -= sin*ov;
+    b.x += cos*ov; b.y += sin*ov;
+
+    a.vx=v1x*cos-v1y*sin; a.vy=v1x*sin+v1y*cos;
+    b.vx=v2x*cos-v2y*sin; b.vy=v2x*sin+v2y*cos;
+
+    snd('collide');
+    if (Math.abs(v1x-v2x) > 1.5) mkSparks(a.x+dx*.5,a.y+dy*.5,ang);
+}
+
+function pocketBall(b, pk) {
+    b.isPocketed=true; b.vx=0; b.vy=0;
+    snd('pocket'); mkFlash(pk.x,pk.y);
+
+    if (b.id==='cue') {
+        scratched=true;
+        setTimeout(()=>{
+            b.x=W*.26; b.y=H/2; b.isPocketed=false;
+        }, 600);
+    } else {
+        potted++;
+        players[curP].score += 100;
+        refreshHUD();
+    }
+}
+
+// ═══════════════════════════════════════════════
+// VFX UPDATE
+// ═══════════════════════════════════════════════
+function tickVFX() {
+    for (let i=sparks.length-1; i>=0; i--) {
+        const s=sparks[i];
+        s.x+=s.vx; s.y+=s.vy; s.vy+=.08;
+        if (--s.life<=0) sparks.splice(i,1);
+    }
+    for (let i=trails.length-1; i>=0; i--)  { if (--trails[i].life<=0)  trails.splice(i,1); }
+    for (let i=flashes.length-1; i>=0; i--) { if (--flashes[i].life<=0) flashes.splice(i,1); }
+}
+
+// ═══════════════════════════════════════════════
+// TURN LOGIC
+// ═══════════════════════════════════════════════
+function onTurnEnd() {
+    let bonus=0;
+
+    if (potted===1) {
+        comboTxt='+100'; comboT=55;
+    } else if (potted===2) {
+        bonus=150;
+        comboTxt=`Double  +${200+bonus}`; comboT=120;
+        snd('combo');
+    } else if (potted>=3) {
+        bonus=potted*50+200;
+        comboTxt=`Multi Ball  +${potted*100+bonus}`; comboT=150;
+        snd('combo');
+    }
+
+    if (bonus) { players[curP].score+=bonus; refreshHUD(); }
+
+    if (scratched) {
+        players[curP].score=Math.max(0,players[curP].score-50);
+        comboTxt='Scratch  −50'; comboT=80;
+        refreshHUD();
+    }
+
+    const keepTurn = (potted>0 && !scratched);
+    if (!keepTurn && numP>1) {
+        curP=(curP+1)%numP;
+        refreshHUD();
+    }
+
+    potted=0; scratched=false;
+}
+
+// ═══════════════════════════════════════════════
+// GAME LOOP
+// ═══════════════════════════════════════════════
+function loop() {
+    update(); tickVFX(); draw();
+
+    if (!moving && wasMove) { wasMove=false; onTurnEnd(); }
+    if (moving)  wasMove=true;
+
+    const left = balls.slice(1).filter(b=>!b.isPocketed).length;
+    if (left===0 && !moving) { showOver(); return; }
+
+    rafId = requestAnimationFrame(loop);
+}
+
+// ── SCORE REPORTING TO APP ──
+function sendScoreToApp(score, isNewRecord) {
+  if (window.ReactNativeWebView) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'SEND_SCORE',
+      score: score,
+      game: 'Strike Billiards',
+      isNewRecord: isNewRecord,
+    }));
+  }
+}
+
+function showOver() {
+    cancelAnimationFrame(rafId);
+    snd('win');
+    phase='over';
+
+    // Send score for singleplayer mode
+    if (numP === 1) {
+      sendScoreToApp(players[0].score, false);
+    }
+
+    const ranked = [...players].sort((a,b)=>b.score-a.score);
+    const winner = ranked[0];
+
+    if (numP>1) {
+        goTitle.textContent = winner.name.toUpperCase()+' WINS!';
+        goTitle.style.color = winner.color;
+    } else {
+        goTitle.textContent = 'YOU WIN!';
+        goTitle.style.color = '#d4aa40';
+    }
+
+    winRows.innerHTML='';
+    ranked.forEach((p,i)=>{
+        const row=document.createElement('div');
+        row.className='win-row'+(i===0?' gold':'');
+        row.innerHTML=`<span style="color:${p.color}">${i===0?'— ':''}${p.name}</span><span>${p.score} pts</span>`;
+        winRows.appendChild(row);
+    });
+    scOver.style.display='flex';
+}
+
+// ═══════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════
+function toCanvas(e) {
+    const r=canvas.getBoundingClientRect();
+    return {
+        x: (e.clientX-r.left) * (W/r.width),
+        y: (e.clientY-r.top)  * (H/r.height)
+    };
+}
+
+function onDown(e) {
+    if (moving || phase!=='playing') return;
+    ensureAudio();
+    aiming=true;
+    const c=toCanvas(e); mx=c.x; my=c.y;
+}
+
+function onMove(e) {
+    if (!aiming) return;
+    const r=canvas.getBoundingClientRect();
+    mx=(e.clientX-r.left)*(W/r.width);
+    my=(e.clientY-r.top) *(H/r.height);
+}
+
+function onUp() {
+    if (!aiming) return;
+    aiming=false;
+    shoot();
+}
+
+function shoot() {
+    const cb=balls[0];
+    if (!cb||cb.isPocketed) return;
+
+    const dx=cb.x-mx, dy=cb.y-my;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if (dist<5) return;
+
+    const power=Math.min(dist,MAX_POWER);
+    cb.vx=(dx/dist)*power*CUE_MULT;
+    cb.vy=(dy/dist)*power*CUE_MULT;
+    moving=wasMove=true;
+    potted=0; scratched=false;
+    snd('hit');
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints>0;
+
+if (isMobile) {
+    document.body.classList.add('is-mobile');
+}
+
+btnStart.addEventListener('click', ()=>{
+    scMenu.style.display='none';
+    scPlayers.style.display='flex';
+});
+
+document.querySelectorAll('.pbtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+        ensureAudio();
+        const n=parseInt(btn.dataset.n);
+        scPlayers.style.display='none';
+        setupTable(n);
+        phase='playing';
+        loop();
+    });
+});
+
+btnAgain.addEventListener('click', ()=>location.reload());
+
+// ── Mouse controls ──
+canvas.addEventListener('mousedown', onDown);
+document.addEventListener('mousemove', onMove);
+document.addEventListener('mouseup',   onUp);
+
+// ── Touch controls ──
+function toCanvasFromTouch(touch) {
+    return { clientX: touch.clientX, clientY: touch.clientY };
+}
+
+canvas.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    onDown(toCanvasFromTouch(e.touches[0]));
+}, { passive: false });
+
+document.addEventListener('touchmove', e=>{
+    if (aiming) {
+        e.preventDefault();
+        onMove(toCanvasFromTouch(e.touches[0]));
+    }
+}, { passive: false });
+
+document.addEventListener('touchend', e=>{
+    if (aiming) {
+        e.preventDefault();
+    }
+    onUp();
+}, { passive: false });
+</script>
+</body>
+</html>
