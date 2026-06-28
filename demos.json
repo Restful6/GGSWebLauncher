@@ -5,64 +5,64 @@
       "title": "Ultimate Pong",
       "tag": "MINI GAME",
       "desc": "A browser-based Pong revival with neon visuals, three-tier AI and local two-player support. Features power shots, rally tracking and responsive keyboard or touch controls.",
-      "image": "https://www.greekgamesstudios.com/images/WebUltimatePongLogo.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/ULTIMATE-PONG/Main.html"
+      "image": "https://weblauncher.greekgamesstudios.com/images/WebUltimatePongLogo.png",
+      "url": "https://weblauncher.greekgamesstudios.com/ULTIMATE-PONG/Main.html"
     },
     {
       "id": "mg_2",
       "title": "Cyber Putt",
       "tag": "MINI GAME",
       "desc": "A cyberpunk mini golf game with drag-to-shoot controls, nine procedurally generated holes and reactive obstacles including bouncers, sand traps, boost pads and portals. Features a par-based scoring system with stroke ratings from hole-in-one to double bogey.",
-      "image": "https://www.greekgamesstudios.com/images/WebCyberPuttLogo.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/Cyber-Putt/Main.html"
+      "image": "https://greekgamesstudios.com/images/WebCyberPuttLogo.png",
+      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Cyber-Putt/Main.html"
     },
     {
       "id": "mg_3",
       "title": "Breakout",
       "tag": "MINI GAME",
       "desc": "A retro brick-breaker with six progressive levels, power-up drops and multi-ball mechanics. Features paddle-angle aiming, particle bursts on brick destruction and a local high-score system.",
-      "image": "https://www.greekgamesstudios.com/images/WebBreakoutLogo.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/Breakout/Main.html"
+      "image": "https://greekgamesstudios.com/images/WebBreakoutLogo.png",
+      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Breakout/Main.html"
     },
     {
       "id": "mg_4",
       "title": "Maze of Echoes",
       "tag": "MINI GAME",
       "desc": "A top-down maze explorer with 30 hand-designed levels, fog-of-war visibility and split-screen two-player racing. Features step particles, collision sparks, screen shake and a mobile D-pad for touch controls.",
-      "image": "https://www.greekgamesstudios.com/images/WebMaze-of-EchoesLogo.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/Maze-of-Echoes/Main.html"
+      "image": "https://greekgamesstudios.com/images/WebMaze-of-EchoesLogo.png",
+      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Maze-of-Echoes/Main.html"
     },
     {
       "id": "mg_5",
       "title": "Epic Memory Game",
       "tag": "MINI GAME",
       "desc": "A card-matching memory game with ten icon themes, three difficulty levels and a combo streak scoring system. Features a timed peek phase, confetti win celebration and local two-player competitive mode.",
-      "image": "https://www.greekgamesstudios.com/images/WebEpic-Memory-GameLogo.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/Epic-Memory-Game/Main.html"
+      "image": "https://greekgamesstudios.com/images/WebEpic-Memory-GameLogo.png",
+      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Epic-Memory-Game/Main.html"
     },
     {
       "id": "mg_6",
       "title": "Tic Tac Toe",
       "tag": "MINI GAME",
       "desc": "A classic Tic Tac Toe with three AI difficulty levels powered by alpha-beta minimax, SVG win-line animations and a persistent score tracker. Features hover ghost marks, win cell highlighting and a particle background.",
-      "image": "https://www.greekgamesstudios.com/images/Web-Tac-ToeLogo.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/Tac-Toe/Main.html"
+      "image": "https://greekgamesstudios.com/images/Web-Tac-ToeLogo.png",
+      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Tac-Toe/Main.html"
     },
     {
       "id": "mg_7",
       "title": "Strike Billiards",
       "tag": "MINI GAME",
       "desc": "A drag-to-shoot pool game with realistic ball physics, elastic collisions and pocket detection. Supports up to four players with combo scoring, scratch penalties and a win screen with ranked results.",
-      "image": "https://www.greekgamesstudios.com/images/WebStrikeBilliardsLogo.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/Strike-Billiards/Main.html"
+      "image": "https://greekgamesstudios.com/images/WebStrikeBilliardsLogo.png",
+      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/Strike-Billiards/Main.html"
     },
     {
       "id": "mg_8",
       "title": "Cyber Worm",
       "tag": "MINI GAME",
       "desc": "A Snake-inspired arcade game with a cyberpunk aesthetic, featuring power-ups (Shield, Overclock, Ghost, Virus), combo scoring, firewall obstacles and both single-player campaign and local multiplayer modes with up to three players.",
-      "image": "https://www.greekgamesstudios.com/images/WebCYBER-WORM.png",
-      "url": "https://www.greekgamesstudios.com/additionalHTMLS/WebLauncher/CYBER-WORM/Main.html"
+      "image": "https://greekgamesstudios.com/images/WebCYBER-WORM.png",
+      "url": "https://greekgamesstudios.com/additionalHTMLS/WebLauncher/CYBER-WORM/Main.html"
     },
     {
       "id": "mg_9",
