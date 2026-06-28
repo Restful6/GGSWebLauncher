@@ -692,8 +692,8 @@
   async function init() {
     try {
       const [demosRes, gamesRes] = await Promise.all([
-        fetch('https://greekgamesstudios.com/demos.json'),
-        fetch('https://greekgamesstudios.com/games.json')
+        fetch('/api/demos'),
+        fetch('/api/games')
       ]);
       const demosData = await demosRes.json();
       const gamesData = await gamesRes.json();
