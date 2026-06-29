@@ -269,6 +269,11 @@
         #mobile-controls { display: none; }
 
         .screen { z-index: 3; }
+
+        /* ── Mobile: απόκρυψη Co-op ── */
+        @media (pointer: coarse) {
+            #btn-coop { display: none; }
+        }
     </style>
     <base target="_blank">
 </head>
@@ -1319,6 +1324,9 @@ function loop(timestamp) {
 
 function startGame(numPlayers) {
     if (actx.state === 'suspended') actx.resume();
+    // Στο mobile απαγορεύεται το multiplayer
+    const isMobile = window.matchMedia('(pointer: coarse)').matches;
+    if (isMobile && numPlayers > 1) numPlayers = 1;
     lastNumPlayers = numPlayers;
 
     [startScreen, gameOverScreen, pauseScreen].forEach(s => s.classList.remove('active'));

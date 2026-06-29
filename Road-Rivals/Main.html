@@ -171,6 +171,14 @@
       margin: 16px 0;
     }
 
+    /* ── Mobile: μόνο Solo, χωρίς multiplayer ── */
+    @media (pointer: coarse) {
+      .mode-grid [data-players="2"],
+      .mode-grid [data-players="3"],
+      .mode-grid [data-players="4"] { display: none; }
+      .mode-grid { grid-template-columns: 1fr; }
+    }
+
     button, .link-button {
       min-height: 44px;
       border: 1px solid rgba(255, 245, 220, 0.09);
@@ -1848,7 +1856,9 @@
     document.querySelectorAll("[data-players]").forEach(button => {
       button.addEventListener("click", () => {
         sfx.init();
-        selectedPlayers = Number(button.dataset.players);
+        const isMobile = window.matchMedia("(pointer: coarse)").matches;
+        const count = Number(button.dataset.players);
+        selectedPlayers = (isMobile && count > 1) ? 1 : count;
         document.querySelectorAll("[data-players]").forEach(b => b.classList.toggle("active", b === button));
       });
     });
