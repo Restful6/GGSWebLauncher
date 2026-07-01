@@ -365,34 +365,90 @@
       text-transform: uppercase;
     }
 
+    /* ── Full-screen split steering zones (left half / right half of canvas) ── */
     .touch {
       position: absolute;
-      left: 50%;
-      bottom: 18px;
-      width: calc(100% - 28px);
-      transform: translateX(-50%);
+      inset: 0;
       display: grid;
-      grid-template-columns: 1fr 1.2fr 1fr;
-      gap: 10px;
+      grid-template-columns: 1fr 1fr;
       pointer-events: auto;
+      z-index: 5;
     }
 
-    .touch button {
-      min-height: 58px;
-      border: 1px solid rgba(255, 245, 220, 0.08);
-      background: rgba(12, 11, 10, 0.82);
+    .touch-zone {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 10%;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Thin divider line down the middle so it's clear the screen is split */
+    .touch-zone[data-touch="left"] {
+      border-right: 1px dashed rgba(255, 245, 220, 0.09);
+    }
+
+    /* Subtle chevron indicators — fade out after first successful steer */
+    .touch-zone .zone-hint {
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.55;
+      transition: opacity 400ms ease;
+    }
+
+    .touch.hinted .zone-hint { opacity: 0; }
+
+    .zone-hint .chevron {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.1rem;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #cfc9bd;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      line-height: 1;
+    }
+
+    .zone-hint .zone-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #a89f92;
+    }
+
+    .touch-zone.active {
+      background: rgba(184, 48, 42, 0.10);
+    }
+
+    /* Boost button floats above the split zones, doesn't block steering */
+    .touch-boost {
+      position: absolute;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      min-height: 52px;
+      min-width: 118px;
+      padding: 0 22px;
+      border: 1px solid rgba(255, 245, 220, 0.1);
+      background: rgba(12, 11, 10, 0.86);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
       font-weight: 700;
       color: #b0aca4;
-      border-radius: 2px;
-      letter-spacing: 1px;
+      border-radius: 30px;
+      letter-spacing: 1.5px;
+      pointer-events: auto;
+      z-index: 6;
     }
 
-    .touch button.active {
-      background: rgba(184, 48, 42, 0.3);
+    .touch-boost.active {
+      background: rgba(184, 48, 42, 0.4);
       border-color: var(--red);
-      transform: scale(0.97);
+      transform: translateX(-50%) scale(0.96);
       color: #e8e2d8;
     }
 
@@ -480,11 +536,21 @@
         <div class="banner" id="banner">Ready</div>
       </section>
 
-      <section id="touch" class="touch hidden" aria-label="Touch controls">
-        <button data-touch="left" aria-label="Left">◀</button>
-        <button data-touch="boost" aria-label="Boost">BOOST</button>
-        <button data-touch="right" aria-label="Right">▶</button>
+      <section id="touch" class="touch hidden" aria-label="Touch steering">
+        <div class="touch-zone" data-touch="left" aria-label="Steer left — tap and hold left half of screen">
+          <div class="zone-hint">
+            <span class="chevron">◀</span>
+            <span class="zone-label">Steer</span>
+          </div>
+        </div>
+        <div class="touch-zone" data-touch="right" aria-label="Steer right — tap and hold right half of screen">
+          <div class="zone-hint">
+            <span class="chevron">▶</span>
+            <span class="zone-label">Steer</span>
+          </div>
+        </div>
       </section>
+      <button id="touchBoost" class="touch-boost hidden" data-touch="boost" aria-label="Boost">BOOST</button>
     </div>
   </main>
 
@@ -638,6 +704,7 @@
     const banner = document.getElementById("banner");
     const scoresBox = document.getElementById("scores");
     const touch = document.getElementById("touch");
+    const touchBoost = document.getElementById("touchBoost");
     const muteBtn = document.getElementById("muteBtn");
     const diffBtn = document.getElementById("diffBtn");
     const pausedOverlay = document.getElementById("paused");
@@ -778,7 +845,7 @@
         name: names[i],
         color: colors[i],
         x: laneCenters[i % road.lanes],
-        y: H - 108 - i * 18,
+        y: H - 190 - i * 18,
         w: 34, h: 58,
         vx: 0, vy: 0,
         score: 0,
@@ -858,6 +925,8 @@
       hud.classList.remove("hidden");
       const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
       touch.classList.toggle("hidden", count !== 1 || !isMobile);
+      touchBoost.classList.toggle("hidden", count !== 1 || !isMobile);
+      touch.classList.remove("hinted");
       banner.textContent = "READY";
       seedTraffic();
       requestAnimationFrame(loop);
@@ -973,7 +1042,7 @@
       p.x += p.vx * dt;
       p.y += p.vy * dt;
       p.x = clamp(p.x, road.left  + p.w/2 + 8, road.right - p.w/2 - 8);
-      p.y = clamp(p.y, 118, H - 76);
+      p.y = clamp(p.y, 118, H - 150);
       p.drift = clamp(Math.abs(p.vx) / 400, 0, 1);
 
       if (boosting) {
@@ -1253,6 +1322,7 @@
       state = "over";
       hud.classList.add("hidden");
       touch.classList.add("hidden");
+      touchBoost.classList.add("hidden");
       sfx.stopEngine();
 
       // ─────────── ΑΠΟΣΤΟΛΗ ΣΚΟΡ ΣΤΟ APP (ίδιο με Data-Link) ───────────
@@ -1909,6 +1979,7 @@
       sfx.stopEngine();
       hud.classList.add("hidden");
       touch.classList.add("hidden");
+      touchBoost.classList.add("hidden");
       gameover.classList.add("hidden");
       pausedOverlay.classList.add("hidden");
       menu.classList.remove("hidden");
@@ -1947,20 +2018,24 @@
 
     window.addEventListener("keyup", event => keys.delete(event.code));
 
-    touch.querySelectorAll("button").forEach(button => {
-      const key = button.dataset.touch;
+    // Split-screen steering zones (left/right halves) + separate boost button
+    [...touch.querySelectorAll(".touch-zone"), touchBoost].forEach(el => {
+      const key = el.dataset.touch;
       const set = value => {
         touchState[key] = value;
-        button.classList.toggle("active", value);
+        el.classList.toggle("active", value);
+        if (value && (key === "left" || key === "right")) {
+          touch.classList.add("hinted"); // fade out the chevron hints after first real steer
+        }
       };
-      button.addEventListener("pointerdown", event => {
+      el.addEventListener("pointerdown", event => {
         event.preventDefault();
-        button.setPointerCapture(event.pointerId);
+        el.setPointerCapture(event.pointerId);
         set(true);
       });
-      button.addEventListener("pointerup",     () => set(false));
-      button.addEventListener("pointercancel", () => set(false));
-      button.addEventListener("pointerleave",  () => set(false));
+      el.addEventListener("pointerup",     () => set(false));
+      el.addEventListener("pointercancel", () => set(false));
+      el.addEventListener("pointerleave",  () => set(false));
     });
 
     window.addEventListener("resize", resizeCanvas);
