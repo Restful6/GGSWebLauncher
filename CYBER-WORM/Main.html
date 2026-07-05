@@ -1073,7 +1073,7 @@ function showMenu(){
     ${!isMobile ? '<button class="obtn btn-cyan" id="btn-mp2">[ 2 PLAYERS ]</button>' : ''}
     ${!isMobile ? '<button class="obtn btn-gold" id="btn-mp3">[ 3 PLAYERS ]</button>' : ''}
     <div style="margin-top:15px;font-size:9px;color:var(--tdim);letter-spacing:1px; line-height: 1.5;">
-      ${isMobile ? 'SWIPE ΄Η D-PAD ΓΙΑ ΚΑΤΕΥΘΥΝΣΗ' : 'SP: WASD/ARROWS/SWIPE<br/>MP (KBD ONLY): P1(WASD) · P2(ARROWS) · P3(IJKL)'}
+      ${isMobile ? 'SWIPE OR D-PAD FOR DIRECTION' : 'SP: WASD/ARROWS/SWIPE<br/>MP (KBD ONLY): P1(WASD) · P2(ARROWS) · P3(IJKL)'}
     </div>`;
   document.getElementById('btn-sp').addEventListener('click',()=>startGame('sp'));
   if(!isMobile){

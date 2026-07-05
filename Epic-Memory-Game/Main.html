@@ -614,9 +614,9 @@ button:active { transform: translateY(1px) !important; }
       <div class="input-group">
         <label for="difficulty">Difficulty</label>
         <select id="difficulty">
-          <option value="4">Easy — 4×4</option>
-          <option value="6" selected>Normal — 6×4</option>
-          <option value="8">Hard — 8×6</option>
+          <option value="4">Easy - 4×4</option>
+          <option value="6" selected>Normal - 6×4</option>
+          <option value="8">Hard - 8×6</option>
         </select>
       </div>
 
@@ -855,7 +855,7 @@ function saveBest(s) {
 }
 function updateMenuBestDisplay() {
   if (modeSelect.value === "2") {
-    menuBestEl.textContent = "🏆 2 Players Mode — No High Scores";
+    menuBestEl.textContent = "🏆 2 Players Mode No High Scores";
     return;
   }
   const b = getBest();
