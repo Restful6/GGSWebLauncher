@@ -194,7 +194,7 @@
   {
     "id": "ggshub",
     "title": "GGS Hub",
-    "status": "Coming Soon",
+    "status": "Available",
     "desc": "The official Greek Games Studios app with news, a games library, mini games with leaderboards and a virtual coin system.",
     "fullDesc": "GGS Hub is the official app for Greek Games Studios. It collects studio news, patch notes and announcements in one feed, plus a browsable library of released and upcoming games. The app also includes mini games with global leaderboards and a virtual currency called GGSCoins, earned through daily logins and mini game scores.",
     "image": "https://greekgamesstudios.com/images/ggs-logo.png",
@@ -219,7 +219,7 @@
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD",
-      "availability": "https://schema.org/PreOrder"
+      "availability": "https://schema.org/Available"
     },
     "datePublished": "2026-06-01",
     "author": {
